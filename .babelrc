@@ -1,0 +1,42 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "modules": false
+            }
+        ]
+    ],
+    "plugins": [
+        "@babel/plugin-proposal-optional-chaining",
+        [
+            "module-resolver",
+            {
+                "alias": {
+                    "@": "./src"
+                }
+            }
+        ]
+    ],
+    "env": {
+        "test": {
+            "presets": [
+                "@babel/preset-typescript"
+            ],
+            "plugins": [
+                "@babel/plugin-transform-modules-commonjs",
+                [
+                    "@babel/plugin-transform-runtime",
+                    {
+                        "regenerator": true
+                    }
+                ]
+            ]
+        },
+        "development": {
+            "presets": [
+                "@babel/preset-typescript"
+            ]
+        }
+    }
+}
