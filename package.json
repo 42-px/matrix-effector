@@ -1,5 +1,5 @@
 {
-  "name": "matrix-effector",
+  "name": "@42px/matrix-effector",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
@@ -26,7 +26,7 @@
     "url": "https://github.com/42-px/matrix-effector/issues"
   },
   "homepage": "https://github.com/42-px/matrix-effector#readme",
-  "author": "",
+  "author": "42px",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.12.13",
