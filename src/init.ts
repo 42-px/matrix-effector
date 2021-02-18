@@ -17,8 +17,9 @@ import {
     paginateTimelineWindowFx,
     searchFx,
     loadTimelineWindowFx,
+    readAllMessages,
 } from "./effects"
-import { onCachedState, onInitialSync, roomMessage } from "./events"
+import { onCachedState, onInitialSync, onSync, roomMessage } from "./events"
 import {
     mergeMessageEvents,
     toMappedRoom,
@@ -31,15 +32,17 @@ import {
     Room,
     MatrixEvent,
 } from "./types"
+import {
+    ROOM_MESSAGE_EVENT,
+    ROOM_REDACTION_EVENT,
+    LOGIN_BY_PASSWORD,
+    LOGIN_BY_TOKEN,
+} from "./constants"
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
 const PaginationFail = createCustomError("PaginationFail")
-
-const ROOM_MESSAGE_EVENT = "m.room.message"
-const ROOM_REDACTION_EVENT = "m.room.redaction"
-const LOGIN_BY_PASSWORD = "m.login.password"
-const LOGIN_BY_TOKEN = "m.login.token"
+const EventNotFound = createCustomError("EventNotFound")
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -104,6 +107,9 @@ getRoomTimelineFx.use((roomId) => {
     }
     return []
 })
+function getMappedRooms() {
+    return client().getRooms().map(toMappedRoom)
+}
 onClientEvent([
     [
         "Room.timeline",
@@ -125,15 +131,30 @@ onClientEvent([
         }],
     ["sync", (state, prevState) => {
         if (state === "PREPARED") {
-            const rooms = client().getRooms().map(toMappedRoom)
+            const rooms = getMappedRooms()
             onCachedState(rooms)
+            return
         }
         if (state === "SYNCING" && prevState === "PREPARED") {
-            const rooms = client().getRooms().map(toMappedRoom)
+            const rooms = getMappedRooms()
             onInitialSync(rooms)
+            return
+        }
+        if (state === "SYNCING" && prevState === "SYNCING") {
+            const rooms = getMappedRooms()
+            onSync(rooms)
+            return
         }
     }],
 ])
+readAllMessages.use(({ roomId, eventId }) => {
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const rrEvent = room.findEventById(eventId)
+    if (!rrEvent) throw new EventNotFound()
+    // Kludge - typings fix
+    return client().setRoomReadMarkers(roomId, eventId, rrEvent as any)
+})
 stopClientFx.use(() => client().stopClient())
 let timelineWindow: matrix.TimelineWindow | undefined
 initTimelineWindowFx

@@ -16,6 +16,7 @@ import {
     TimelineWindowPaginationParams,
     SearchPayload,
     LoadTimelineWindowParams,
+    ReadAllMessagesParams,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -45,3 +46,5 @@ export const loadTimelineWindowFx = matrixDomain
     .effect<LoadTimelineWindowParams, Message[], Error>()
 export const paginateTimelineWindowFx = matrixDomain
     .effect<TimelineWindowPaginationParams, Message[], Error>()
+export const readAllMessages = matrixDomain
+    .effect<ReadAllMessagesParams, void,Error>()

@@ -1,5 +1,5 @@
 import { SearchResponse } from "matrix-js-sdk";
-import { DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, LoginByPasswordParams, LoginPayload, SearchMessageTextPayload, SendMessagePayload, Message, LoginByTokenParams, InitTimelineWindowParams, TimelineWindowPaginationParams, LoadTimelineWindowParams } from "./types";
+import { DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, LoginByPasswordParams, LoginPayload, SearchMessageTextPayload, SendMessagePayload, Message, LoginByTokenParams, InitTimelineWindowParams, TimelineWindowPaginationParams, LoadTimelineWindowParams, ReadAllMessagesParams } from "./types";
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
@@ -27,3 +27,4 @@ export declare const initTimelineWindowFx: import("effector").Effect<InitTimelin
 export declare const getTimelineWindowMessagesFx: import("effector").Effect<void, Message[], Error>;
 export declare const loadTimelineWindowFx: import("effector").Effect<LoadTimelineWindowParams, Message[], Error>;
 export declare const paginateTimelineWindowFx: import("effector").Effect<TimelineWindowPaginationParams, Message[], Error>;
+export declare const readAllMessages: import("effector").Effect<ReadAllMessagesParams, void, Error>;

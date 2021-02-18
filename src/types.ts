@@ -84,6 +84,12 @@ export type MappedRoom = {
   roomId: string
   name: string
   summary: RoomSummary
+  unreadCount: number
+  lastMessage?: Message
+}
+export interface ReadAllMessagesParams {
+  roomId: string
+  eventId: string
 }
 export type EventListener = [string, (...args: any[]) => void]
 
