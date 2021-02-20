@@ -18,7 +18,7 @@ import {
   loginByPasswordFx,
   prependClientParams,
   onInitialSync,
-  roomMessageBatch,
+  createRoomMessageBatch,
   initTimelineWindowFx,
   paginateTimelineWindowFx,
   searchFx,
@@ -78,6 +78,7 @@ forward({
   })),
   to: loginByPasswordFx,
 })
+const roomMessageBatch = createRoomMessageBatch(200)
 guard({
   source: roomMessageBatch.map((batch) => ({ direction: 'forward', size: batch.length })),
   filter: $currentRoomId.map((roomId) => Boolean(roomId)),

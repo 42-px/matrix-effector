@@ -84,6 +84,8 @@ export type MappedRoom = {
   roomId: string
   name: string
   summary: RoomSummary
+}
+export interface RoomWithActivity extends MappedRoom {
   unreadCount: number
   lastMessage?: Message
 }

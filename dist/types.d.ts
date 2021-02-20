@@ -68,9 +68,11 @@ export declare type MappedRoom = {
     roomId: string;
     name: string;
     summary: RoomSummary;
+};
+export interface RoomWithActivity extends MappedRoom {
     unreadCount: number;
     lastMessage?: Message;
-};
+}
 export interface ReadAllMessagesParams {
     roomId: string;
     eventId: string;

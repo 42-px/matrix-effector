@@ -17,7 +17,8 @@ import {
     paginateTimelineWindowFx,
     searchFx,
     loadTimelineWindowFx,
-    readAllMessages,
+    readAllMessagesFx,
+    getRoomsWithActivitiesFx,
 } from "./effects"
 import { onCachedState, onInitialSync, onSync, roomMessage } from "./events"
 import {
@@ -43,6 +44,7 @@ const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
 const PaginationFail = createCustomError("PaginationFail")
 const EventNotFound = createCustomError("EventNotFound")
+const ClientNotInitialized = createCustomError("ClientNotInitialized")
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -147,13 +149,45 @@ onClientEvent([
         }
     }],
 ])
-readAllMessages.use(({ roomId, eventId }) => {
+readAllMessagesFx.use(({ roomId, eventId }) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     const rrEvent = room.findEventById(eventId)
     if (!rrEvent) throw new EventNotFound()
     // Kludge - typings fix
     return client().setRoomReadMarkers(roomId, eventId, rrEvent as any)
+})
+getRoomsWithActivitiesFx.use((rooms) => {
+    const cl = client()
+    if (!cl) throw new ClientNotInitialized()
+    const maxHistory = 99
+    return rooms.map((room) => {
+        const matrixRoom = cl.getRoom(room.roomId)
+        if (!matrixRoom) throw new RoomNotFound()
+        const events = matrixRoom.getLiveTimeline().getEvents()
+        let unreadCount = 0
+        for (let i = events.length - 1; i >= 0; i--) {
+            if (i === events.length - maxHistory) break
+            const event = events[i]
+            const isReadUpTo = matrixRoom
+                .hasUserReadEvent(cl.getUserId() as string, event.getId())
+            if (isReadUpTo) {
+                break
+            }
+            unreadCount += 1
+        }
+        const mergedMessageEvents = events
+            .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
+                .includes(event.getType()))
+            .reduce(mergeMessageEvents, [])
+        const lastMessage = mergedMessageEvents.length ?
+            mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
+        return {
+            ...room,
+            unreadCount,
+            lastMessage,
+        }
+    })
 })
 stopClientFx.use(() => client().stopClient())
 let timelineWindow: matrix.TimelineWindow | undefined

@@ -52,7 +52,8 @@
     "effector": "^21.7.5",
     "matrix-js-sdk": "^9.6.0",
     "@42px/effector-extra": "^1.1.1",
-    "@42px/custom-errors": "^1.0.2"
+    "@42px/custom-errors": "^1.0.2",
+    "patronum": "^1.1.0"
   },
   "dependencies": {},
   "files": [
