@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
@@ -52,7 +52,8 @@
     "effector": "^21.7.5",
     "matrix-js-sdk": "^9.6.0",
     "@42px/effector-extra": "^1.1.1",
-    "@42px/custom-errors": "^1.0.2"
+    "@42px/custom-errors": "^1.0.2",
+    "patronum": "^1.1.0"
   },
   "dependencies": {},
   "files": [

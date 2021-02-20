@@ -6,6 +6,7 @@ import pkg from "./package.json"
 export default {
     external: [
         "effector",
+        "patronum",
         "matrix-js-sdk",
         "@42px/effector-extra",
         "@42px/custom-errors"

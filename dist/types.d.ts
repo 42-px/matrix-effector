@@ -69,6 +69,14 @@ export declare type MappedRoom = {
     name: string;
     summary: RoomSummary;
 };
+export interface RoomWithActivity extends MappedRoom {
+    unreadCount: number;
+    lastMessage?: Message;
+}
+export interface ReadAllMessagesParams {
+    roomId: string;
+    eventId: string;
+}
 export declare type EventListener = [string, (...args: any[]) => void];
 export interface InitTimelineWindowParams {
     roomId: Room["roomId"];
