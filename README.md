@@ -25,6 +25,8 @@ import {
   SearchPayload,
   loadTimelineWindowFx,
   onCachedState,
+  getRoomsWithActivitiesFx,
+  createOnSyncThrottled,
 } from '@42px/matrix-effector'
 import { forward, guard, sample } from 'effector'
 import {
@@ -35,7 +37,6 @@ import {
   onSearchInput,
   onSearchResultSelect,
   roomSelected,
-  setRooms,
 } from './events'
 import {
   $currentRoomId,
@@ -47,7 +48,7 @@ import {
 
 const chatWindowSize = 20
 
-$rooms.on(setRooms, (_, value) => value)
+$rooms.on(getRoomsWithActivitiesFx.doneData, (_, value) => value)
 $currentRoomId.on(roomSelected, (_, value) => value)
 $messages
   .on(initTimelineWindowFx.doneData, (_, value) => value)
@@ -145,9 +146,10 @@ guard({
   filter: $currentRoomId.map((roomId) => Boolean(roomId)),
   target: paginateTimelineWindowFx,
 })
+const onSyncThrottled = createOnSyncThrottled(500)
 forward({
-  from: [onCachedState, onInitialSync],
-  to: setRooms,
+  from: [onCachedState, onInitialSync, onSyncThrottled],
+  to: getRoomsWithActivitiesFx,
 })
 
 ```
