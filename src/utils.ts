@@ -2,8 +2,7 @@ import { MatrixEvent } from "matrix-js-sdk"
 import { client } from "./matrix-client"
 import {
     GetRoomAvatarParams,
-    GetSenderAvatarParams,
-    DirectRoomIds
+    GetSenderAvatarParams
 } from "./types"
 
 export const getSenderAvatar = ({
@@ -45,13 +44,15 @@ export const getRoomAvatarUrl = ({
 }
 
 export const checkIsDirect = (roomId: string): boolean => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const directEvent = client().getAccountData("m.direct") as MatrixEvent
     const aDirectRooms = directEvent
         ? Object.values(directEvent.getContent())
         : []
-    const summaryDirects: string[] = []
+    let summaryDirects: string[] = []
     for (const accountDirects of aDirectRooms) {
-        summaryDirects.concat(accountDirects)
+        summaryDirects = [...summaryDirects, ...accountDirects]
     }
     if (summaryDirects.includes(roomId)) return true
     return false

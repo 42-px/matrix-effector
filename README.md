@@ -159,7 +159,7 @@ forward({
 ## Utils
 
 ### get RoomMember Avatar url / Room Avatar Url
-```
+```ts
 import { getRoomAvatarUrl,getSenderAvatarUrl, Message } from '@42px/matrix-effector'
 
 ...
