@@ -84,6 +84,7 @@ export type MappedRoom = {
   roomId: string
   name: string
   summary: RoomSummary
+  isDirect: boolean
 }
 export interface RoomWithActivity extends MappedRoom {
   unreadCount: number
@@ -109,10 +110,18 @@ export interface TimelineWindowPaginationParams {
 }
 
 export type GetSenderAvatarParams = {
-  sender: RoomMember,
-  width: number,
-  height: number,
-  resizeMethod: 'crop' | 'scale',
-  allowDefault: boolean,
-  allowDirectLinks: boolean
+  sender: RoomMember
+  width: number
+  height: number
+  resizeMethod: "crop" | "scale"
+  allowDefault?: boolean
+  allowDirectLinks?: boolean
+}
+
+export type GetRoomAvatarParams = {
+  roomId: string
+  width: number
+  height: number
+  resizeMethod: "crop" | "scale"
+  allowDefault?: boolean
 }

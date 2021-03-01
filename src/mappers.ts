@@ -5,6 +5,7 @@ import {
     Room,
     MappedRoom,
 } from "./types"
+import { checkIsDirect } from "./utils"
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
     const payload: MessageEvent = {
@@ -46,6 +47,7 @@ export function toMappedRoom(room: Room): MappedRoom {
         roomId: room.roomId,
         name: room.name,
         summary: room.summary,
+        isDirect: checkIsDirect(room.roomId),
     }
 }
 

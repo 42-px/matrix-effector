@@ -153,3 +153,29 @@ forward({
 })
 
 ```
+
+
+
+## Utils
+
+### get RoomMember Avatar url / Room Avatar Url
+```
+import { getRoomAvatarUrl,getSenderAvatarUrl, Message } from '@42px/matrix-effector'
+
+...
+
+const avatarUrl = getRoomAvatarUrl({
+      roomId,
+      width: 40,
+      height: 40,
+      resizeMethod: 'crop',
+    })
+
+const avatarUrl = getSenderAvatarUrl({
+      sender: message.sender,
+      width: 40,
+      height: 40,
+      resizeMethod: 'crop',
+    })
+
+```
