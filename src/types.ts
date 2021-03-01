@@ -1,17 +1,17 @@
 import {
-    MatrixClient,
-    MatrixEvent,
-    RawEvent,
-    Room,
-    RoomMember,
-    RoomSummary,
+  MatrixClient,
+  MatrixEvent,
+  RawEvent,
+  Room,
+  RoomMember,
+  RoomSummary,
 } from "matrix-js-sdk"
 
 export {
-    Room,
-    LoginPayload,
-    MatrixEvent,
-    RoomMember,
+  Room,
+  LoginPayload,
+  MatrixEvent,
+  RoomMember,
 } from "matrix-js-sdk"
 export interface LoginByPasswordParams {
   user: string
@@ -70,7 +70,7 @@ export type MessageEvent = {
   redaction: boolean
   redacted: boolean
   editing: boolean
- }
+}
 export type Message = {
   originalEventId: string
   content: MessageContent
@@ -106,4 +106,13 @@ export interface TimelineWindowPaginationParams {
   size: number
   makeRequest?: boolean
   requestLimit?: number
+}
+
+export type GetSenderAvatarParams = {
+  sender: RoomMember,
+  width: number,
+  height: number,
+  resizeMethod: 'crop' | 'scale',
+  allowDefault: boolean,
+  allowDirectLinks: boolean
 }
