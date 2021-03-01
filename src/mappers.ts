@@ -1,4 +1,5 @@
 import { MatrixEvent } from "matrix-js-sdk"
+import { client } from "./matrix-client"
 import {
     Message,
     MessageEvent,
@@ -43,11 +44,16 @@ export function toMessage(
 }
 
 export function toMappedRoom(room: Room): MappedRoom {
+    const isDirect = checkIsDirect(room.roomId)
+    const DMUser = isDirect
+        ? client().getUser(room.guessDMUserId())
+        : null
     return {
         roomId: room.roomId,
         name: room.name,
         summary: room.summary,
-        isDirect: checkIsDirect(room.roomId),
+        isDirect,
+        isOnline: DMUser ? DMUser.currentlyActive : undefined
     }
 }
 

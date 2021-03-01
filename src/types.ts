@@ -85,6 +85,7 @@ export type MappedRoom = {
   name: string
   summary: RoomSummary
   isDirect: boolean
+  isOnline?: boolean
 }
 export interface RoomWithActivity extends MappedRoom {
   unreadCount: number
