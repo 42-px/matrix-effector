@@ -5,6 +5,7 @@ import {
     MessageEvent,
     Room,
     MappedRoom,
+    RoomInfo,
 } from "./types"
 import { checkIsDirect } from "./utils"
 
@@ -44,16 +45,10 @@ export function toMessage(
 }
 
 export function toMappedRoom(room: Room): MappedRoom {
-    const isDirect = checkIsDirect(room.roomId)
-    const DMUser = isDirect
-        ? client().getUser(room.guessDMUserId())
-        : null
     return {
         roomId: room.roomId,
         name: room.name,
         summary: room.summary,
-        isDirect,
-        isOnline: DMUser ? DMUser.currentlyActive : undefined
     }
 }
 
@@ -66,4 +61,10 @@ export function mergeMessageEvents(
     }
     acc.push(toMessage(event))
     return acc
+}
+
+export function toRoomInfo(room: Room): RoomInfo {
+    return {
+        roomMembersCount: room.getJoinedMemberCount()
+    }
 }

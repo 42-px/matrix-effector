@@ -1,17 +1,17 @@
 import {
-  MatrixClient,
-  MatrixEvent,
-  RawEvent,
-  Room,
-  RoomMember,
-  RoomSummary,
+    MatrixClient,
+    MatrixEvent,
+    RawEvent,
+    Room,
+    RoomMember,
+    RoomSummary,
 } from "matrix-js-sdk"
 
 export {
-  Room,
-  LoginPayload,
-  MatrixEvent,
-  RoomMember,
+    Room,
+    LoginPayload,
+    MatrixEvent,
+    RoomMember,
 } from "matrix-js-sdk"
 export interface LoginByPasswordParams {
   user: string
@@ -84,12 +84,12 @@ export type MappedRoom = {
   roomId: string
   name: string
   summary: RoomSummary
-  isDirect: boolean
-  isOnline?: boolean
 }
 export interface RoomWithActivity extends MappedRoom {
   unreadCount: number
   lastMessage?: Message
+  isDirect: boolean
+  isOnline?: boolean
 }
 export interface ReadAllMessagesParams {
   roomId: string
@@ -126,3 +126,7 @@ export type GetRoomAvatarParams = {
   resizeMethod: "crop" | "scale"
   allowDefault?: boolean
 }
+
+export type RoomInfo = {
+  roomMembersCount: number
+} 

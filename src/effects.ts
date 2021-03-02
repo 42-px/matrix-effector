@@ -19,6 +19,7 @@ import {
     ReadAllMessagesParams,
     RoomWithActivity,
     MappedRoom,
+    RoomInfo,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -52,3 +53,5 @@ export const readAllMessagesFx = matrixDomain
     .effect<ReadAllMessagesParams, void, Error>()
 export const getRoomsWithActivitiesFx = matrixDomain
     .effect<MappedRoom[], RoomWithActivity[], Error>()
+export const getRoomInfoFx = matrixDomain
+    .effect<string, RoomInfo, Error>()
