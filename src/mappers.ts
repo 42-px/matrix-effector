@@ -4,6 +4,7 @@ import {
     MessageEvent,
     Room,
     MappedRoom,
+    RoomInfo,
 } from "./types"
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
@@ -58,4 +59,10 @@ export function mergeMessageEvents(
     }
     acc.push(toMessage(event))
     return acc
+}
+
+export function toRoomInfo(room: Room): RoomInfo {
+    return {
+        roomMembersCount: room.getJoinedMemberCount()
+    }
 }

@@ -1,5 +1,5 @@
 import { SearchResponse } from "matrix-js-sdk";
-import { DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, LoginByPasswordParams, LoginPayload, SearchMessageTextPayload, SendMessagePayload, Message, LoginByTokenParams, InitTimelineWindowParams, TimelineWindowPaginationParams, LoadTimelineWindowParams, ReadAllMessagesParams, RoomWithActivity, MappedRoom } from "./types";
+import { DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, LoginByPasswordParams, LoginPayload, SearchMessageTextPayload, SendMessagePayload, Message, LoginByTokenParams, InitTimelineWindowParams, TimelineWindowPaginationParams, LoadTimelineWindowParams, ReadAllMessagesParams, RoomWithActivity, MappedRoom, RoomInfo } from "./types";
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
@@ -29,3 +29,4 @@ export declare const loadTimelineWindowFx: import("effector").Effect<LoadTimelin
 export declare const paginateTimelineWindowFx: import("effector").Effect<TimelineWindowPaginationParams, Message[], Error>;
 export declare const readAllMessagesFx: import("effector").Effect<ReadAllMessagesParams, void, Error>;
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
+export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;

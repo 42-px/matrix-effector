@@ -70,7 +70,7 @@ export type MessageEvent = {
   redaction: boolean
   redacted: boolean
   editing: boolean
- }
+}
 export type Message = {
   originalEventId: string
   content: MessageContent
@@ -88,6 +88,9 @@ export type MappedRoom = {
 export interface RoomWithActivity extends MappedRoom {
   unreadCount: number
   lastMessage?: Message
+  isDirect: boolean
+  isOnline?: boolean
+  lastActivityTS: number
 }
 export interface ReadAllMessagesParams {
   roomId: string
@@ -107,3 +110,24 @@ export interface TimelineWindowPaginationParams {
   makeRequest?: boolean
   requestLimit?: number
 }
+
+export type GetSenderAvatarParams = {
+  sender: RoomMember
+  width: number
+  height: number
+  resizeMethod: "crop" | "scale"
+  allowDefault?: boolean
+  allowDirectLinks?: boolean
+}
+
+export type GetRoomAvatarParams = {
+  roomId: string
+  width: number
+  height: number
+  resizeMethod: "crop" | "scale"
+  allowDefault?: boolean
+}
+
+export type RoomInfo = {
+  roomMembersCount: number
+} 

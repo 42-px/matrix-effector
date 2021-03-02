@@ -19,6 +19,7 @@ import {
     loadTimelineWindowFx,
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
+    getRoomInfoFx
 } from "./effects"
 import { onCachedState, onInitialSync, onSync, roomMessage } from "./events"
 import {
@@ -26,6 +27,7 @@ import {
     toMappedRoom,
     toMessage,
     toMessageEvent,
+    toRoomInfo,
 } from "./mappers"
 import { client, onClientEvent } from "./matrix-client"
 import {
@@ -39,6 +41,7 @@ import {
     LOGIN_BY_PASSWORD,
     LOGIN_BY_TOKEN,
 } from "./constants"
+import { checkIsDirect } from "./utils"
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
@@ -182,10 +185,17 @@ getRoomsWithActivitiesFx.use((rooms) => {
             .reduce(mergeMessageEvents, [])
         const lastMessage = mergedMessageEvents.length ?
             mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
+        const isDirect = checkIsDirect(matrixRoom.roomId)
+        const DMUser = isDirect
+            ? client().getUser(matrixRoom.guessDMUserId())
+            : null
         return {
             ...room,
             unreadCount,
             lastMessage,
+            isDirect,
+            isOnline: DMUser ? DMUser.currentlyActive : false,
+            lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
         }
     })
 })
@@ -240,4 +250,10 @@ paginateTimelineWindowFx.use(async ({
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
+})
+
+getRoomInfoFx.use((roomId) => {
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    return toRoomInfo(room)
 })
