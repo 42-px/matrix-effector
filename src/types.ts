@@ -90,6 +90,7 @@ export interface RoomWithActivity extends MappedRoom {
   lastMessage?: Message
   isDirect: boolean
   isOnline?: boolean
+  lastActivityTS: number
 }
 export interface ReadAllMessagesParams {
   roomId: string

@@ -194,7 +194,8 @@ getRoomsWithActivitiesFx.use((rooms) => {
             unreadCount,
             lastMessage,
             isDirect,
-            isOnline: DMUser ? DMUser.currentlyActive : false
+            isOnline: DMUser ? DMUser.currentlyActive : false,
+            lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
         }
     })
 })
