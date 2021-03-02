@@ -1,5 +1,4 @@
 import { MatrixEvent } from "matrix-js-sdk"
-import { client } from "./matrix-client"
 import {
     Message,
     MessageEvent,
@@ -7,7 +6,6 @@ import {
     MappedRoom,
     RoomInfo,
 } from "./types"
-import { checkIsDirect } from "./utils"
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
     const payload: MessageEvent = {
