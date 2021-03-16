@@ -164,12 +164,13 @@ import { getRoomAvatarUrl,getSenderAvatarUrl, Message } from '@42px/matrix-effec
 
 ...
 
-const avatarUrl = getRoomAvatarUrl({
-      roomId,
-      width: 40,
-      height: 40,
-      resizeMethod: 'crop',
-    })
+ const dialogAvatar = getRoomMemberAvatar({
+    roomId: item.roomId,
+    userId: item.directUserId,
+    width: 40,
+    height: 40,
+    resizeMethod: 'crop',
+  })
 
 const avatarUrl = getSenderAvatarUrl({
       sender: message.sender,

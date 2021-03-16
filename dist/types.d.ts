@@ -73,6 +73,7 @@ export interface RoomWithActivity extends MappedRoom {
     unreadCount: number;
     lastMessage?: Message;
     isDirect: boolean;
+    directUserId?: string;
     isOnline?: boolean;
     lastActivityTS: number;
 }
@@ -100,8 +101,9 @@ export declare type GetSenderAvatarParams = {
     allowDefault?: boolean;
     allowDirectLinks?: boolean;
 };
-export declare type GetRoomAvatarParams = {
+export declare type GetRoomMemberAvatarParams = {
     roomId: string;
+    userId: string;
     width: number;
     height: number;
     resizeMethod: "crop" | "scale";
