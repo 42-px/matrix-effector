@@ -196,7 +196,7 @@ getRoomsWithActivitiesFx.use((rooms) => {
             lastMessage,
             isDirect,
             directUserId : DMUser?.user.userId,
-            isOnline: DMUser ? DMUser.user.currentlyActive : false,
+            isOnline: DMUser ? Boolean(DMUser.user.currentlyActive) : false,
             lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
         }
     })
