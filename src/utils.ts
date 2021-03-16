@@ -1,7 +1,7 @@
 import { MatrixEvent } from "matrix-js-sdk"
 import { client } from "./matrix-client"
 import {
-    GetRoomAvatarParams,
+    GetRoomMemberAvatarParams,
     GetSenderAvatarParams
 } from "./types"
 
@@ -24,24 +24,32 @@ export const getSenderAvatar = ({
         )
         : null
 
-export const getRoomAvatarUrl = ({
+export const getRoomMemberAvatar = ({
     roomId,
+    userId,
     width,
     height,
     resizeMethod,
     allowDefault = true
-}: GetRoomAvatarParams): string | null => {
+}: GetRoomMemberAvatarParams): string | null => {
     const room = client().getRoom(roomId)
-    return room && room.getAvatarUrl
-        ? room.getAvatarUrl(
-            client().getHomeserverUrl(),
-            width,
-            height,
-            resizeMethod,
-            allowDefault
-        )
-        : null
+    if (!room) {
+        return null
+    }
+    const otherMember = room.getMember(userId)
+    if (!otherMember) {
+        return null
+    }
+    return otherMember.getAvatarUrl(
+        client().getHomeserverUrl(),
+        width,
+        height,
+        resizeMethod,
+        allowDefault,
+        true
+    )
 }
+
 
 export const checkIsDirect = (roomId: string): boolean => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

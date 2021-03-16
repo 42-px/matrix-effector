@@ -187,14 +187,16 @@ getRoomsWithActivitiesFx.use((rooms) => {
             mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
         const isDirect = checkIsDirect(matrixRoom.roomId)
         const DMUser = isDirect
-            ? client().getUser(matrixRoom.guessDMUserId())
+            ? matrixRoom.getMember(matrixRoom.guessDMUserId())
             : null
+        
         return {
             ...room,
             unreadCount,
             lastMessage,
             isDirect,
-            isOnline: DMUser ? DMUser.currentlyActive : false,
+            directUserId : DMUser?.user.userId,
+            isOnline: DMUser ? Boolean(DMUser.user.currentlyActive) : undefined,
             lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
         }
     })
