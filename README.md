@@ -160,23 +160,23 @@ forward({
 
 ### get RoomMember Avatar url / Room Avatar Url
 ```ts
-import { getRoomAvatarUrl,getSenderAvatarUrl, Message } from '@42px/matrix-effector'
+import { getRoomMemberAvatarUrl, getSenderAvatarUrl, Message } from '@42px/matrix-effector'
 
 ...
 
- const dialogAvatar = getRoomMemberAvatar({
-    roomId: item.roomId,
-    userId: item.directUserId,
-    width: 40,
-    height: 40,
-    resizeMethod: 'crop',
-  })
+ const dialogAvatar = getRoomMemberAvatarUrl({
+  roomId: item.roomId,
+  userId: item.directUserId,
+  width: 40,
+  height: 40,
+  resizeMethod: 'crop',
+})
 
 const avatarUrl = getSenderAvatarUrl({
-      sender: message.sender,
-      width: 40,
-      height: 40,
-      resizeMethod: 'crop',
-    })
+  sender: message.sender,
+  width: 40,
+  height: 40,
+  resizeMethod: 'crop',
+})
 
 ```

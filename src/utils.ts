@@ -5,7 +5,7 @@ import {
     GetSenderAvatarParams
 } from "./types"
 
-export const getSenderAvatar = ({
+export const getSenderAvatarUrl = ({
     sender,
     width,
     height,
@@ -24,7 +24,7 @@ export const getSenderAvatar = ({
         )
         : null
 
-export const getRoomMemberAvatar = ({
+export const getRoomMemberAvatarUrl = ({
     roomId,
     userId,
     width,
