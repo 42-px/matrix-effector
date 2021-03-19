@@ -1,9 +1,10 @@
-import { MatrixClient, MatrixEvent, RawEvent, Room, RoomMember, RoomSummary } from "matrix-js-sdk";
+import { MatrixClient, MatrixEvent, RawEvent, Room, RoomMember, RoomSummary, User } from "matrix-js-sdk";
 export { Room, LoginPayload, MatrixEvent, RoomMember, } from "matrix-js-sdk";
 export interface LoginByPasswordParams {
     user: string;
     password: string;
 }
+export declare type MappedUser = Pick<User, "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs" | "presence">;
 export interface LoginByTokenParams {
     token: string;
 }

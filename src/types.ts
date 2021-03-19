@@ -5,6 +5,7 @@ import {
     Room,
     RoomMember,
     RoomSummary,
+    User,
 } from "matrix-js-sdk"
 
 export {
@@ -18,6 +19,14 @@ export interface LoginByPasswordParams {
   password: string
 }
 
+export type MappedUser = Pick<User,
+  "userId" |
+  "currentlyActive" |
+  "displayName" |
+  "lastActiveAgo" |
+  "lastPresenceTs" |
+  "presence"
+>
 export interface LoginByTokenParams {
   token: string
 }
