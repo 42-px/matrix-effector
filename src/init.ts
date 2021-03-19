@@ -19,7 +19,8 @@ import {
     loadTimelineWindowFx,
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
-    getRoomInfoFx
+    getRoomInfoFx,
+    getLoggedUser
 } from "./effects"
 import { onCachedState, onInitialSync, onSync, roomMessage } from "./events"
 import {
@@ -49,6 +50,22 @@ const PaginationFail = createCustomError("PaginationFail")
 const EventNotFound = createCustomError("EventNotFound")
 const ClientNotInitialized = createCustomError("ClientNotInitialized")
 
+getLoggedUser.use(() => {
+    const cl = client()
+    if (!cl) return null
+    const loggedUserId = cl.getUserId()
+    if(!loggedUserId) return null
+    const user = cl.getUser(loggedUserId)
+    if (!user) return null
+    return {
+        userId: user.userId,
+        currentlyActive: user.currentlyActive,
+        displayName: user.displayName,
+        lastActiveAgo: user.lastActiveAgo,
+        lastPresenceTs: user.lastPresenceTs,
+        presence: user.presence
+    }
+})
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
     to: startClientFx,

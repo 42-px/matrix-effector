@@ -44,6 +44,7 @@ import {
   $rooms,
   $searchInput,
   $searchResults,
+  $currentUser,
 } from './state'
 
 const chatWindowSize = 20
@@ -56,6 +57,7 @@ $messages
   .on(loadTimelineWindowFx.doneData, (_, value) => value)
 $searchInput.on(onSearchInput, (_, value) => value)
 $searchResults.on(searchFx.doneData, (_, messages) => messages)
+$currentUser.on(getLoggedUser.doneData, (_, user) => user)
 
 const store: IndexedDBStore = new IndexedDBStore({
   indexedDB: window.indexedDB,
@@ -78,6 +80,10 @@ forward({
     password: 'password',
   })),
   to: loginByPasswordFx,
+})
+forward({
+  from: loginByPasswordFx.done,
+  to: getLoggedUser,
 })
 const roomMessageBatch = createRoomMessageBatch(200)
 guard({

@@ -20,6 +20,7 @@ import {
     RoomWithActivity,
     MappedRoom,
     RoomInfo,
+    MappedUser,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -55,3 +56,5 @@ export const getRoomsWithActivitiesFx = matrixDomain
     .effect<MappedRoom[], RoomWithActivity[], Error>()
 export const getRoomInfoFx = matrixDomain
     .effect<string, RoomInfo, Error>()
+export const getLoggedUser = matrixDomain
+    .effect<void, MappedUser | null, Error>()
