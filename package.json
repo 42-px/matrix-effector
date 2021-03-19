@@ -9,7 +9,12 @@
   "iife:main": "./dist/matrix-effector.iife.js",
   "browser": "./dist/index.js",
   "exports": {
-    "./": "./dist"
+    "./": {
+      "import": "./dist/index.js",
+      "require": "./dist/matrix-effector.cjs.js",
+      "node": "./dist/matrix-effector.cjs.js",
+      "default": "./dist/index.js"
+     }
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
