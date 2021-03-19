@@ -20,7 +20,7 @@ import {
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
     getRoomInfoFx,
-    getLoggedUser
+    getLoggedUserFx
 } from "./effects"
 import { onCachedState, onInitialSync, onSync, roomMessage } from "./events"
 import {
@@ -50,7 +50,7 @@ const PaginationFail = createCustomError("PaginationFail")
 const EventNotFound = createCustomError("EventNotFound")
 const ClientNotInitialized = createCustomError("ClientNotInitialized")
 
-getLoggedUser.use(() => {
+getLoggedUserFx.use(() => {
     const cl = client()
     if (!cl) return null
     const loggedUserId = cl.getUserId()

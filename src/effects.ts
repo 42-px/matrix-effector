@@ -56,5 +56,5 @@ export const getRoomsWithActivitiesFx = matrixDomain
     .effect<MappedRoom[], RoomWithActivity[], Error>()
 export const getRoomInfoFx = matrixDomain
     .effect<string, RoomInfo, Error>()
-export const getLoggedUser = matrixDomain
+export const getLoggedUserFx = matrixDomain
     .effect<void, MappedUser | null, Error>()

@@ -8,6 +8,9 @@
   "umd:main": "./dist/matrix-effector.umd.js",
   "iife:main": "./dist/matrix-effector.iife.js",
   "browser": "./dist/index.js",
+  "exports": {
+    "./": "./dist"
+  },
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "lint": "eslint \"./**/*.{js,ts,tsx}\" --fix",

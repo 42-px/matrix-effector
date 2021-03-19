@@ -57,7 +57,7 @@ $messages
   .on(loadTimelineWindowFx.doneData, (_, value) => value)
 $searchInput.on(onSearchInput, (_, value) => value)
 $searchResults.on(searchFx.doneData, (_, messages) => messages)
-$currentUser.on(getLoggedUser.doneData, (_, user) => user)
+$currentUser.on(getLoggedUserFx.doneData, (_, user) => user)
 
 const store: IndexedDBStore = new IndexedDBStore({
   indexedDB: window.indexedDB,
@@ -83,7 +83,7 @@ forward({
 })
 forward({
   from: loginByPasswordFx.done,
-  to: getLoggedUser,
+  to: getLoggedUserFx,
 })
 const roomMessageBatch = createRoomMessageBatch(200)
 guard({

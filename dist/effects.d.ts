@@ -30,4 +30,4 @@ export declare const paginateTimelineWindowFx: import("effector").Effect<Timelin
 export declare const readAllMessagesFx: import("effector").Effect<ReadAllMessagesParams, void, Error>;
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
 export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;
-export declare const getLoggedUser: import("effector").Effect<void, Pick<import("matrix-js-sdk").User, "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs" | "presence"> | null, Error>;
+export declare const getLoggedUserFx: import("effector").Effect<void, Pick<import("matrix-js-sdk").User, "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs" | "presence"> | null, Error>;
