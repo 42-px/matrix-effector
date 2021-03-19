@@ -4,6 +4,8 @@ This implementation of DAL uses the effector state manager.
 
 ## Installation
 
+### 1.4.0 version is unstable, please avoid it
+
 ```sh
 npm install @42px/matrix-effector
 ```

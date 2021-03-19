@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
@@ -8,14 +8,6 @@
   "umd:main": "./dist/matrix-effector.umd.js",
   "iife:main": "./dist/matrix-effector.iife.js",
   "browser": "./dist/index.js",
-  "exports": {
-    "./": {
-      "import": "./dist/index.js",
-      "require": "./dist/matrix-effector.cjs.js",
-      "node": "./dist/matrix-effector.cjs.js",
-      "default": "./dist/index.js"
-     }
-  },
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "lint": "eslint \"./**/*.{js,ts,tsx}\" --fix",
