@@ -23,8 +23,7 @@ import {
   createRoomMessageBatch,
   initTimelineWindowFx,
   paginateTimelineWindowFx,
-  searchFx,
-  SearchPayload,
+  searchRoomMessagesFx,
   loadTimelineWindowFx,
   onCachedState,
   getRoomsWithActivitiesFx,
@@ -58,7 +57,7 @@ $messages
   .on(paginateTimelineWindowFx.doneData, (_, value) => value)
   .on(loadTimelineWindowFx.doneData, (_, value) => value)
 $searchInput.on(onSearchInput, (_, value) => value)
-$searchResults.on(searchFx.doneData, (_, messages) => messages)
+$searchResults.on(searchRoomMessagesFx.doneData, (_, messages) => messages)
 $currentUser.on(getLoggedUserFx.doneData, (_, user) => user)
 
 const store: IndexedDBStore = new IndexedDBStore({
@@ -102,24 +101,12 @@ forward({
 })
 guard({
   source: sample(
-    $currentRoomId,
+    [$searchInput, $currentRoomId],
     onSearch,
-    ((roomId, term): SearchPayload => ({
-      body: {
-        search_categories: {
-          room_events: {
-            search_term: term,
-            keys: ['content.body'],
-            filter: {
-              rooms: [roomId],
-            },
-          },
-        },
-      },
-    })),
+    (([term, roomId]) => ({ term, roomId })),
   ),
-  filter: $currentRoomId.map((roomId) => Boolean(roomId)),
-  target: searchFx,
+  filter: combine($currentRoomId, $searchInput, (roomId, term) => Boolean(roomId) && Boolean(term)),
+  target: searchRoomMessagesFx,
 })
 forward({
   from: sample(
