@@ -1,11 +1,10 @@
 import { createCustomError } from "@42px/custom-errors"
 import { forward } from "effector"
-import matrix from "matrix-js-sdk"
+import matrix, { RoomMember } from "matrix-js-sdk"
 import {
     initStoreFx,
     loginByPasswordFx,
     deleteMessageFx,
-    searchMessageTextFx,
     sendMessageFx,
     startClientFx,
     editMessageFx,
@@ -15,7 +14,7 @@ import {
     initTimelineWindowFx,
     getTimelineWindowMessagesFx,
     paginateTimelineWindowFx,
-    searchFx,
+    searchRoomMessagesFx,
     loadTimelineWindowFx,
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
@@ -77,17 +76,35 @@ initStoreFx.use(async () => {
     if (store) return store.startup()
 })
 startClientFx.use((params) => client().startClient(params))
-searchFx.use(async (params) => {
-    const searchResponse = await client().search(params)
+searchRoomMessagesFx.use(async ({ term, roomId }) => {
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const membersCache: { [id: string]: RoomMember } = {}
+    const searchResponse = await client().search({
+        body: {
+            search_categories: {
+                room_events: {
+                    search_term: term,
+                    keys: ["content.body"],
+                    filter: {
+                        rooms: [roomId],
+                    },
+                },
+            },
+        },
+    })
     return searchResponse
         .search_categories
         .room_events.results.map(({ result }) => {
             const event = new MatrixEvent(result)
+            const senderId = event.getSender()
+            if (membersCache[senderId] === undefined) {
+                membersCache[senderId] = room.getMember(senderId)
+            }
+            event.sender = membersCache[senderId]
             return toMessage(event)
         })
 })
-// TODO а нужен ли?
-searchMessageTextFx.use((params) => client().searchMessageText(params))
 sendMessageFx.use(({
     roomId,
     content,

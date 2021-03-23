@@ -1,4 +1,3 @@
-import { SearchResponse } from "matrix-js-sdk"
 import { matrixDomain } from "./domain"
 import {
     DeleteMessagePayload,
@@ -7,14 +6,13 @@ import {
     LoginByPasswordParams,
     LoginPayload,
     Room,
-    SearchMessageTextPayload,
     SendMessagePayload,
     StartClientParams,
     Message,
     LoginByTokenParams,
     InitTimelineWindowParams,
     TimelineWindowPaginationParams,
-    SearchPayload,
+    SearchRoomMessagesPayload,
     LoadTimelineWindowParams,
     ReadAllMessagesParams,
     RoomWithActivity,
@@ -31,9 +29,8 @@ export const initStoreFx = matrixDomain.effect<void, void, Error>()
 export const startClientFx = matrixDomain
     .effect<StartClientParams, void, Error>()
 export const stopClientFx = matrixDomain.effect<void, void, Error>()
-export const searchFx = matrixDomain.effect<SearchPayload, Message[], Error>()
-export const searchMessageTextFx = matrixDomain
-    .effect<SearchMessageTextPayload, SearchResponse, Error>()
+export const searchRoomMessagesFx = matrixDomain
+    .effect<SearchRoomMessagesPayload, Message[], Error>()
 export const sendMessageFx = matrixDomain
     .effect<SendMessagePayload, void, Error>()
 export const editMessageFx = matrixDomain
