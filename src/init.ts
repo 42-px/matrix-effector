@@ -1,6 +1,6 @@
 import { createCustomError } from "@42px/custom-errors"
 import { forward } from "effector"
-import matrix from "matrix-js-sdk"
+import matrix, { RoomMember } from "matrix-js-sdk"
 import {
     initStoreFx,
     loginByPasswordFx,
@@ -77,6 +77,9 @@ initStoreFx.use(async () => {
 })
 startClientFx.use((params) => client().startClient(params))
 searchRoomMessagesFx.use(async ({ term, roomId }) => {
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const membersCache: { [id: string]: RoomMember } = {}
     const searchResponse = await client().search({
         body: {
             search_categories: {
@@ -94,10 +97,11 @@ searchRoomMessagesFx.use(async ({ term, roomId }) => {
         .search_categories
         .room_events.results.map(({ result }) => {
             const event = new MatrixEvent(result)
-            const room = client().getRoom(event.getRoomId())
-            if (!room) throw new RoomNotFound()
-            const member = room.getMember(event.getSender())
-            event.sender = member
+            const senderId = event.getSender()
+            if (membersCache[senderId] === undefined) {
+                membersCache[senderId] = room.getMember(senderId)
+            }
+            event.sender = membersCache[senderId]
             return toMessage(event)
         })
 })
