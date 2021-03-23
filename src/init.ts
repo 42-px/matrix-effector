@@ -83,6 +83,10 @@ searchFx.use(async (params) => {
         .search_categories
         .room_events.results.map(({ result }) => {
             const event = new MatrixEvent(result)
+            const room = client().getRoom(event.getRoomId())
+            if (!room) throw new RoomNotFound()
+            const member = room.getMember(event.getSender())
+            event.sender = member
             return toMessage(event)
         })
 })
