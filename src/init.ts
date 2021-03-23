@@ -5,7 +5,6 @@ import {
     initStoreFx,
     loginByPasswordFx,
     deleteMessageFx,
-    searchMessageTextFx,
     sendMessageFx,
     startClientFx,
     editMessageFx,
@@ -15,7 +14,7 @@ import {
     initTimelineWindowFx,
     getTimelineWindowMessagesFx,
     paginateTimelineWindowFx,
-    searchFx,
+    searchRoomMessagesFx,
     loadTimelineWindowFx,
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
@@ -77,8 +76,20 @@ initStoreFx.use(async () => {
     if (store) return store.startup()
 })
 startClientFx.use((params) => client().startClient(params))
-searchFx.use(async (params) => {
-    const searchResponse = await client().search(params)
+searchRoomMessagesFx.use(async ({ term, roomId }) => {
+    const searchResponse = await client().search({
+        body: {
+            search_categories: {
+                room_events: {
+                    search_term: term,
+                    keys: ["content.body"],
+                    filter: {
+                        rooms: [roomId],
+                    },
+                },
+            },
+        },
+    })
     return searchResponse
         .search_categories
         .room_events.results.map(({ result }) => {
@@ -90,8 +101,6 @@ searchFx.use(async (params) => {
             return toMessage(event)
         })
 })
-// TODO а нужен ли?
-searchMessageTextFx.use((params) => client().searchMessageText(params))
 sendMessageFx.use(({
     roomId,
     content,

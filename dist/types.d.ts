@@ -16,10 +16,9 @@ export declare type LoadTimelineWindowParams = {
     initialEventId?: string;
     initialWindowSize?: number;
 };
-export declare type SearchPayload = Parameters<MatrixClient["search"]>[0];
-export interface SearchMessageTextPayload {
-    query: string;
-    keys?: "content.body" | "content.name" | "content.topic";
+export interface SearchRoomMessagesPayload {
+    roomId: string;
+    term: string;
 }
 export interface SendMessagePayload {
     roomId: string;
