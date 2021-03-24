@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
