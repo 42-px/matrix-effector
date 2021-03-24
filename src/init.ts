@@ -53,7 +53,7 @@ getLoggedUserFx.use(() => {
     const cl = client()
     if (!cl) return null
     const loggedUserId = cl.getUserId()
-    if(!loggedUserId) return null
+    if (!loggedUserId) return null
     const user = cl.getUser(loggedUserId)
     if (!user) return null
     return {
@@ -223,14 +223,18 @@ getRoomsWithActivitiesFx.use((rooms) => {
         const DMUser = isDirect
             ? matrixRoom.getMember(matrixRoom.guessDMUserId())
             : null
-        
+
         return {
             ...room,
             unreadCount,
             lastMessage,
             isDirect,
-            directUserId : DMUser?.user.userId,
-            isOnline: DMUser ? Boolean(DMUser.user.currentlyActive) : undefined,
+            directUserId: DMUser?.userId,
+            // ToDo: Разобраться, почему у для некоторых юзеров не прилетает объект user в DMUSER
+            // Гипотеза 1: Шифрованные чаты как-то с этим могут быть связаны
+            isOnline: DMUser
+                ? Boolean(DMUser.user?.currentlyActive)
+                : undefined,
             lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
         }
     })
