@@ -241,6 +241,7 @@ getRoomsWithActivitiesFx.use((rooms) => {
 })
 stopClientFx.use(() => client().stopClient())
 let timelineWindow: matrix.TimelineWindow | undefined
+let timelineWindowRoom: matrix.Room | undefined
 initTimelineWindowFx
     .use(async ({ roomId, initialEventId, initialWindowSize }) => {
         const cl = client()
@@ -249,20 +250,43 @@ initTimelineWindowFx
         const timelineSet = room.getUnfilteredTimelineSet()
         timelineWindow = new matrix.TimelineWindow(cl, timelineSet)
         await timelineWindow.load(initialEventId, initialWindowSize)
-        return timelineWindow
-            .getEvents()
+        const windowEvents = timelineWindow.getEvents()
+        const liveTimelineEvents = timelineSet.getLiveTimeline().getEvents()
+        const lastWindowEvent =  windowEvents[windowEvents.length - 1] 
+        const lastLiveEvent = liveTimelineEvents[liveTimelineEvents.length - 1] 
+
+        const isLive = lastWindowEvent === lastLiveEvent
+        timelineWindowRoom = room
+        const messages = windowEvents
             .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
                 .includes(event.getType()))
             .reduce(mergeMessageEvents, [])
+        return {
+            messages,
+            isLive
+        }
     })
 loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
-    if (!timelineWindow) throw new TimelineWindowUndefined()
+    if (!timelineWindow || !timelineWindowRoom) {
+        throw new TimelineWindowUndefined()
+    }
+    const room = timelineWindowRoom
     await timelineWindow.load(initialEventId, initialWindowSize)
-    return timelineWindow
+    const windowEvents = timelineWindow.getEvents()
+    const liveTimelineEvents = room.getLiveTimeline().getEvents()
+    const lastWindowEvent =  windowEvents[windowEvents.length - 1] 
+    const lastLiveEvent = liveTimelineEvents[liveTimelineEvents.length - 1] 
+
+    const isLive = lastWindowEvent === lastLiveEvent
+    const messages =  timelineWindow
         .getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
+    return {
+        messages,
+        isLive
+    }
 })
 getTimelineWindowMessagesFx.use(() => {
     if (!timelineWindow) return []
@@ -279,17 +303,33 @@ paginateTimelineWindowFx.use(async ({
     makeRequest,
     requestLimit,
 }) => {
-    if (!timelineWindow) throw new TimelineWindowUndefined()
+    if (!timelineWindow || !timelineWindowRoom) {
+        throw new TimelineWindowUndefined()
+    }
+    const room = timelineWindowRoom
+
     const dir = direction === "forward" ?
         matrix.EventTimeline.FORWARDS :
         matrix.EventTimeline.BACKWARDS
     const result: boolean = await timelineWindow
         .paginate(dir, size, makeRequest, requestLimit)
     if (!result) throw new PaginationFail()
-    return timelineWindow.getEvents()
+
+    const liveTimelineEvents = room.getLiveTimeline().getEvents()
+    const windowEvents = timelineWindow.getEvents()
+    const lastWindowEvent =  windowEvents[windowEvents.length - 1] 
+    const lastLiveEvent = liveTimelineEvents[liveTimelineEvents.length - 1] 
+
+    const isLive = lastWindowEvent === lastLiveEvent
+    const messages =  timelineWindow.getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
+        
+    return {
+        messages,
+        isLive
+    }
 })
 
 getRoomInfoFx.use((roomId) => {
