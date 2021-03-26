@@ -19,6 +19,7 @@ import {
     MappedRoom,
     RoomInfo,
     MappedUser,
+    MessageResponse,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -40,13 +41,13 @@ export const deleteMessageFx = matrixDomain
 export const getRoomTimelineFx = matrixDomain
     .effect<Room["roomId"], Message[], Error>()
 export const initTimelineWindowFx = matrixDomain
-    .effect<InitTimelineWindowParams, Message[], Error>()
+    .effect<InitTimelineWindowParams, MessageResponse, Error>()
 export const getTimelineWindowMessagesFx = matrixDomain
     .effect<void, Message[], Error>()
 export const loadTimelineWindowFx = matrixDomain
-    .effect<LoadTimelineWindowParams, Message[], Error>()
+    .effect<LoadTimelineWindowParams, MessageResponse, Error>()
 export const paginateTimelineWindowFx = matrixDomain
-    .effect<TimelineWindowPaginationParams, Message[], Error>()
+    .effect<TimelineWindowPaginationParams, MessageResponse, Error>()
 export const readAllMessagesFx = matrixDomain
     .effect<ReadAllMessagesParams, void, Error>()
 export const getRoomsWithActivitiesFx = matrixDomain

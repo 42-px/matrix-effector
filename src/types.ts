@@ -141,3 +141,8 @@ export type GetRoomMemberAvatarParams = {
 export type RoomInfo = {
   roomMembersCount: number
 } 
+
+export type MessageResponse = {
+  messages: Message[]
+  isLive: boolean
+}
