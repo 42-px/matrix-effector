@@ -259,7 +259,8 @@ initTimelineWindowFx
             .reduce(mergeMessageEvents, [])
         return {
             messages,
-            isLive
+            isLive,
+            eventsRetrieved: true
         }
     })
 loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
@@ -275,7 +276,8 @@ loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
         .reduce(mergeMessageEvents, [])
     return {
         messages,
-        isLive
+        isLive,
+        eventsRetrieved: true
     }
 })
 getTimelineWindowMessagesFx.use(() => {
@@ -299,9 +301,8 @@ paginateTimelineWindowFx.use(async ({
     const dir = direction === "forward" ?
         matrix.EventTimeline.FORWARDS :
         matrix.EventTimeline.BACKWARDS
-    const result: boolean = await timelineWindow
+    const eventsRetrieved: boolean = await timelineWindow
         .paginate(dir, size, makeRequest, requestLimit)
-    if (!result) throw new PaginationFail()
     const isLive = !timelineWindow.canPaginate("f")
     const messages =  timelineWindow.getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
@@ -310,7 +311,8 @@ paginateTimelineWindowFx.use(async ({
         
     return {
         messages,
-        isLive
+        isLive,
+        eventsRetrieved
     }
 })
 
