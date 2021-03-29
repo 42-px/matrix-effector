@@ -251,11 +251,7 @@ initTimelineWindowFx
         timelineWindow = new matrix.TimelineWindow(cl, timelineSet)
         await timelineWindow.load(initialEventId, initialWindowSize)
         const windowEvents = timelineWindow.getEvents()
-        const liveTimelineEvents = timelineSet.getLiveTimeline().getEvents()
-        const lastWindowEvent =  windowEvents[windowEvents.length - 1] 
-        const lastLiveEvent = liveTimelineEvents[liveTimelineEvents.length - 1] 
-
-        const isLive = lastWindowEvent === lastLiveEvent
+        const isLive = !timelineWindow.canPaginate("f")
         timelineWindowRoom = room
         const messages = windowEvents
             .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
@@ -263,21 +259,16 @@ initTimelineWindowFx
             .reduce(mergeMessageEvents, [])
         return {
             messages,
-            isLive
+            isLive,
+            eventsRetrieved: true
         }
     })
 loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
     if (!timelineWindow || !timelineWindowRoom) {
         throw new TimelineWindowUndefined()
     }
-    const room = timelineWindowRoom
     await timelineWindow.load(initialEventId, initialWindowSize)
-    const windowEvents = timelineWindow.getEvents()
-    const liveTimelineEvents = room.getLiveTimeline().getEvents()
-    const lastWindowEvent =  windowEvents[windowEvents.length - 1] 
-    const lastLiveEvent = liveTimelineEvents[liveTimelineEvents.length - 1] 
-
-    const isLive = lastWindowEvent === lastLiveEvent
+    const isLive = !timelineWindow.canPaginate("f")
     const messages =  timelineWindow
         .getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
@@ -285,7 +276,8 @@ loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
         .reduce(mergeMessageEvents, [])
     return {
         messages,
-        isLive
+        isLive,
+        eventsRetrieved: true
     }
 })
 getTimelineWindowMessagesFx.use(() => {
@@ -306,21 +298,12 @@ paginateTimelineWindowFx.use(async ({
     if (!timelineWindow || !timelineWindowRoom) {
         throw new TimelineWindowUndefined()
     }
-    const room = timelineWindowRoom
-
     const dir = direction === "forward" ?
         matrix.EventTimeline.FORWARDS :
         matrix.EventTimeline.BACKWARDS
-    const result: boolean = await timelineWindow
+    const eventsRetrieved: boolean = await timelineWindow
         .paginate(dir, size, makeRequest, requestLimit)
-    if (!result) throw new PaginationFail()
-
-    const liveTimelineEvents = room.getLiveTimeline().getEvents()
-    const windowEvents = timelineWindow.getEvents()
-    const lastWindowEvent =  windowEvents[windowEvents.length - 1] 
-    const lastLiveEvent = liveTimelineEvents[liveTimelineEvents.length - 1] 
-
-    const isLive = lastWindowEvent === lastLiveEvent
+    const isLive = !timelineWindow.canPaginate("f")
     const messages =  timelineWindow.getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
@@ -328,7 +311,8 @@ paginateTimelineWindowFx.use(async ({
         
     return {
         messages,
-        isLive
+        isLive,
+        eventsRetrieved
     }
 })
 

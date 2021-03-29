@@ -53,9 +53,9 @@ const chatWindowSize = 20
 $rooms.on(getRoomsWithActivitiesFx.doneData, (_, value) => value)
 $currentRoomId.on(roomSelected, (_, value) => value)
 $messages
-  .on(initTimelineWindowFx.doneData, (_, value) => value)
-  .on(paginateTimelineWindowFx.doneData, (_, value) => value)
-  .on(loadTimelineWindowFx.doneData, (_, value) => value)
+  .on(initTimelineWindowFx.doneData, (_, { messages }) => messages)
+  .on(paginateTimelineWindowFx.doneData, (_, { messages }) => messages)
+  .on(loadTimelineWindowFx.doneData, (_, { messages }) => messages)
 $searchInput.on(onSearchInput, (_, value) => value)
 $searchResults.on(searchRoomMessagesFx.doneData, (_, messages) => messages)
 $currentUser.on(getLoggedUserFx.doneData, (_, user) => user)

@@ -145,4 +145,5 @@ export type RoomInfo = {
 export type MessageResponse = {
   messages: Message[]
   isLive: boolean
+  eventsRetrieved: boolean
 }
