@@ -115,4 +115,5 @@ export declare type RoomInfo = {
 export declare type MessageResponse = {
     messages: Message[];
     isLive: boolean;
+    eventsRetrieved: boolean;
 };
