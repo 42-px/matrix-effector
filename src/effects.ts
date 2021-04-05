@@ -1,3 +1,4 @@
+import { TimelineWindow } from "matrix-js-sdk"
 import { matrixDomain } from "./domain"
 import {
     DeleteMessagePayload,
@@ -5,21 +6,20 @@ import {
     EditMessagePayload,
     LoginByPasswordParams,
     LoginPayload,
-    Room,
     SendMessagePayload,
     StartClientParams,
     Message,
     LoginByTokenParams,
-    InitTimelineWindowParams,
-    TimelineWindowPaginationParams,
+    PaginateRoomFxParams,
     SearchRoomMessagesPayload,
-    LoadTimelineWindowParams,
+    LoadRoomFxParams,
     ReadAllMessagesParams,
     RoomWithActivity,
     MappedRoom,
     RoomInfo,
     MappedUser,
     MessageResponse,
+    InitRoomParams,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -38,16 +38,10 @@ export const editMessageFx = matrixDomain
     .effect<EditMessagePayload, void, Error>()
 export const deleteMessageFx = matrixDomain
     .effect<DeleteMessagePayload, DeleteMessageResult, Error>()
-export const getRoomTimelineFx = matrixDomain
-    .effect<Room["roomId"], Message[], Error>()
-export const initTimelineWindowFx = matrixDomain
-    .effect<InitTimelineWindowParams, MessageResponse, Error>()
-export const getTimelineWindowMessagesFx = matrixDomain
-    .effect<void, Message[], Error>()
-export const loadTimelineWindowFx = matrixDomain
-    .effect<LoadTimelineWindowParams, MessageResponse, Error>()
-export const paginateTimelineWindowFx = matrixDomain
-    .effect<TimelineWindowPaginationParams, MessageResponse, Error>()
+export const loadRoomFx = matrixDomain
+    .effect<LoadRoomFxParams, MessageResponse, Error>()
+export const paginateRoomFx = matrixDomain
+    .effect<PaginateRoomFxParams, MessageResponse, Error>()
 export const readAllMessagesFx = matrixDomain
     .effect<ReadAllMessagesParams, void, Error>()
 export const getRoomsWithActivitiesFx = matrixDomain
@@ -56,3 +50,5 @@ export const getRoomInfoFx = matrixDomain
     .effect<string, RoomInfo, Error>()
 export const getLoggedUserFx = matrixDomain
     .effect<void, MappedUser | null, Error>()
+export const initRoomFx = matrixDomain
+    .effect<InitRoomParams, TimelineWindow, Error>()

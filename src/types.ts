@@ -5,6 +5,7 @@ import {
     Room,
     RoomMember,
     RoomSummary,
+    TimelineWindow,
     User,
 } from "matrix-js-sdk"
 
@@ -35,7 +36,9 @@ export interface EventPayload {
   room: Room
 }
 
-export type LoadTimelineWindowParams = {
+export type LoadRoomFxParams = {
+  roomId: string
+  timelineWindow: TimelineWindow
   initialEventId?: string
   initialWindowSize?: number
 }
@@ -107,13 +110,15 @@ export interface ReadAllMessagesParams {
 }
 export type EventListener = [string, (...args: any[]) => void]
 
-export interface InitTimelineWindowParams {
+/* export interface InitTimelineWindowParams {
   roomId: Room["roomId"]
   initialEventId?: RawEvent["event_id"]
   initialWindowSize?: number
-}
+} */
 
-export interface TimelineWindowPaginationParams {
+export interface PaginateRoomFxParams {
+  roomId: string
+  timelineWindow: TimelineWindow
   direction: "forward" | "backward"
   size: number
   makeRequest?: boolean
@@ -146,4 +151,18 @@ export type MessageResponse = {
   messages: Message[]
   isLive: boolean
   eventsRetrieved: boolean
+}
+
+export type InitRoomParams = {
+  roomId: string
+}
+export type LoadRoomParams = {
+  initialEventId?: string
+  initialWindowSize?: number
+}
+export type PaginateParams = {
+  roomId: string
+  size: number
+  makeRequest?: boolean
+  requestLimit?: number
 }

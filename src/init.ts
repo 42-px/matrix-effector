@@ -1,5 +1,5 @@
 import { createCustomError } from "@42px/custom-errors"
-import { forward } from "effector"
+import { combine, forward, guard, sample } from "effector"
 import matrix, { RoomMember } from "matrix-js-sdk"
 import {
     initStoreFx,
@@ -8,20 +8,27 @@ import {
     sendMessageFx,
     startClientFx,
     editMessageFx,
-    getRoomTimelineFx,
     loginByTokenFx,
     stopClientFx,
-    initTimelineWindowFx,
-    getTimelineWindowMessagesFx,
-    paginateTimelineWindowFx,
+    paginateRoomFx,
     searchRoomMessagesFx,
-    loadTimelineWindowFx,
+    loadRoomFx,
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
     getRoomInfoFx,
-    getLoggedUserFx
+    getLoggedUserFx,
+    initRoomFx
 } from "./effects"
-import { onCachedState, onInitialSync, onSync, roomMessage } from "./events"
+import {
+    initRoom,
+    loadRoom,
+    onCachedState,
+    onInitialSync,
+    onSync,
+    paginateBack,
+    paginateFront,
+    roomMessage
+} from "./events"
 import {
     mergeMessageEvents,
     toMappedRoom,
@@ -34,6 +41,8 @@ import {
     DeleteMessageResult,
     Room,
     MatrixEvent,
+    PaginateRoomFxParams,
+    LoadRoomFxParams,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,
@@ -42,13 +51,106 @@ import {
     LOGIN_BY_TOKEN,
 } from "./constants"
 import { checkIsDirect } from "./utils"
+import { $messages, $roomId, $timelineWindow } from "./state"
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
-const PaginationFail = createCustomError("PaginationFail")
 const EventNotFound = createCustomError("EventNotFound")
 const ClientNotInitialized = createCustomError("ClientNotInitialized")
 
+$roomId.on(initRoom, (_, { roomId }) => roomId)
+$timelineWindow
+    .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
+    .reset($roomId.updates)
+// Race ellimination
+const setMessages = guard({
+    source: sample(
+        $roomId,
+        [loadRoomFx.done, paginateRoomFx.done],
+        (currentRoomId, { params: { roomId }, result: { messages }}) => ({
+            currentRoomId,
+            roomId,
+            messages,
+        })
+    ),
+    filter: ({ currentRoomId, roomId }) => currentRoomId === roomId
+})
+$messages
+    .on(setMessages, (_, { messages }) => messages)
+    .reset($roomId.updates)
+
+
+const canLoad = combine(
+    $roomId,
+    $timelineWindow,
+    (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
+)
+guard({
+    source: sample(
+        [$roomId, $timelineWindow],
+        loadRoom,
+        ([
+            roomId,
+            timelineWindow
+        ], {
+            initialEventId,
+            initialWindowSize,
+        }): LoadRoomFxParams => ({
+            roomId: roomId as any,
+            timelineWindow: timelineWindow as any,
+            initialEventId,
+            initialWindowSize
+        })
+    ),
+    filter: canLoad,
+    target: loadRoomFx
+})
+guard({
+    source: sample(
+        [$roomId, $timelineWindow],
+        paginateBack,
+        ([
+            roomId,
+            timelineWindow
+        ], {
+            size,
+            makeRequest,
+            requestLimit
+        }): PaginateRoomFxParams => ({
+            roomId: roomId as any,
+            timelineWindow: timelineWindow as any,
+            direction: "backward",
+            size,
+            makeRequest,
+            requestLimit,
+        })
+    ),
+    filter: canLoad,
+    target: paginateRoomFx
+})
+guard({
+    source: sample(
+        [$roomId, $timelineWindow],
+        paginateFront,
+        ([
+            roomId,
+            timelineWindow
+        ], {
+            size,
+            makeRequest,
+            requestLimit
+        }): PaginateRoomFxParams => ({
+            roomId: roomId as any,
+            timelineWindow: timelineWindow as any,
+            direction: "forward",
+            size,
+            makeRequest,
+            requestLimit,
+        })
+    ),
+    filter: canLoad,
+    target: paginateRoomFx
+})
 getLoggedUserFx.use(() => {
     const cl = client()
     if (!cl) return null
@@ -136,7 +238,7 @@ deleteMessageFx.use(async ({
         eventId: res.event_id,
     }
 })
-getRoomTimelineFx.use((roomId) => {
+/* getRoomTimelineFx.use((roomId) => {
     const room = client().getRoom(roomId)
     if (room) {
         return room.timeline
@@ -145,7 +247,7 @@ getRoomTimelineFx.use((roomId) => {
             .reduce(mergeMessageEvents, [])
     }
     return []
-})
+}) */
 function getMappedRooms() {
     return client().getRooms().map(toMappedRoom)
 }
@@ -240,9 +342,9 @@ getRoomsWithActivitiesFx.use((rooms) => {
     })
 })
 stopClientFx.use(() => client().stopClient())
-let timelineWindow: matrix.TimelineWindow | undefined
-let timelineWindowRoom: matrix.Room | undefined
-initTimelineWindowFx
+/* let timelineWindow: matrix.TimelineWindow | undefined
+let timelineWindowRoom: matrix.Room | undefined */
+/* initTimelineWindowFx
     .use(async ({ roomId, initialEventId, initialWindowSize }) => {
         const cl = client()
         const room = client().getRoom(roomId)
@@ -262,11 +364,13 @@ initTimelineWindowFx
             isLive,
             eventsRetrieved: true
         }
-    })
-loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
-    if (!timelineWindow || !timelineWindowRoom) {
-        throw new TimelineWindowUndefined()
-    }
+    }) */
+loadRoomFx.use(async ({
+    timelineWindow,
+    initialEventId,
+    initialWindowSize
+}) => {
+    if (!timelineWindow) throw new TimelineWindowUndefined()
     await timelineWindow.load(initialEventId, initialWindowSize)
     const isLive = !timelineWindow.canPaginate("f")
     const messages =  timelineWindow
@@ -280,24 +384,23 @@ loadTimelineWindowFx.use(async ({ initialEventId, initialWindowSize }) => {
         eventsRetrieved: true
     }
 })
-getTimelineWindowMessagesFx.use(() => {
+/* getTimelineWindowMessagesFx.use(() => {
     if (!timelineWindow) return []
     return timelineWindow
         .getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
-})
+}) */
 
-paginateTimelineWindowFx.use(async ({
+paginateRoomFx.use(async ({
+    timelineWindow,
     direction,
     size,
     makeRequest,
     requestLimit,
 }) => {
-    if (!timelineWindow || !timelineWindowRoom) {
-        throw new TimelineWindowUndefined()
-    }
+    if (!timelineWindow) throw new TimelineWindowUndefined()
     const dir = direction === "forward" ?
         matrix.EventTimeline.FORWARDS :
         matrix.EventTimeline.BACKWARDS
@@ -308,7 +411,6 @@ paginateTimelineWindowFx.use(async ({
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
-        
     return {
         messages,
         isLive,
@@ -320,4 +422,12 @@ getRoomInfoFx.use((roomId) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     return toRoomInfo(room)
+})
+
+initRoomFx.use(async ({ roomId }) => {
+    const cl = client()
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const timelineSet = room.getUnfilteredTimelineSet()
+    return new matrix.TimelineWindow(cl, timelineSet)
 })
