@@ -22,7 +22,12 @@ import {
   onInitialSync,
   createRoomMessageBatch,
   initTimelineWindowFx,
-  paginateTimelineWindowFx,
+  $currentRoomId, // Use these stores in your view
+  $messages,
+  initRoom,
+  loadRoom,
+  paginateForward,
+  paginateBackward,
   searchRoomMessagesFx,
   loadTimelineWindowFx,
   onCachedState,
@@ -40,8 +45,6 @@ import {
   roomSelected,
 } from './events'
 import {
-  $currentRoomId,
-  $messages,
   $rooms,
   $searchInput,
   $searchResults,
@@ -51,11 +54,6 @@ import {
 const chatWindowSize = 20
 
 $rooms.on(getRoomsWithActivitiesFx.doneData, (_, value) => value)
-$currentRoomId.on(roomSelected, (_, value) => value)
-$messages
-  .on(initTimelineWindowFx.doneData, (_, { messages }) => messages)
-  .on(paginateTimelineWindowFx.doneData, (_, { messages }) => messages)
-  .on(loadTimelineWindowFx.doneData, (_, { messages }) => messages)
 $searchInput.on(onSearchInput, (_, value) => value)
 $searchResults.on(searchRoomMessagesFx.doneData, (_, messages) => messages)
 $currentUser.on(getLoggedUserFx.doneData, (_, user) => user)
@@ -88,16 +86,14 @@ forward({
 })
 const roomMessageBatch = createRoomMessageBatch(200)
 guard({
-  source: roomMessageBatch.map((batch) => ({ direction: 'forward', size: batch.length })),
+  source: roomMessageBatch.map((batch) => ({ size: batch.length })),
   filter: $currentRoomId.map((roomId) => Boolean(roomId)),
-  target: paginateTimelineWindowFx,
+  target: paginateForward,
 })
+// To select current room trigger initRoom - it will also create a TimelineWindow instance for it
 forward({
-  from: guard({
-    source: roomSelected,
-    filter: (roomId) => Boolean(roomId),
-  }).map((roomId) => ({ roomId, initialWindowSize: chatWindowSize })),
-  to: initTimelineWindowFx,
+  from: roomSelected.map((roomId) => { roomId }),
+  to: initRoom,
 })
 guard({
   source: sample(
@@ -108,38 +104,23 @@ guard({
   filter: combine($currentRoomId, $searchInput, (roomId, term) => Boolean(roomId) && Boolean(term)),
   target: searchRoomMessagesFx,
 })
-forward({
-  from: sample(
-    $currentRoomId,
-    guard({
-      source: onSearchResultSelect,
-      filter: $currentRoomId.map((roomId) => Boolean(roomId)),
-    }),
-    (roomId, eventId) => ({
-      initialEventId: eventId,
-      roomId: roomId as string,
-      initialWindowSize: chatWindowSize,
-    }),
-  ),
-  to: loadTimelineWindowFx,
+guard({
+  source: onSearchResultSelect.map((eventId) => ({
+    initialEventId: eventId,
+    initialWindowSize: chatWindowSize,
+  })),
+  filter: $currentRoomId.map((roomId) => Boolean(roomId)),
+  target: loadRoom,
 })
 guard({
-  source: sample(
-    $currentRoomId,
-    onLoadMoreBack,
-    () => ({ direction: 'backward', size: 10 }),
-  ),
+  source: onLoadMoreBack.map(() => ({ size: 10 })),
   filter: $currentRoomId.map((roomId) => Boolean(roomId)),
-  target: paginateTimelineWindowFx,
+  target: paginateBackward,
 })
 guard({
-  source: sample(
-    $currentRoomId,
-    onLoadMoreFront,
-    () => ({ direction: 'forward', size: 10 }),
-  ),
+  source: onLoadMoreFront.map(() => ({ size: 10 })),
   filter: $currentRoomId.map((roomId) => Boolean(roomId)),
-  target: paginateTimelineWindowFx,
+  target: paginateForward,
 })
 const onSyncThrottled = createOnSyncThrottled(500)
 forward({
