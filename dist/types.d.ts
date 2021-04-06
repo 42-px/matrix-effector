@@ -1,4 +1,4 @@
-import { MatrixClient, MatrixEvent, RawEvent, Room, RoomMember, RoomSummary, User } from "matrix-js-sdk";
+import { MatrixClient, MatrixEvent, Room, RoomMember, RoomSummary, TimelineWindow, User } from "matrix-js-sdk";
 export { Room, LoginPayload, MatrixEvent, RoomMember, } from "matrix-js-sdk";
 export interface LoginByPasswordParams {
     user: string;
@@ -12,7 +12,9 @@ export interface EventPayload {
     event: MatrixEvent;
     room: Room;
 }
-export declare type LoadTimelineWindowParams = {
+export declare type LoadRoomFxParams = {
+    roomId: string;
+    timelineWindow: TimelineWindow;
     initialEventId?: string;
     initialWindowSize?: number;
 };
@@ -82,12 +84,9 @@ export interface ReadAllMessagesParams {
     eventId: string;
 }
 export declare type EventListener = [string, (...args: any[]) => void];
-export interface InitTimelineWindowParams {
-    roomId: Room["roomId"];
-    initialEventId?: RawEvent["event_id"];
-    initialWindowSize?: number;
-}
-export interface TimelineWindowPaginationParams {
+export interface PaginateRoomFxParams {
+    roomId: string;
+    timelineWindow: TimelineWindow;
     direction: "forward" | "backward";
     size: number;
     makeRequest?: boolean;
@@ -116,4 +115,16 @@ export declare type MessageResponse = {
     messages: Message[];
     isLive: boolean;
     eventsRetrieved: boolean;
+};
+export declare type InitRoomParams = {
+    roomId: string;
+};
+export declare type LoadRoomParams = {
+    initialEventId?: string;
+    initialWindowSize?: number;
+};
+export declare type PaginateParams = {
+    size: number;
+    makeRequest?: boolean;
+    requestLimit?: number;
 };
