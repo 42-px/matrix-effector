@@ -3,7 +3,6 @@ import { combine } from "effector"
 import { TimelineWindow } from "matrix-js-sdk"
 import { throttle } from "patronum/throttle"
 import { matrixDomain } from "./domain"
-import { loadRoomFx } from "./private"
 import {
     DeleteMessagePayload,
     DeleteMessageResult,
@@ -58,7 +57,7 @@ export const $currentRoomId = matrixDomain
     .store<RoomWithActivity["roomId"] | null>(null)
 export const $timelineWindow = matrixDomain.store<TimelineWindow | null>(null)
 export const $messages = matrixDomain.store<Message[]>([])
-export const $loadRoomFxPending = loadRoomFx.pending
+export const $loadRoomFxPending = matrixDomain.store(false)
 export const $paginateForwardPending = matrixDomain.store(false)
 export const $paginateBackwardPending = matrixDomain.store(false)
 export const $isLive = matrixDomain.store<boolean | null>(null)
@@ -88,7 +87,7 @@ export const $canPaginate = combine(
     $canLoad,
     $paginateBackwardPending,
     $paginateForwardPending,
-    loadRoomFx.pending,
+    $loadRoomFxPending,
     (
         canLoad,
         backwardPaginationPending,

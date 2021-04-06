@@ -32,7 +32,8 @@ import {
     $messages,
     $paginateBackwardPending,
     $paginateForwardPending,
-    $timelineWindow
+    $timelineWindow,
+    $loadRoomFxPending
 } from "./public"
 import { paginateRoomFx, loadRoomFx } from "./private"
 import {
@@ -85,7 +86,7 @@ const paginateForwardFx = attach({
     })
 })
 const onRoomReset = $currentRoomId.updates
-    .filterMap(id => id === null ? undefined : true)
+    .filterMap(id => id === null ? true : undefined)
 
 $currentRoomId.on(initRoom, (_, { roomId }) => roomId)
 $timelineWindow
@@ -120,10 +121,18 @@ $isLive
 $eventsRetrieved
     .on(setMessages, (_, { isLive }) => isLive)
     .reset(onRoomReset)
-$paginateForwardPending
-    .on(paginateForwardFx.pending.updates, (_, value) => value)
-$paginateBackwardPending
-    .on(paginateBackwardFx.pending.updates, (_, value) => value)
+forward({
+    from: loadRoomFx.pending,
+    to: $loadRoomFxPending,
+})
+forward({
+    from: paginateForwardFx.pending,
+    to: $paginateForwardPending,
+})
+forward({
+    from: paginateBackwardFx.pending,
+    to: $paginateBackwardPending,
+})
 
 guard({
     source: sample(
