@@ -1,6 +1,6 @@
 import { createCustomError } from "@42px/custom-errors"
-import { attach, combine, forward, guard, sample } from "effector"
-import matrix, { RoomMember } from "matrix-js-sdk"
+import { attach, forward, guard, sample } from "effector"
+import matrix, { RoomMember, TimelineWindow } from "matrix-js-sdk"
 import {
     initStoreFx,
     loginByPasswordFx,
@@ -71,8 +71,8 @@ const paginateBackwardFx = attach({
     source: [$currentRoomId, $timelineWindow],
     effect: paginateRoomFx,
     mapParams: (params: PaginateParams, [roomId, timelineWindow]) => ({
-        roomId: roomId as any,
-        timelineWindow: timelineWindow as any,
+        roomId: roomId as string,
+        timelineWindow: timelineWindow as TimelineWindow,
         direction: "backward" as const,
         ...params,
     })
@@ -82,8 +82,8 @@ const paginateForwardFx = attach({
     source: [$currentRoomId, $timelineWindow],
     effect: paginateRoomFx,
     mapParams: (params: PaginateParams, [roomId, timelineWindow]) => ({
-        roomId: roomId as any,
-        timelineWindow: timelineWindow as any,
+        roomId: roomId as string,
+        timelineWindow: timelineWindow as TimelineWindow,
         direction: "forward" as const,
         ...params,
     })
@@ -140,8 +140,8 @@ guard({
             initialEventId,
             initialWindowSize,
         }): LoadRoomFxParams => ({
-            roomId: roomId as any,
-            timelineWindow: timelineWindow as any,
+            roomId: roomId as string,
+            timelineWindow: timelineWindow as TimelineWindow,
             initialEventId,
             initialWindowSize
         })
