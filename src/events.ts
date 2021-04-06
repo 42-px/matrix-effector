@@ -20,5 +20,5 @@ export const createOnSyncThrottled = (ms: number) =>
 
 export const initRoom = matrixDomain.event<InitRoomParams>()
 export const loadRoom = matrixDomain.event<LoadRoomParams>()
-export const paginateFront = matrixDomain.event<PaginateParams>()
-export const paginateBack = matrixDomain.event<PaginateParams>()
+export const paginateForward = matrixDomain.event<PaginateParams>()
+export const paginateBackward = matrixDomain.event<PaginateParams>()

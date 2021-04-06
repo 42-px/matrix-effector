@@ -16,6 +16,7 @@ export {
     initRoomFx,
 } from "./effects"
 export * from "./events"
+export * from "./computed"
 export * from "./matrix-client"
 export * from "./utils"
 import "./init"

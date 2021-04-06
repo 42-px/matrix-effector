@@ -7,5 +7,5 @@ export declare const onSync: import("effector").Event<MappedRoom[]>;
 export declare const createOnSyncThrottled: (ms: number) => import("effector").Event<MappedRoom[]>;
 export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const loadRoom: import("effector").Event<LoadRoomParams>;
-export declare const paginateFront: import("effector").Event<PaginateParams>;
-export declare const paginateBack: import("effector").Event<PaginateParams>;
+export declare const paginateForward: import("effector").Event<PaginateParams>;
+export declare const paginateBackward: import("effector").Event<PaginateParams>;

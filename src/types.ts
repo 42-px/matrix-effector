@@ -1,7 +1,6 @@
 import {
     MatrixClient,
     MatrixEvent,
-    RawEvent,
     Room,
     RoomMember,
     RoomSummary,
@@ -110,12 +109,6 @@ export interface ReadAllMessagesParams {
 }
 export type EventListener = [string, (...args: any[]) => void]
 
-/* export interface InitTimelineWindowParams {
-  roomId: Room["roomId"]
-  initialEventId?: RawEvent["event_id"]
-  initialWindowSize?: number
-} */
-
 export interface PaginateRoomFxParams {
   roomId: string
   timelineWindow: TimelineWindow
@@ -161,7 +154,6 @@ export type LoadRoomParams = {
   initialWindowSize?: number
 }
 export type PaginateParams = {
-  roomId: string
   size: number
   makeRequest?: boolean
   requestLimit?: number

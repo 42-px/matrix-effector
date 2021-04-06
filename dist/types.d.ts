@@ -124,7 +124,6 @@ export declare type LoadRoomParams = {
     initialWindowSize?: number;
 };
 export declare type PaginateParams = {
-    roomId: string;
     size: number;
     makeRequest?: boolean;
     requestLimit?: number;
