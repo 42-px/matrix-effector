@@ -10,16 +10,12 @@ import {
     editMessageFx,
     loginByTokenFx,
     stopClientFx,
-    paginateRoomFx,
     searchRoomMessagesFx,
-    loadRoomFx,
     readAllMessagesFx,
     getRoomsWithActivitiesFx,
     getRoomInfoFx,
     getLoggedUserFx,
-    initRoomFx
-} from "./effects"
-import {
+    initRoomFx,
     initRoom,
     loadRoom,
     onCachedState,
@@ -27,8 +23,18 @@ import {
     onSync,
     paginateBackward,
     paginateForward,
-    roomMessage
-} from "./events"
+    roomMessage,
+    $canLoad,
+    $canPaginate,
+    $currentRoomId,
+    $eventsRetrieved,
+    $isLive,
+    $messages,
+    $paginateBackwardPending,
+    $paginateForwardPending,
+    $timelineWindow
+} from "./public"
+import { paginateRoomFx, loadRoomFx } from "./private"
 import {
     mergeMessageEvents,
     toMappedRoom,
@@ -51,16 +57,6 @@ import {
     LOGIN_BY_TOKEN,
 } from "./constants"
 import { checkIsDirect } from "./utils"
-import {
-    $eventsRetrieved,
-    $isLive,
-    $messages,
-    $paginateBackwardPending,
-    $paginateForwardPending,
-    $currentRoomId,
-    $timelineWindow
-} from "./state"
-import { $canLoad, $canPaginate } from "./computed"
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
