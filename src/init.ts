@@ -27,13 +27,14 @@ import {
     $canLoad,
     $canPaginate,
     $currentRoomId,
-    $eventsRetrieved,
     $isLive,
     $messages,
     $paginateBackwardPending,
     $paginateForwardPending,
     $timelineWindow,
-    $loadRoomFxPending
+    $loadRoomFxPending,
+    $canPaginateBackward,
+    $canPaginateForward
 } from "./public"
 import { paginateRoomFx, loadRoomFx } from "./private"
 import {
@@ -101,13 +102,11 @@ const setMessages = guard({
             currentRoomId,
             { 
                 params: { roomId },
-                result: { messages, isLive, eventsRetrieved }
+                result,
             }) => ({
             currentRoomId,
             roomId,
-            messages,
-            isLive,
-            eventsRetrieved,
+            ...result,
         })
     ),
     filter: ({ currentRoomId, roomId }) => currentRoomId === roomId
@@ -118,8 +117,11 @@ $messages
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
     .reset(onRoomReset)
-$eventsRetrieved
-    .on(setMessages, (_, { isLive }) => isLive)
+$canPaginateBackward
+    .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
+    .reset(onRoomReset)
+$canPaginateForward
+    .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
     .reset(onRoomReset)
 forward({
     from: loadRoomFx.pending,
@@ -353,7 +355,7 @@ loadRoomFx.use(async ({
 }) => {
     if (!timelineWindow) throw new TimelineWindowUndefined()
     await timelineWindow.load(initialEventId, initialWindowSize)
-    const isLive = !timelineWindow.canPaginate("f")
+    const canPaginateForward = timelineWindow.canPaginate("f")
     let messages = timelineWindow
         .getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
@@ -374,8 +376,9 @@ loadRoomFx.use(async ({
     }
     return {
         messages,
-        isLive,
-        eventsRetrieved: true
+        isLive: !canPaginateForward,
+        canPaginateForward,
+        canPaginateBackward: timelineWindow.canPaginate("b")
     }
 })
 
@@ -390,17 +393,18 @@ paginateRoomFx.use(async ({
     const dir = direction === "forward" ?
         matrix.EventTimeline.FORWARDS :
         matrix.EventTimeline.BACKWARDS
-    const eventsRetrieved: boolean = await timelineWindow
+    await timelineWindow
         .paginate(dir, size, makeRequest, requestLimit)
-    const isLive = !timelineWindow.canPaginate("f")
+    const canPaginateForward = timelineWindow.canPaginate("f")
     const messages =  timelineWindow.getEvents()
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
     return {
         messages,
-        isLive,
-        eventsRetrieved
+        isLive: !canPaginateForward,
+        canPaginateForward: canPaginateForward,
+        canPaginateBackward: timelineWindow.canPaginate("b")
     }
 })
 

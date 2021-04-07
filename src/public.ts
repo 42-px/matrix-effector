@@ -61,7 +61,8 @@ export const $loadRoomFxPending = matrixDomain.store(false)
 export const $paginateForwardPending = matrixDomain.store(false)
 export const $paginateBackwardPending = matrixDomain.store(false)
 export const $isLive = matrixDomain.store<boolean | null>(null)
-export const $eventsRetrieved = matrixDomain.store<boolean | null>(null)
+export const $canPaginateBackward = matrixDomain.store(false)
+export const $canPaginateForward = matrixDomain.store(false)
 
 export const roomMessage = matrixDomain.event<MessageEvent>()
 export const createRoomMessageBatch = (ms: number) =>
