@@ -86,13 +86,11 @@ const paginateForwardFx = attach({
         ...params,
     })
 })
-const onRoomReset = $currentRoomId.updates
-    .filterMap(id => id === null ? true : undefined)
 
 $currentRoomId.on(initRoom, (_, { roomId }) => roomId)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
-    .reset($currentRoomId.updates)
+    .reset($currentRoomId)
 // Race ellimination
 const setMessages = guard({
     source: sample(
@@ -113,16 +111,16 @@ const setMessages = guard({
 })
 $messages
     .on(setMessages, (_, { messages }) => messages)
-    .reset($currentRoomId.updates)
+    .reset($currentRoomId)
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
-    .reset(onRoomReset)
+    .reset($currentRoomId)
 $canPaginateBackward
     .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
-    .reset(onRoomReset)
+    .reset([loadRoom, $currentRoomId])
 $canPaginateForward
     .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
-    .reset(onRoomReset)
+    .reset([loadRoom, $currentRoomId])
 forward({
     from: loadRoomFx.pending,
     to: $loadRoomFxPending,
