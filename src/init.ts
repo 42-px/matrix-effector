@@ -86,8 +86,6 @@ const paginateForwardFx = attach({
         ...params,
     })
 })
-const onRoomReset = $currentRoomId.updates
-    .filterMap(id => id === null ? true : undefined)
 
 $currentRoomId.on(initRoom, (_, { roomId }) => roomId)
 $timelineWindow
@@ -116,13 +114,13 @@ $messages
     .reset($currentRoomId.updates)
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
-    .reset(onRoomReset)
+    .reset($currentRoomId.updates)
 $canPaginateBackward
     .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
-    .reset(onRoomReset)
+    .reset([loadRoom, $currentRoomId.updates])
 $canPaginateForward
     .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
-    .reset(onRoomReset)
+    .reset([loadRoom, $currentRoomId.updates])
 forward({
     from: loadRoomFx.pending,
     to: $loadRoomFxPending,
