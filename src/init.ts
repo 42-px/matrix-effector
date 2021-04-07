@@ -27,13 +27,14 @@ import {
     $canLoad,
     $canPaginate,
     $currentRoomId,
-    $eventsRetrieved,
     $isLive,
     $messages,
     $paginateBackwardPending,
     $paginateForwardPending,
     $timelineWindow,
-    $loadRoomFxPending
+    $loadRoomFxPending,
+    $canPaginateBackward,
+    $canPaginateForward
 } from "./public"
 import { paginateRoomFx, loadRoomFx } from "./private"
 import {
@@ -101,13 +102,11 @@ const setMessages = guard({
             currentRoomId,
             { 
                 params: { roomId },
-                result: { messages, isLive, eventsRetrieved }
+                result,
             }) => ({
             currentRoomId,
             roomId,
-            messages,
-            isLive,
-            eventsRetrieved,
+            ...result,
         })
     ),
     filter: ({ currentRoomId, roomId }) => currentRoomId === roomId
@@ -118,8 +117,11 @@ $messages
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
     .reset(onRoomReset)
-$eventsRetrieved
-    .on(setMessages, (_, { isLive }) => isLive)
+$canPaginateBackward
+    .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
+    .reset(onRoomReset)
+$canPaginateForward
+    .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
     .reset(onRoomReset)
 forward({
     from: loadRoomFx.pending,
@@ -375,7 +377,9 @@ loadRoomFx.use(async ({
     return {
         messages,
         isLive,
-        eventsRetrieved: true
+        eventsRetrieved: true,
+        canPaginateForward: timelineWindow.canPaginate("f"),
+        canPaginateBackward: timelineWindow.canPaginate("b")
     }
 })
 
@@ -400,7 +404,9 @@ paginateRoomFx.use(async ({
     return {
         messages,
         isLive,
-        eventsRetrieved
+        eventsRetrieved,
+        canPaginateForward: timelineWindow.canPaginate("f"),
+        canPaginateBackward: timelineWindow.canPaginate("b")
     }
 })
 

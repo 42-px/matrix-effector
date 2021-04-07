@@ -144,6 +144,8 @@ export type MessageResponse = {
   messages: Message[]
   isLive: boolean
   eventsRetrieved: boolean
+  canPaginateForward: boolean
+  canPaginateBackward: boolean
 }
 
 export type InitRoomParams = {

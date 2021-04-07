@@ -115,6 +115,8 @@ export declare type MessageResponse = {
     messages: Message[];
     isLive: boolean;
     eventsRetrieved: boolean;
+    canPaginateForward: boolean;
+    canPaginateBackward: boolean;
 };
 export declare type InitRoomParams = {
     roomId: string;
