@@ -15,7 +15,6 @@ import {
     getRoomsWithActivitiesFx,
     getRoomInfoFx,
     getLoggedUserFx,
-    initRoomFx,
     initRoom,
     loadRoom,
     onCachedState,
@@ -32,9 +31,10 @@ import {
     $timelineWindow,
     $loadRoomFxPending,
     $canPaginateBackward,
-    $canPaginateForward
+    $canPaginateForward,
+    onRoomInitialized
 } from "./public"
-import { paginateRoomFx, loadRoomFx } from "./private"
+import { paginateRoomFx, loadRoomFx, initRoomFx } from "./private"
 import {
     mergeMessageEvents,
     toMappedRoom,
@@ -151,6 +151,15 @@ forward({
 forward({
     from: paginateBackwardFx.pending,
     to: $paginateBackwardPending,
+})
+forward({
+    from: sample({
+        source: $timelineWindow,
+        clock: initRoomFx.done,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        fn: () => {},
+    }),
+    to: onRoomInitialized,
 })
 
 guard({
