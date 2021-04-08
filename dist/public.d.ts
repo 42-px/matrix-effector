@@ -42,5 +42,3 @@ export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const loadRoom: import("effector").Event<LoadRoomParams>;
 export declare const paginateForward: import("effector").Event<PaginateParams>;
 export declare const paginateBackward: import("effector").Event<PaginateParams>;
-export declare const $canLoad: import("effector").Store<boolean>;
-export declare const $canPaginate: import("effector").Store<boolean>;

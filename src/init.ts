@@ -1,5 +1,5 @@
 import { createCustomError } from "@42px/custom-errors"
-import { attach, forward, guard, sample } from "effector"
+import { attach, combine, forward, guard, sample } from "effector"
 import matrix, { RoomMember, TimelineWindow } from "matrix-js-sdk"
 import {
     initStoreFx,
@@ -24,8 +24,6 @@ import {
     paginateBackward,
     paginateForward,
     roomMessage,
-    $canLoad,
-    $canPaginate,
     $currentRoomId,
     $isLive,
     $messages,
@@ -86,6 +84,27 @@ const paginateForwardFx = attach({
         ...params,
     })
 })
+
+const $loadFilter = combine(
+    $currentRoomId,
+    $timelineWindow,
+    (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
+)
+const $paginateFilter = combine(
+    $loadFilter,
+    $paginateBackwardPending,
+    $paginateForwardPending,
+    $loadRoomFxPending,
+    (
+        canLoad,
+        backwardPaginationPending,
+        forwardPaginationPending,
+        roomLoading,
+    ) => canLoad
+      && !backwardPaginationPending
+      && !forwardPaginationPending
+      && !roomLoading
+)
 
 $currentRoomId.on(initRoom, (_, { roomId }) => roomId)
 $timelineWindow
@@ -151,20 +170,23 @@ guard({
             initialWindowSize
         })
     ),
-    filter: $canLoad,
+    filter: $loadFilter,
     target: loadRoomFx
 })
 guard({
     source: paginateBackward,
-    filter: $canPaginate,
+    filter: $paginateFilter,
     target: paginateBackwardFx
 })
 guard({
     source: paginateForward,
-    filter: $canPaginate,
+    filter: $paginateFilter,
     target: paginateForwardFx
 })
-
+forward({
+    from: initRoom,
+    to: initRoomFx,
+})
 getLoggedUserFx.use(() => {
     const cl = client()
     if (!cl) return null

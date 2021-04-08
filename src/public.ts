@@ -76,26 +76,3 @@ export const initRoom = matrixDomain.event<InitRoomParams>()
 export const loadRoom = matrixDomain.event<LoadRoomParams>()
 export const paginateForward = matrixDomain.event<PaginateParams>()
 export const paginateBackward = matrixDomain.event<PaginateParams>()
-
-
-export const $canLoad = combine(
-    $currentRoomId,
-    $timelineWindow,
-    (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
-)
-
-export const $canPaginate = combine(
-    $canLoad,
-    $paginateBackwardPending,
-    $paginateForwardPending,
-    $loadRoomFxPending,
-    (
-        canLoad,
-        backwardPaginationPending,
-        forwardPaginationPending,
-        roomLoading,
-    ) => canLoad
-  && !backwardPaginationPending
-  && !forwardPaginationPending
-  && !roomLoading
-)
