@@ -70,7 +70,7 @@ export const onSync = matrixDomain.event<MappedRoom[]>()
 export const createOnSyncThrottled = (ms: number) =>
     throttle({ source: onSync, timeout: ms})
 export const initRoom = matrixDomain.event<InitRoomParams>()
-export const onRoomInitialized = matrixDomain.event()
+export const onRoomInitialized = matrixDomain.event<void>()
 export const loadRoom = matrixDomain.event<LoadRoomParams>()
 export const paginateForward = matrixDomain.event<PaginateParams>()
 export const paginateBackward = matrixDomain.event<PaginateParams>()
