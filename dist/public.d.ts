@@ -22,7 +22,6 @@ export declare const readAllMessagesFx: import("effector").Effect<ReadAllMessage
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
 export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;
 export declare const getLoggedUserFx: import("effector").Effect<void, Pick<import("matrix-js-sdk").User, "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs" | "presence"> | null, Error>;
-export declare const initRoomFx: import("effector").Effect<InitRoomParams, TimelineWindow, Error>;
 export declare const $currentRoomId: import("effector").Store<string | null>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
 export declare const $messages: import("effector").Store<Message[]>;
@@ -39,6 +38,7 @@ export declare const onCachedState: import("effector").Event<MappedRoom[]>;
 export declare const onSync: import("effector").Event<MappedRoom[]>;
 export declare const createOnSyncThrottled: (ms: number) => import("effector").Event<MappedRoom[]>;
 export declare const initRoom: import("effector").Event<InitRoomParams>;
+export declare const onRoomInitialized: import("effector").Event<void>;
 export declare const loadRoom: import("effector").Event<LoadRoomParams>;
 export declare const paginateForward: import("effector").Event<PaginateParams>;
 export declare const paginateBackward: import("effector").Event<PaginateParams>;

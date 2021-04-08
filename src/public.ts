@@ -1,5 +1,4 @@
 import { batchEvents } from "@42px/effector-extra"
-import { combine } from "effector"
 import { TimelineWindow } from "matrix-js-sdk"
 import { throttle } from "patronum/throttle"
 import { matrixDomain } from "./domain"
@@ -49,8 +48,6 @@ export const getRoomInfoFx = matrixDomain
     .effect<string, RoomInfo, Error>()
 export const getLoggedUserFx = matrixDomain
     .effect<void, MappedUser | null, Error>()
-export const initRoomFx = matrixDomain
-    .effect<InitRoomParams, TimelineWindow, Error>()
 
 
 export const $currentRoomId = matrixDomain
@@ -73,6 +70,7 @@ export const onSync = matrixDomain.event<MappedRoom[]>()
 export const createOnSyncThrottled = (ms: number) =>
     throttle({ source: onSync, timeout: ms})
 export const initRoom = matrixDomain.event<InitRoomParams>()
+export const onRoomInitialized = matrixDomain.event<void>()
 export const loadRoom = matrixDomain.event<LoadRoomParams>()
 export const paginateForward = matrixDomain.event<PaginateParams>()
 export const paginateBackward = matrixDomain.event<PaginateParams>()

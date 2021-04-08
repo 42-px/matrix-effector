@@ -25,6 +25,7 @@ import {
   $currentRoomId, // Use these stores in your view
   $messages,
   initRoom,
+  onRoomInitialized,
   loadRoom,
   paginateForward,
   paginateBackward,
@@ -94,6 +95,10 @@ guard({
 forward({
   from: roomSelected.map((roomId) => { roomId }),
   to: initRoom,
+})
+forward({
+  from: onRoomInitialized,
+  to: loadRoom,
 })
 guard({
   source: sample(
