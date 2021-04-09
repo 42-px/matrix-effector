@@ -392,7 +392,7 @@ loadRoomFx.use(async ({
         .reduce(mergeMessageEvents, [])
     // дозагрузка сообщений если пришло меньше чем ожидали
     if (initialWindowSize && messages.length < initialWindowSize) {
-        const size = messages.length - initialWindowSize
+        const size = initialWindowSize - messages.length
         const eventsRetrieved: boolean = await timelineWindow
             .paginate(matrix.EventTimeline.BACKWARDS, size)
         if (eventsRetrieved) {
