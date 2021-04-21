@@ -40,7 +40,7 @@ export type LoadRoomFxParams = {
   timelineWindow: TimelineWindow
   initialEventId?: string
   initialWindowSize?: number
-  centered?: boolean
+  loadAdditionalDataDirection: 'BACKWARD' | 'FOWARD';
 }
 export interface SearchRoomMessagesPayload {
   roomId: string
@@ -154,7 +154,7 @@ export type InitRoomParams = {
 export type LoadRoomParams = {
   initialEventId?: string
   initialWindowSize?: number
-  centered?: boolean
+  loadAdditionalDataDirection?: 'BACKWARD' | 'FOWARD';
 }
 export type PaginateParams = {
   size: number
