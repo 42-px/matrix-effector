@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
@@ -37,6 +37,7 @@
     "@babel/preset-env": "^7.12.13",
     "@babel/preset-typescript": "^7.12.13",
     "@babel/runtime": "^7.12.13",
+    "@types/matrix-js-sdk": "^9.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "babel-plugin-module-resolver": "^4.1.0",
@@ -46,17 +47,15 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.29.0",
-    "typescript": "^4.1.3",
-    "@types/matrix-js-sdk": "^9.2.0"
+    "typescript": "^4.1.3"
   },
   "peerDependencies": {
+    "@42px/custom-errors": "^1.0.2",
+    "@42px/effector-extra": "^1.1.1",
     "effector": "^21.7.5",
     "matrix-js-sdk": "^9.6.0",
-    "@42px/effector-extra": "^1.1.1",
-    "@42px/custom-errors": "^1.0.2",
     "patronum": "^1.1.0"
   },
-  "dependencies": {},
   "files": [
     "dist"
   ],
