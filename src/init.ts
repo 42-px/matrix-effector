@@ -172,7 +172,7 @@ guard({
         ], {
             initialEventId,
             initialWindowSize,
-            loadAdditionalDataDirection = 'BACKWARD'
+            loadAdditionalDataDirection = "BACKWARD"
         }): LoadRoomFxParams => ({
             roomId: roomId as string,
             timelineWindow: timelineWindow as TimelineWindow,
@@ -394,14 +394,10 @@ loadRoomFx.use(async ({
             .includes(event.getType()))
         .reduce(mergeMessageEvents, [])
     // дозагрузка сообщений если пришло меньше чем ожидали
-    if (
-        initialWindowSize && 
-        messages.length < initialWindowSize && 
-        loadAdditionalDataDirection
-        ) {
+    if (initialWindowSize && messages.length < initialWindowSize) {
         let eventsRetrieved: boolean
         const size = initialWindowSize - messages.length
-        if (loadAdditionalDataDirection === 'BACKWARD') {
+        if (loadAdditionalDataDirection === "BACKWARD") {
             eventsRetrieved = await timelineWindow
                 .paginate(matrix.EventTimeline.BACKWARDS, size)
         } else {
