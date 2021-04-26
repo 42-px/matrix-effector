@@ -3,9 +3,11 @@ import { TimelineWindow } from "matrix-js-sdk"
 import { throttle } from "patronum/throttle"
 import { matrixDomain } from "./domain"
 import {
+    CheckEventPermissionsParams,
     DeleteMessagePayload,
     DeleteMessageResult,
     EditMessagePayload,
+    EventPermissions,
     InitRoomParams,
     LoadRoomParams,
     LoginByPasswordParams,
@@ -48,6 +50,8 @@ export const getRoomInfoFx = matrixDomain
     .effect<string, RoomInfo, Error>()
 export const getLoggedUserFx = matrixDomain
     .effect<void, MappedUser | null, Error>()
+export const checkEventPermissionsFx = matrixDomain
+    .effect<CheckEventPermissionsParams, EventPermissions, Error>()
 
 
 export const $currentRoomId = matrixDomain

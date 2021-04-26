@@ -34,6 +34,7 @@ import {
   onCachedState,
   getRoomsWithActivitiesFx,
   createOnSyncThrottled,
+  checkEventPermissionsFx,
 } from '@42px/matrix-effector'
 import { forward, guard, sample } from 'effector'
 import {
@@ -132,7 +133,23 @@ forward({
   from: [onCachedState, onInitialSync, onSyncThrottled],
   to: getRoomsWithActivitiesFx,
 })
-
+guard({
+  source: sample(
+    $currentRoomId,
+    $selectedMessage.updates,
+    (roomId, messageId) => ({
+      roomId: roomId as string,
+      eventId: messageId as string,
+    }),
+  ),
+  filter: combine(
+    $hasRoom,
+    $selectedMessage,
+    (hasRoom, messageId) => hasRoom && Boolean(messageId),
+  ),
+  target: checkEventPermissionsFx,
+})
+checkEventPermissionsFx.doneData.watch(({ canRedact, canEdit }) => console.log(canRedact, canEdit))
 ```
 
 

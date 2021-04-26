@@ -1,6 +1,11 @@
 import { createCustomError } from "@42px/custom-errors"
 import { attach, combine, forward, guard, sample } from "effector"
-import matrix, { RoomMember, TimelineWindow } from "matrix-js-sdk"
+import matrix, {
+    RoomMember,
+    TimelineWindow,
+    EventStatus,
+    EventType,
+} from "matrix-js-sdk"
 import {
     initStoreFx,
     loginByPasswordFx,
@@ -32,7 +37,8 @@ import {
     $loadRoomFxPending,
     $canPaginateBackward,
     $canPaginateForward,
-    onRoomInitialized
+    onRoomInitialized,
+    checkEventPermissionsFx
 } from "./public"
 import { paginateRoomFx, loadRoomFx, initRoomFx } from "./private"
 import {
@@ -62,6 +68,7 @@ const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
 const EventNotFound = createCustomError("EventNotFound")
 const ClientNotInitialized = createCustomError("ClientNotInitialized")
+const UserNotLoggedIn = createCustomError("UserNotLoggedIn")
 
 const paginateBackwardFx = attach({
     source: [$currentRoomId, $timelineWindow],
@@ -458,4 +465,36 @@ initRoomFx.use(async ({ roomId }) => {
     if (!room) throw new RoomNotFound()
     const timelineSet = room.getUnfilteredTimelineSet()
     return new matrix.TimelineWindow(cl, timelineSet)
+})
+function canEditContent(mxEvent: MatrixEvent): boolean {
+    if (mxEvent.status === EventStatus.CANCELLED ||
+        mxEvent.getType() !== "m.room.message" ||
+        mxEvent.isRedacted()
+    ) {
+        return false
+    }
+    const content = mxEvent.getOriginalContent()
+    const {msgtype} = content
+    return (msgtype === "m.text" || msgtype === "m.emote") &&
+        Boolean(content.body) && typeof content.body === "string" &&
+        mxEvent.getSender() === client().getUserId()
+}
+checkEventPermissionsFx.use(({ eventId, roomId }) => {
+    const cl = client()
+    if (!cl) throw new ClientNotInitialized()
+    const room = cl.getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const mxEvent = room.findEventById(eventId)
+    if (!mxEvent) throw new EventNotFound()
+    const userId = cl.getUserId()
+    if (!userId) throw new UserNotLoggedIn()
+    const canRedact = room.currentState
+        .maySendRedactionForEvent(mxEvent, userId) &&
+            mxEvent.getType() as string !==
+                "m.room.server_acl"   // missing in DT types
+    const canEdit = canEditContent(mxEvent)
+    return {
+        canRedact,
+        canEdit,
+    }
 })
