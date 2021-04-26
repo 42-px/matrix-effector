@@ -136,7 +136,7 @@ forward({
 guard({
   source: sample(
     $currentRoomId,
-    $selectedMessage,
+    $selectedMessage.updates,
     (roomId, messageId) => ({
       roomId: roomId as string,
       eventId: messageId as string,
