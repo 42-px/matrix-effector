@@ -131,3 +131,11 @@ export declare type PaginateParams = {
     makeRequest?: boolean;
     requestLimit?: number;
 };
+export interface CheckEventPermissionsParams {
+    eventId: string;
+    roomId: string;
+}
+export interface EventPermissions {
+    canRedact: boolean;
+    canEdit: boolean;
+}
