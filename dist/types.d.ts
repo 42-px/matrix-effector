@@ -85,6 +85,10 @@ export interface ReadAllMessagesParams {
     eventId: string;
 }
 export declare type EventListener = [string, (...args: any[]) => void];
+export interface UpdateMessagesFxParams {
+    roomId: string;
+    timelineWindow: TimelineWindow;
+}
 export interface PaginateRoomFxParams {
     roomId: string;
     timelineWindow: TimelineWindow;

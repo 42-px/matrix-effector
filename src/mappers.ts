@@ -8,10 +8,17 @@ import {
 } from "./types"
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
+    const content: any = {}
+    const matrixContent: any = event.getContent()
+    if (matrixContent.body) content.body = matrixContent.body
+    if (matrixContent.msgtype) content.msgtype = matrixContent.body
+    if (matrixContent["m.relates_to"]) {
+        content["m.relates_to"] = {...matrixContent["m.relates_to"]}
+    }
     const payload: MessageEvent = {
         eventId: event.getId(),
         // если есть клиентская агрегация, то этот метод отдает последний контент
-        content: event.getContent(),
+        content,
         originServerTs: event.getDate(),
         roomId: event.getRoomId(),
         sender: event.sender,
@@ -30,11 +37,18 @@ export function toMessage(
     event: MatrixEvent,
     originalEventId?: MatrixEvent["event"]["event_id"]
 ): Message {
+    const content: any = {}
+    const matrixContent: any = event.getContent()
+    if (matrixContent.body) content.body = matrixContent.body
+    if (matrixContent.msgtype) content.msgtype = matrixContent.body
+    if (matrixContent["m.relates_to"]) {
+        content["m.relates_to"] = {...matrixContent["m.relates_to"]}
+    }
     return {
         originalEventId: originalEventId !== undefined ?
             originalEventId :
             event.getId(),
-        content: event.getContent(),
+        content: content,
         sender: event.sender,
         originServerTs: event.getDate(),
         edited: Boolean(event.replacingEventId()),
