@@ -46,6 +46,9 @@ export declare type StartClientParams = Parameters<MatrixClient["startClient"]>[
 export declare type MessageContent = {
     body?: any;
     msgtype?: string;
+    "m.relates_to"?: {
+        "m.in_reply_to"?: any;
+    };
 };
 export declare type MessageEvent = {
     eventId: string;
