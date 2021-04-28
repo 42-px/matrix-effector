@@ -69,6 +69,9 @@ export type StartClientParams = Parameters<MatrixClient["startClient"]>[0]
 export type MessageContent = {
   body?: any
   msgtype?: string
+  "m.relates_to"?: {
+    "m.in_reply_to"?: any
+  }
 };
 export type MessageEvent = {
   eventId: string
@@ -110,6 +113,10 @@ export interface ReadAllMessagesParams {
 }
 export type EventListener = [string, (...args: any[]) => void]
 
+export interface UpdateMessagesFxParams {
+  roomId: string
+  timelineWindow: TimelineWindow
+}
 export interface PaginateRoomFxParams {
   roomId: string
   timelineWindow: TimelineWindow

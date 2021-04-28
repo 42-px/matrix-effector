@@ -40,7 +40,13 @@ import {
     onRoomInitialized,
     checkEventPermissionsFx
 } from "./public"
-import { paginateRoomFx, loadRoomFx, initRoomFx } from "./private"
+import {
+    paginateRoomFx,
+    loadRoomFx,
+    initRoomFx,
+    updateMessagesFx,
+    updateMessages
+} from "./private"
 import {
     mergeMessageEvents,
     toMappedRoom,
@@ -69,6 +75,14 @@ const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
 const EventNotFound = createCustomError("EventNotFound")
 const ClientNotInitialized = createCustomError("ClientNotInitialized")
 const UserNotLoggedIn = createCustomError("UserNotLoggedIn")
+
+function getMessages(timelineWindow: TimelineWindow) {
+    return timelineWindow
+        .getEvents()
+        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
+            .includes(event.getType()))
+        .reduce(mergeMessageEvents, [])
+}
 
 const paginateBackwardFx = attach({
     source: [$currentRoomId, $timelineWindow],
@@ -121,7 +135,7 @@ $timelineWindow
 const setMessages = guard({
     source: sample(
         $currentRoomId,
-        [loadRoomFx.done, paginateRoomFx.done],
+        [loadRoomFx.done, paginateRoomFx.done, updateMessagesFx.done],
         (
             currentRoomId,
             { 
@@ -168,7 +182,15 @@ forward({
     }),
     to: onRoomInitialized,
 })
-
+guard({
+    source: sample(
+        [$currentRoomId, $timelineWindow],
+        updateMessages,
+        ([roomId, timelineWindow]) => ({ timelineWindow, roomId })
+    ),
+    filter: $timelineWindow.map(timelineWindow => Boolean(timelineWindow)),
+    target: updateMessagesFx,
+})
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
@@ -314,6 +336,7 @@ onClientEvent([
                 }
             }
         }],
+    ["Room.localEchoUpdated", () => updateMessages()],
     ["sync", (state, prevState) => {
         if (state === "PREPARED") {
             const rooms = getMappedRooms()
@@ -395,11 +418,7 @@ loadRoomFx.use(async ({
     if (!timelineWindow) throw new TimelineWindowUndefined()
     await timelineWindow.load(initialEventId, initialWindowSize)
     const canPaginateForward = timelineWindow.canPaginate("f")
-    let messages = timelineWindow
-        .getEvents()
-        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-            .includes(event.getType()))
-        .reduce(mergeMessageEvents, [])
+    let messages = getMessages(timelineWindow)
     // дозагрузка сообщений если пришло меньше чем ожидали
     if (initialWindowSize && messages.length < initialWindowSize) {
         let eventsRetrieved: boolean
@@ -412,11 +431,7 @@ loadRoomFx.use(async ({
                 .paginate(matrix.EventTimeline.FORWARDS, size)
         }
         if (eventsRetrieved) {
-            messages = timelineWindow
-                .getEvents()
-                .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-                    .includes(event.getType()))
-                .reduce(mergeMessageEvents, [])
+            messages = getMessages(timelineWindow)
         }
     }
     return {
@@ -441,10 +456,7 @@ paginateRoomFx.use(async ({
     await timelineWindow
         .paginate(dir, size, makeRequest, requestLimit)
     const canPaginateForward = timelineWindow.canPaginate("f")
-    const messages =  timelineWindow.getEvents()
-        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-            .includes(event.getType()))
-        .reduce(mergeMessageEvents, [])
+    const messages = getMessages(timelineWindow)
     return {
         messages,
         isLive: !canPaginateForward,
@@ -452,7 +464,15 @@ paginateRoomFx.use(async ({
         canPaginateBackward: timelineWindow.canPaginate("b")
     }
 })
-
+updateMessagesFx.use(({ timelineWindow }) => {
+    const canPaginateForward = timelineWindow.canPaginate("f")
+    return {
+        messages: getMessages(timelineWindow),
+        isLive: !canPaginateForward,
+        canPaginateForward: canPaginateForward,
+        canPaginateBackward: timelineWindow.canPaginate("b")
+    }
+})
 getRoomInfoFx.use((roomId) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()

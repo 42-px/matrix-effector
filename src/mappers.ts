@@ -5,13 +5,25 @@ import {
     Room,
     MappedRoom,
     RoomInfo,
+    MessageContent,
 } from "./types"
+
+function getMappedContent(event: MatrixEvent): MessageContent {
+    const content: any = {}
+    const matrixContent: any = event.getContent()
+    if (matrixContent.body) content.body = matrixContent.body
+    if (matrixContent.msgtype) content.msgtype = matrixContent.msgtype
+    if (matrixContent["m.relates_to"]) {
+        content["m.relates_to"] = {...matrixContent["m.relates_to"]}
+    }
+    return content
+}
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
     const payload: MessageEvent = {
         eventId: event.getId(),
         // если есть клиентская агрегация, то этот метод отдает последний контент
-        content: event.getContent(),
+        content: getMappedContent(event),
         originServerTs: event.getDate(),
         roomId: event.getRoomId(),
         sender: event.sender,
@@ -34,7 +46,7 @@ export function toMessage(
         originalEventId: originalEventId !== undefined ?
             originalEventId :
             event.getId(),
-        content: event.getContent(),
+        content: getMappedContent(event),
         sender: event.sender,
         originServerTs: event.getDate(),
         edited: Boolean(event.replacingEventId()),
