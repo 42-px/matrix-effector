@@ -105,7 +105,7 @@ guard({
   source: sample(
     [$searchInput, $currentRoomId],
     onSearch,
-    (([term, roomId]) => ({ term, roomId })),
+    (([term, roomId]) => ({ term, roomId, orderBy: 'recent' })),
   ),
   filter: combine($currentRoomId, $searchInput, (roomId, term) => Boolean(roomId) && Boolean(term)),
   target: searchRoomMessagesFx,
