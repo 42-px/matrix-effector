@@ -4,7 +4,6 @@ import matrix, {
     RoomMember,
     TimelineWindow,
     EventStatus,
-    EventType,
 } from "matrix-js-sdk"
 import {
     initStoreFx,
@@ -186,7 +185,10 @@ guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
         updateMessages,
-        ([roomId, timelineWindow]) => ({ timelineWindow, roomId })
+        ([roomId, timelineWindow]) => ({
+            timelineWindow: timelineWindow as TimelineWindow,
+            roomId: roomId as string
+        })
     ),
     filter: $timelineWindow.map(timelineWindow => Boolean(timelineWindow)),
     target: updateMessagesFx,
@@ -254,7 +256,7 @@ initStoreFx.use(async () => {
     if (store) return store.startup()
 })
 startClientFx.use((params) => client().startClient(params))
-searchRoomMessagesFx.use(async ({ term, roomId }) => {
+searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     const membersCache: { [id: string]: RoomMember } = {}
@@ -267,6 +269,7 @@ searchRoomMessagesFx.use(async ({ term, roomId }) => {
                     filter: {
                         rooms: [roomId],
                     },
+                    order_by: orderBy,
                 },
             },
         },
