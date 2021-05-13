@@ -45,6 +45,7 @@ export type LoadRoomFxParams = {
 export interface SearchRoomMessagesPayload {
   roomId: string
   term: string
+  orderBy?: "recent" | "rank"
 }
 export interface SendMessagePayload {
   roomId: string
