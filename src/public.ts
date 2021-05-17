@@ -23,7 +23,7 @@ import {
     RoomWithActivity,
     SearchRoomMessagesPayload,
     SendMessagePayload,
-    StartClientParams
+    StartClientParams,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
