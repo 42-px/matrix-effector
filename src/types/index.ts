@@ -7,6 +7,9 @@ import {
     TimelineWindow,
     User,
 } from "matrix-js-sdk"
+import { MessageContent } from "./content"
+
+export * from "./content"
 
 export {
     Room,
@@ -67,13 +70,7 @@ export interface DeleteMessageResult {
   eventId: string
 }
 export type StartClientParams = Parameters<MatrixClient["startClient"]>[0]
-export type MessageContent = {
-  body?: any
-  msgtype?: string
-  "m.relates_to"?: {
-    "m.in_reply_to"?: any
-  }
-};
+
 export type MessageEvent = {
   eventId: string
   content: MessageContent
@@ -177,4 +174,17 @@ export interface CheckEventPermissionsParams {
 export interface EventPermissions {
   canRedact: boolean
   canEdit: boolean
+}
+
+export interface UploadContentParams {
+  file: any
+  name?: string
+  includeFilename?: boolean
+  type?: string
+  onlyContentUri?: boolean
+}
+export interface UploadProgress {
+  file: any
+  loaded: number
+  total: number
 }

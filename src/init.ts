@@ -37,7 +37,7 @@ import {
     $canPaginateBackward,
     $canPaginateForward,
     onRoomInitialized,
-    checkEventPermissionsFx
+    checkEventPermissionsFx,
 } from "./public"
 import {
     paginateRoomFx,

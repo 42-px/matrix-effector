@@ -1,4 +1,6 @@
 import { MatrixClient, MatrixEvent, Room, RoomMember, RoomSummary, TimelineWindow, User } from "matrix-js-sdk";
+import { MessageContent } from "./content";
+export * from "./content";
 export { Room, LoginPayload, MatrixEvent, RoomMember, } from "matrix-js-sdk";
 export interface LoginByPasswordParams {
     user: string;
@@ -44,13 +46,6 @@ export interface DeleteMessageResult {
     eventId: string;
 }
 export declare type StartClientParams = Parameters<MatrixClient["startClient"]>[0];
-export declare type MessageContent = {
-    body?: any;
-    msgtype?: string;
-    "m.relates_to"?: {
-        "m.in_reply_to"?: any;
-    };
-};
 export declare type MessageEvent = {
     eventId: string;
     content: MessageContent;
@@ -146,4 +141,16 @@ export interface CheckEventPermissionsParams {
 export interface EventPermissions {
     canRedact: boolean;
     canEdit: boolean;
+}
+export interface UploadContentParams {
+    file: any;
+    name?: string;
+    includeFilename?: boolean;
+    type?: string;
+    onlyContentUri?: boolean;
+}
+export interface UploadProgress {
+    file: any;
+    loaded: number;
+    total: number;
 }
