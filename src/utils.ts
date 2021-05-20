@@ -60,10 +60,10 @@ export const mxcUrlToHttp = ({
 }: MxcUrlToHttpParams): string | null => 
     client().mxcUrlToHttp(
         mxcUrl,
-        width,
-        height,
-        resizeMethod,
-        allowDirectLinks,
+        width !== undefined ? width : null,
+        height !== undefined ? height : null,
+        resizeMethod !== undefined ? resizeMethod : "scale",
+        allowDirectLinks !== undefined ? allowDirectLinks : null,
     )
 
 export const checkIsDirect = (roomId: string): boolean => {

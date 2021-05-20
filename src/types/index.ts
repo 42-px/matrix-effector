@@ -178,10 +178,10 @@ export interface EventPermissions {
 
 export type MxcUrlToHttpParams = {
   mxcUrl: string
-  width: number | null
-  height: number | null
-  resizeMethod: string | null
-  allowDirectLinks: boolean | null
+  width?: number
+  height?: number
+  resizeMethod?: "crop" | "scale"
+  allowDirectLinks?: boolean
 }
 
 export interface UploadContentParams {
