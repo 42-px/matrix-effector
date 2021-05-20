@@ -2,7 +2,8 @@ import { MatrixEvent } from "matrix-js-sdk"
 import { client } from "./matrix-client"
 import {
     GetRoomMemberAvatarParams,
-    GetSenderAvatarParams
+    GetSenderAvatarParams,
+    MxcUrlToHttpParams
 } from "./types"
 
 export const getSenderAvatarUrl = ({
@@ -50,6 +51,20 @@ export const getRoomMemberAvatarUrl = ({
     )
 }
 
+export const mxcUrlToHttp = ({
+    mxcUrl,
+    width,
+    height,
+    resizeMethod,
+    allowDirectLinks,
+}: MxcUrlToHttpParams): string | null => 
+    client().mxcUrlToHttp(
+        mxcUrl,
+        width,
+        height,
+        resizeMethod,
+        allowDirectLinks,
+    )
 
 export const checkIsDirect = (roomId: string): boolean => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

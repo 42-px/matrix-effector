@@ -142,12 +142,18 @@ export interface EventPermissions {
     canRedact: boolean;
     canEdit: boolean;
 }
+export declare type MxcUrlToHttpParams = {
+    mxcUrl: string;
+    width: number | null;
+    height: number | null;
+    resizeMethod: string | null;
+    allowDirectLinks: boolean | null;
+};
 export interface UploadContentParams {
     file: any;
     name?: string;
     includeFilename?: boolean;
     type?: string;
-    onlyContentUri?: boolean;
 }
 export interface UploadProgress {
     file: any;
