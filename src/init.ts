@@ -38,6 +38,8 @@ import {
     $canPaginateForward,
     onRoomInitialized,
     checkEventPermissionsFx,
+    uploadContentFx,
+    onUploadProgress,
 } from "./public"
 import {
     paginateRoomFx,
@@ -520,4 +522,28 @@ checkEventPermissionsFx.use(({ eventId, roomId }) => {
         canRedact,
         canEdit,
     }
+})
+
+uploadContentFx.use(async ({
+    file,
+    name,
+    includeFilename,
+    type,
+}) => {
+    const cl = client()
+    const contentUri = await cl.uploadContent(file, {
+        name,
+        includeFilename,
+        type,
+        onlyContentUri: true,
+        rawResponse: false,
+        progressHandler: ({ loaded, total }: {
+            loaded: number
+            total: number
+        }) => {
+            // warning: loosing event scope
+            onUploadProgress({ file, loaded, total }) 
+        },
+    } as any)
+    return contentUri
 })

@@ -24,6 +24,8 @@ import {
     SearchRoomMessagesPayload,
     SendMessagePayload,
     StartClientParams,
+    UploadContentParams,
+    UploadProgress,
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -52,6 +54,8 @@ export const getLoggedUserFx = matrixDomain
     .effect<void, MappedUser | null, Error>()
 export const checkEventPermissionsFx = matrixDomain
     .effect<CheckEventPermissionsParams, EventPermissions, Error>()
+export const uploadContentFx = matrixDomain
+    .effect<UploadContentParams, string, Error>()
 
 
 export const $currentRoomId = matrixDomain
@@ -78,3 +82,4 @@ export const onRoomInitialized = matrixDomain.event<void>()
 export const loadRoom = matrixDomain.event<LoadRoomParams>()
 export const paginateForward = matrixDomain.event<PaginateParams>()
 export const paginateBackward = matrixDomain.event<PaginateParams>()
+export const onUploadProgress = matrixDomain.event<UploadProgress>()
