@@ -21,12 +21,14 @@ export type TextContent = {
   format:	string
   formatted_body: string
   "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.Text
   format?:	undefined
   formatted_body?: undefined
   "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 
 export type EmoteContent = {
@@ -34,13 +36,13 @@ export type EmoteContent = {
   msgtype: MsgType.Emote
   format:	string
   formatted_body: string
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.Emote
   format?:	undefined
   formatted_body?: undefined
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 
 export type NoticeContent = {
@@ -49,12 +51,14 @@ export type NoticeContent = {
   format:	string
   formatted_body: string
   "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.Notice
   format?:	undefined
   formatted_body?: undefined
   "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 // TODO clarify
 export type EncryptedFile = any
@@ -87,14 +91,14 @@ export type ImageContent = {
   info?: ImageInfo
   url: string
   file?: undefined
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.Image
   info?: ImageInfo
   url?: undefined
   file: EncryptedFile
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 export type FileInfo = {
   mimetype: string
@@ -116,7 +120,7 @@ export type FileContent = {
   info: FileInfo
   url: string
   file?: undefined
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.File
@@ -124,7 +128,7 @@ export type FileContent = {
   info: FileInfo
   url?: undefined
   file: EncryptedFile
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 export type AudioInfo = {
   duration: number
@@ -137,14 +141,14 @@ export type AudioContent = {
   info?: AudioInfo
   url: string
   file?: undefined
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.Audio
   info?: AudioInfo
   url?: undefined
   file: EncryptedFile
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 export type LocationInfo = {
   thumbnail_url: string
@@ -160,7 +164,7 @@ export type LocationContent = {
   msgtype: MsgType.Location
   geo_uri: string
   info?: LocationInfo
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 export type VideoInfo = {
   duration: number
@@ -187,19 +191,20 @@ export type VideoContent = {
   info?: VideoInfo
   url: string
   file?: undefined
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 } | {
   body:	string
   msgtype: MsgType.Audio
   info?: VideoInfo
   url?: undefined
   file: EncryptedFile
-  "m.relates_to"?: Relation
+  [customProperty: string]: any
 }
 
 export type BadEncryptedContent = {
   body:	string
   msgtype: MsgType.BadEncrypted
+  [customProperty: string]: any
 }
 
 export type MessageContent = AudioContent |
