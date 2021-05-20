@@ -20,25 +20,27 @@ export declare type TextContent = {
     format: string;
     formatted_body: string;
     "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.Text;
     format?: undefined;
     formatted_body?: undefined;
     "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type EmoteContent = {
     body: string;
     msgtype: MsgType.Emote;
     format: string;
     formatted_body: string;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.Emote;
     format?: undefined;
     formatted_body?: undefined;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type NoticeContent = {
     body: string;
@@ -46,12 +48,14 @@ export declare type NoticeContent = {
     format: string;
     formatted_body: string;
     "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.Notice;
     format?: undefined;
     formatted_body?: undefined;
     "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type EncryptedFile = any;
 export declare type ThumbnailInfo = {
@@ -83,14 +87,14 @@ export declare type ImageContent = {
     info?: ImageInfo;
     url: string;
     file?: undefined;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.Image;
     info?: ImageInfo;
     url?: undefined;
     file: EncryptedFile;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type FileInfo = {
     mimetype: string;
@@ -112,7 +116,7 @@ export declare type FileContent = {
     info: FileInfo;
     url: string;
     file?: undefined;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.File;
@@ -120,7 +124,7 @@ export declare type FileContent = {
     info: FileInfo;
     url?: undefined;
     file: EncryptedFile;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type AudioInfo = {
     duration: number;
@@ -133,14 +137,14 @@ export declare type AudioContent = {
     info?: AudioInfo;
     url: string;
     file?: undefined;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.Audio;
     info?: AudioInfo;
     url?: undefined;
     file: EncryptedFile;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type LocationInfo = {
     thumbnail_url: string;
@@ -156,7 +160,7 @@ export declare type LocationContent = {
     msgtype: MsgType.Location;
     geo_uri: string;
     info?: LocationInfo;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type VideoInfo = {
     duration: number;
@@ -183,17 +187,18 @@ export declare type VideoContent = {
     info?: VideoInfo;
     url: string;
     file?: undefined;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 } | {
     body: string;
     msgtype: MsgType.Audio;
     info?: VideoInfo;
     url?: undefined;
     file: EncryptedFile;
-    "m.relates_to"?: Relation;
+    [customProperty: string]: any;
 };
 export declare type BadEncryptedContent = {
     body: string;
     msgtype: MsgType.BadEncrypted;
+    [customProperty: string]: any;
 };
 export declare type MessageContent = AudioContent | BadEncryptedContent | EmoteContent | FileContent | ImageContent | NoticeContent | TextContent | VideoContent | LocationContent | Record<string, never>;
