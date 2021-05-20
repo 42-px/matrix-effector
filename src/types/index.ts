@@ -52,13 +52,13 @@ export interface SearchRoomMessagesPayload {
 }
 export interface SendMessagePayload {
   roomId: string
-  content: any
+  content: MessageContent
   txnId?: string
 }
 export interface EditMessagePayload {
   roomId: string
   eventId: string
-  body: any
+  body: string
   txnId?: string
 }
 export interface DeleteMessagePayload {
