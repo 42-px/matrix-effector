@@ -6,39 +6,11 @@ import {
     MappedRoom,
     RoomInfo,
     MessageContent,
-    MsgType,
 } from "./types"
 
 function getMappedContent(event: MatrixEvent): MessageContent {
     const matrixContent = event.getContent() as MessageContent
-    if (!matrixContent.body) return {}
-    const content: any = {
-        body: matrixContent.body,
-        msgtype: matrixContent.msgtype
-    }
-    if (matrixContent.msgtype === MsgType.BadEncrypted) return content
-    if (matrixContent["m.relates_to"]) {
-        content["m.relates_to"] = {...matrixContent["m.relates_to"]}
-    }
-    if (matrixContent.msgtype === MsgType.Text ||
-        matrixContent.msgtype === MsgType.Emote ||
-        matrixContent.msgtype === MsgType.Notice
-    ) {
-        if (matrixContent.format) content.format = matrixContent.format
-        if (matrixContent.formatted_body) {
-            content.formatted_body = matrixContent.formatted_body
-        }
-        return content
-    }
-    if (matrixContent.msgtype === MsgType.Location) {
-        if (matrixContent.geo_uri) content.geo_uri = matrixContent.geo_uri
-        if (matrixContent.info) content.info = matrixContent.info
-        return content
-    }
-    if (matrixContent.file) content.file = matrixContent.file
-    if (matrixContent.url) content.url = matrixContent.url
-    if (matrixContent.info) content.info = {...matrixContent.info}
-    return content
+    return {...matrixContent}
 }
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
