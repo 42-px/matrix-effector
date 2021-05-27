@@ -25,6 +25,7 @@ import {
     SendMessagePayload,
     StartClientParams,
     UploadContentParams,
+    UploadContentResult,
     UploadProgress,
 } from "./types"
 
@@ -55,7 +56,7 @@ export const getLoggedUserFx = matrixDomain
 export const checkEventPermissionsFx = matrixDomain
     .effect<CheckEventPermissionsParams, EventPermissions, Error>()
 export const uploadContentFx = matrixDomain
-    .effect<UploadContentParams, string, Error>()
+    .effect<UploadContentParams, UploadContentResult, Error>()
 
 
 export const $currentRoomId = matrixDomain
