@@ -189,6 +189,12 @@ export interface UploadContentParams {
   name?: string
   includeFilename?: boolean
   type?: string
+  onlyContentUri?: boolean
+  rawResponse?: boolean
+}
+export interface UploadContentResult {
+  promise: Promise<string | { content_uri: string }>
+  abort?: () => void 
 }
 export interface UploadProgress {
   file: any

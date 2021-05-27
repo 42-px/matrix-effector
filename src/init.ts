@@ -62,6 +62,7 @@ import {
     MatrixEvent,
     LoadRoomFxParams,
     PaginateParams,
+    UploadContentResult,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,
@@ -524,19 +525,21 @@ checkEventPermissionsFx.use(({ eventId, roomId }) => {
     }
 })
 
-uploadContentFx.use(async ({
+uploadContentFx.use(({
     file,
     name,
     includeFilename,
+    onlyContentUri,
+    rawResponse,
     type,
 }) => {
     const cl = client()
-    const contentUri = await cl.uploadContent(file, {
+    const promise = cl.uploadContent(file, {
         name,
         includeFilename,
         type,
-        onlyContentUri: true,
-        rawResponse: false,
+        onlyContentUri,
+        rawResponse,
         progressHandler: ({ loaded, total }: {
             loaded: number
             total: number
@@ -544,6 +547,8 @@ uploadContentFx.use(async ({
             // warning: loosing event scope
             onUploadProgress({ file, loaded, total }) 
         },
-    } as any)
-    return contentUri
+    } as any) as any
+    const result: UploadContentResult = { promise }
+    if (promise.abort) result.abort = promise.abort
+    return result
 })
