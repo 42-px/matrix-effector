@@ -40,17 +40,21 @@ import {
     checkEventPermissionsFx,
     uploadContentFx,
     onUploadProgress,
+    $currentRoomMembers,
 } from "./public"
 import {
     paginateRoomFx,
     loadRoomFx,
     initRoomFx,
     updateMessagesFx,
-    updateMessages
+    updateMessages,
+    setRoomMembers,
+    getRoomMembersFx
 } from "./private"
 import {
     mergeMessageEvents,
     toMappedRoom,
+    toMappedRoomMember,
     toMessage,
     toMessageEvent,
     toRoomInfo,
@@ -157,12 +161,23 @@ $messages
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
     .reset($currentRoomId)
+$currentRoomMembers
+    .on(getRoomMembersFx.doneData, (_, value) => value)
+    .reset($currentRoomId)
 $canPaginateBackward
     .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
     .reset([loadRoom, $currentRoomId])
 $canPaginateForward
     .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
     .reset([loadRoom, $currentRoomId])
+
+// TODO: запускать эффект на события обновляющие пользователя
+guard({
+    source: $currentRoomId.map((roomId) => roomId as string),
+    filter: (roomId) => Boolean(roomId),
+    target: getRoomMembersFx
+})
+
 forward({
     from: loadRoomFx.pending,
     to: $loadRoomFxPending,
@@ -551,4 +566,10 @@ uploadContentFx.use(({
     const result: UploadContentResult = { promise }
     if (promise.abort) result.abort = promise.abort
     return result
+})
+
+getRoomMembersFx.use((roomId) => {
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    return Object.values(room.currentState.members).map(toMappedRoomMember)
 })

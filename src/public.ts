@@ -14,6 +14,7 @@ import {
     LoginByTokenParams,
     LoginPayload,
     MappedRoom,
+    MappedRoomMember,
     MappedUser,
     Message,
     MessageEvent,
@@ -61,6 +62,8 @@ export const uploadContentFx = matrixDomain
 
 export const $currentRoomId = matrixDomain
     .store<RoomWithActivity["roomId"] | null>(null)
+export const $currentRoomMembers = matrixDomain
+    .store<MappedRoomMember[] | null>(null)
 export const $timelineWindow = matrixDomain.store<TimelineWindow | null>(null)
 export const $messages = matrixDomain.store<Message[]>([])
 export const $loadRoomFxPending = matrixDomain.store(false)

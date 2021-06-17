@@ -201,3 +201,15 @@ export interface UploadProgress {
   loaded: number
   total: number
 }
+
+export type MappedRoomMember = {
+  membership: string | null
+  name: string
+  powerLevel: number
+  powerLevelNorm: number
+  rawDisplayName: string
+  roomId: string
+  typing: boolean
+  user: MappedUser
+  userId: string
+}
