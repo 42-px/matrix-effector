@@ -83,12 +83,13 @@ export function toMappedRoomMember(roomMember: RoomMember): MappedRoomMember {
         roomId: roomMember.roomId,
         typing: roomMember.typing,
         user: {
+            avatarUrl: roomMember.user.avatarUrl,
             userId : roomMember.user.userId,
             currentlyActive :  roomMember.user.currentlyActive,
             displayName :  roomMember.user.displayName,
             lastActiveAgo :  roomMember.user.lastActiveAgo,
             lastPresenceTs :  roomMember.user.lastPresenceTs,
-            presence: roomMember.user.presence,
+            presence: roomMember.user.presence as any,
         },
         userId: roomMember.userId,
     }

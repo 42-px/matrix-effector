@@ -4,6 +4,7 @@ import matrix, {
     RoomMember,
     TimelineWindow,
     EventStatus,
+    User,
 } from "matrix-js-sdk"
 import {
     initStoreFx,
@@ -48,8 +49,10 @@ import {
     initRoomFx,
     updateMessagesFx,
     updateMessages,
-    setRoomMembers,
-    getRoomMembersFx
+    getRoomMembers,
+    getRoomMembersFx,
+    onRoomMemberUpdate,
+    onRoomUserUpdate
 } from "./private"
 import {
     mergeMessageEvents,
@@ -75,6 +78,7 @@ import {
     LOGIN_BY_TOKEN,
 } from "./constants"
 import { checkIsDirect } from "./utils"
+import { debounce } from "patronum"
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
@@ -171,10 +175,38 @@ $canPaginateForward
     .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
     .reset([loadRoom, $currentRoomId])
 
-// TODO: запускать эффект на события обновляющие пользователя
+forward({
+    from: [$currentRoomId.updates],
+    to: getRoomMembers,
+})
+const getRoomMembersDebounced = debounce({
+    source: getRoomMembers,
+    timeout: 500
+})
 guard({
-    source: $currentRoomId.map((roomId) => roomId as string),
-    filter: (roomId) => Boolean(roomId),
+    clock: onRoomMemberUpdate,
+    source: $currentRoomId,
+    filter: (roomId, member) => roomId === member.roomId,
+    target: getRoomMembers,
+})
+
+guard({
+    clock: onRoomUserUpdate,
+    source: $currentRoomMembers,
+    filter: (currentRoomMembers, user) => Boolean(
+        currentRoomMembers?.find(((member) => 
+            member.userId === user.userId
+        ))),
+    target: getRoomMembers,
+})
+
+guard({
+    source: sample(
+        $currentRoomId,
+        getRoomMembersDebounced,
+        (roomId) => roomId as string
+    ),
+    filter: $currentRoomId.map((roomId) => Boolean(roomId)),
     target: getRoomMembersFx
 })
 
@@ -255,12 +287,13 @@ getLoggedUserFx.use(() => {
     const user = cl.getUser(loggedUserId)
     if (!user) return null
     return {
+        avatarUrl: user.avatarUrl,
         userId: user.userId,
         currentlyActive: user.currentlyActive,
         displayName: user.displayName,
         lastActiveAgo: user.lastActiveAgo,
         lastPresenceTs: user.lastPresenceTs,
-        presence: user.presence
+        presence: user.presence as any
     }
 })
 forward({
@@ -375,6 +408,43 @@ onClientEvent([
             return
         }
     }],
+    [
+        "RoomState.members",
+        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomState.newMember",
+        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.membership",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.name",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.powerLevel",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.typing",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "User.avatarUrl",
+        (e, user: User) => onRoomUserUpdate(user)
+    ],
+    [
+        "User.presence",
+        (e, user: User) => onRoomUserUpdate(user)
+    ],
+    [
+        "User.displayName",
+        (e, user: User) => onRoomUserUpdate(user)
+    ],
+    
 ])
 readAllMessagesFx.use(({ roomId, eventId }) => {
     const room = client().getRoom(roomId)

@@ -1,4 +1,4 @@
-import { TimelineWindow } from "matrix-js-sdk"
+import { RoomMember, TimelineWindow, User } from "matrix-js-sdk"
 import { matrixDomain } from "./domain"
 import {
     InitRoomParams,
@@ -10,7 +10,9 @@ import {
 } from "./types"
 
 export const updateMessages = matrixDomain.event<void>()
-export const setRoomMembers = matrixDomain.event<MappedRoomMember[]>()
+export const getRoomMembers = matrixDomain.event<void>()
+export const onRoomMemberUpdate = matrixDomain.event<RoomMember>()
+export const onRoomUserUpdate = matrixDomain.event<User>()
 
 export const initRoomFx = matrixDomain
     .effect<InitRoomParams, TimelineWindow, Error>()
