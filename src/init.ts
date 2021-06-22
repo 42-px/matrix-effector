@@ -175,10 +175,12 @@ $canPaginateForward
     .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
     .reset([loadRoom, $currentRoomId])
 
-forward({
-    from: [$currentRoomId.updates],
-    to: getRoomMembers,
+guard({
+    source: $currentRoomId,
+    filter: (roomId) => Boolean(roomId),
+    target: getRoomMembers,
 })
+
 const getRoomMembersDebounced = debounce({
     source: getRoomMembers,
     timeout: 500
@@ -201,12 +203,9 @@ guard({
 })
 
 guard({
-    source: sample(
-        $currentRoomId,
-        getRoomMembersDebounced,
-        (roomId) => roomId as string
-    ),
-    filter: $currentRoomId.map((roomId) => Boolean(roomId)),
+    source: $currentRoomId,
+    clock: getRoomMembersDebounced,
+    filter: Boolean,
     target: getRoomMembersFx
 })
 
