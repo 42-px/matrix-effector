@@ -4,6 +4,7 @@ import matrix, {
     RoomMember,
     TimelineWindow,
     EventStatus,
+    User,
 } from "matrix-js-sdk"
 import {
     initStoreFx,
@@ -40,17 +41,23 @@ import {
     checkEventPermissionsFx,
     uploadContentFx,
     onUploadProgress,
+    $currentRoomMembers,
 } from "./public"
 import {
     paginateRoomFx,
     loadRoomFx,
     initRoomFx,
     updateMessagesFx,
-    updateMessages
+    updateMessages,
+    getRoomMembers,
+    getRoomMembersFx,
+    onRoomMemberUpdate,
+    onRoomUserUpdate
 } from "./private"
 import {
     mergeMessageEvents,
     toMappedRoom,
+    toMappedRoomMember,
     toMessage,
     toMessageEvent,
     toRoomInfo,
@@ -71,6 +78,7 @@ import {
     LOGIN_BY_TOKEN,
 } from "./constants"
 import { checkIsDirect } from "./utils"
+import { debounce } from "patronum"
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
@@ -157,12 +165,50 @@ $messages
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
     .reset($currentRoomId)
+$currentRoomMembers
+    .on(getRoomMembersFx.doneData, (_, value) => value)
+    .reset($currentRoomId)
 $canPaginateBackward
     .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
     .reset([loadRoom, $currentRoomId])
 $canPaginateForward
     .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
     .reset([loadRoom, $currentRoomId])
+
+guard({
+    source: $currentRoomId,
+    filter: (roomId) => Boolean(roomId),
+    target: getRoomMembers,
+})
+
+const getRoomMembersDebounced = debounce({
+    source: getRoomMembers,
+    timeout: 500
+})
+guard({
+    clock: onRoomMemberUpdate,
+    source: $currentRoomId,
+    filter: (roomId, member) => roomId === member.roomId,
+    target: getRoomMembers,
+})
+
+guard({
+    clock: onRoomUserUpdate,
+    source: $currentRoomMembers,
+    filter: (currentRoomMembers, user) => Boolean(
+        currentRoomMembers?.find(((member) => 
+            member.userId === user.userId
+        ))),
+    target: getRoomMembers,
+})
+
+guard({
+    source: $currentRoomId,
+    clock: getRoomMembersDebounced,
+    filter: Boolean,
+    target: getRoomMembersFx
+})
+
 forward({
     from: loadRoomFx.pending,
     to: $loadRoomFxPending,
@@ -240,12 +286,13 @@ getLoggedUserFx.use(() => {
     const user = cl.getUser(loggedUserId)
     if (!user) return null
     return {
+        avatarUrl: user.avatarUrl,
         userId: user.userId,
         currentlyActive: user.currentlyActive,
         displayName: user.displayName,
         lastActiveAgo: user.lastActiveAgo,
         lastPresenceTs: user.lastPresenceTs,
-        presence: user.presence
+        presence: user.presence as any
     }
 })
 forward({
@@ -360,6 +407,43 @@ onClientEvent([
             return
         }
     }],
+    [
+        "RoomState.members",
+        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomState.newMember",
+        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.membership",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.name",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.powerLevel",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "RoomMember.typing",
+        (e, member: RoomMember) => onRoomMemberUpdate(member)
+    ],
+    [
+        "User.avatarUrl",
+        (e, user: User) => onRoomUserUpdate(user)
+    ],
+    [
+        "User.presence",
+        (e, user: User) => onRoomUserUpdate(user)
+    ],
+    [
+        "User.displayName",
+        (e, user: User) => onRoomUserUpdate(user)
+    ],
+    
 ])
 readAllMessagesFx.use(({ roomId, eventId }) => {
     const room = client().getRoom(roomId)
@@ -551,4 +635,10 @@ uploadContentFx.use(({
     const result: UploadContentResult = { promise }
     if (promise.abort) result.abort = promise.abort
     return result
+})
+
+getRoomMembersFx.use((roomId) => {
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    return Object.values(room.currentState.members).map(toMappedRoomMember)
 })

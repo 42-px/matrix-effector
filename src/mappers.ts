@@ -1,4 +1,4 @@
-import { MatrixEvent } from "matrix-js-sdk"
+import { MatrixEvent, RoomMember } from "matrix-js-sdk"
 import {
     Message,
     MessageEvent,
@@ -6,6 +6,7 @@ import {
     MappedRoom,
     RoomInfo,
     MessageContent,
+    MappedRoomMember,
 } from "./types"
 
 function getMappedContent(event: MatrixEvent): MessageContent {
@@ -70,5 +71,26 @@ export function mergeMessageEvents(
 export function toRoomInfo(room: Room): RoomInfo {
     return {
         roomMembersCount: room.getJoinedMemberCount()
+    }
+}
+export function toMappedRoomMember(roomMember: RoomMember): MappedRoomMember {
+    return {
+        membership: roomMember.membership,
+        name: roomMember.name,
+        powerLevel: roomMember.powerLevel,
+        powerLevelNorm: roomMember.powerLevelNorm,
+        rawDisplayName: roomMember.rawDisplayName,
+        roomId: roomMember.roomId,
+        typing: roomMember.typing,
+        user: {
+            avatarUrl: roomMember.user.avatarUrl,
+            userId : roomMember.user.userId,
+            currentlyActive :  roomMember.user.currentlyActive,
+            displayName :  roomMember.user.displayName,
+            lastActiveAgo :  roomMember.user.lastActiveAgo,
+            lastPresenceTs :  roomMember.user.lastPresenceTs,
+            presence: roomMember.user.presence as any,
+        },
+        userId: roomMember.userId,
     }
 }

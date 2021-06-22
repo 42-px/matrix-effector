@@ -23,13 +23,15 @@ export interface LoginByPasswordParams {
 }
 
 export type MappedUser = Pick<User,
+  "avatarUrl" |
   "userId" |
   "currentlyActive" |
   "displayName" |
   "lastActiveAgo" |
-  "lastPresenceTs" |
-  "presence"
->
+  "lastPresenceTs"
+> & {
+  presence: "online" | "offline" | "unavailable"
+}
 export interface LoginByTokenParams {
   token: string
 }
@@ -200,4 +202,17 @@ export interface UploadProgress {
   file: any
   loaded: number
   total: number
+}
+
+export type MappedRoomMember = Pick<RoomMember,
+  "membership" |
+  "name" |
+  "powerLevel" |
+  "powerLevelNorm" |
+  "rawDisplayName" |
+  "roomId" |
+  "typing" |
+  "userId"
+> & {
+  user: MappedUser
 }

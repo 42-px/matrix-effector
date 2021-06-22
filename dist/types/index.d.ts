@@ -6,7 +6,9 @@ export interface LoginByPasswordParams {
     user: string;
     password: string;
 }
-export declare type MappedUser = Pick<User, "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs" | "presence">;
+export declare type MappedUser = Pick<User, "avatarUrl" | "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs"> & {
+    presence: "online" | "offline" | "unavailable";
+};
 export interface LoginByTokenParams {
     token: string;
 }
@@ -168,3 +170,6 @@ export interface UploadProgress {
     loaded: number;
     total: number;
 }
+export declare type MappedRoomMember = Pick<RoomMember, "membership" | "name" | "powerLevel" | "powerLevelNorm" | "rawDisplayName" | "roomId" | "typing" | "userId"> & {
+    user: MappedUser;
+};

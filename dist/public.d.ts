@@ -1,5 +1,5 @@
 import { TimelineWindow } from "matrix-js-sdk";
-import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, EventPermissions, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, Message, MessageEvent, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, UploadContentParams, UploadContentResult, UploadProgress } from "./types";
+import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, EventPermissions, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, MessageEvent, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, UploadContentParams, UploadContentResult, UploadProgress } from "./types";
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
@@ -21,10 +21,11 @@ export declare const deleteMessageFx: import("effector").Effect<DeleteMessagePay
 export declare const readAllMessagesFx: import("effector").Effect<ReadAllMessagesParams, void, Error>;
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
 export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;
-export declare const getLoggedUserFx: import("effector").Effect<void, Pick<import("matrix-js-sdk").User, "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs" | "presence"> | null, Error>;
+export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const checkEventPermissionsFx: import("effector").Effect<CheckEventPermissionsParams, EventPermissions, Error>;
 export declare const uploadContentFx: import("effector").Effect<UploadContentParams, UploadContentResult, Error>;
 export declare const $currentRoomId: import("effector").Store<string | null>;
+export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
 export declare const $messages: import("effector").Store<Message[]>;
 export declare const $loadRoomFxPending: import("effector").Store<boolean>;
