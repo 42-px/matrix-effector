@@ -80,3 +80,13 @@ export const checkIsDirect = (roomId: string): boolean => {
     if (summaryDirects.includes(roomId)) return true
     return false
 } 
+
+
+export const getUploadCredentials = () => {
+    return ({
+        endpointUrl: `${client().getHomeserverUrl()}/_matrix/media/r0/upload`,
+        headers: {
+            Authorization : `Bearer ${client().getAccessToken()}`
+        },
+    })
+}
