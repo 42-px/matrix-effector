@@ -28,6 +28,7 @@ import {
     UploadContentParams,
     UploadContentResult,
     UploadProgress,
+    UrlPreview
 } from "./types"
 
 export const loginByPasswordFx = matrixDomain
@@ -58,6 +59,8 @@ export const checkEventPermissionsFx = matrixDomain
     .effect<CheckEventPermissionsParams, EventPermissions, Error>()
 export const uploadContentFx = matrixDomain
     .effect<UploadContentParams, UploadContentResult, Error>()
+export const getUrlPreviewFx = matrixDomain
+    .effect<{url: string; ts: number; timeout?: number}, UrlPreview, Error >()
 
 
 export const $currentRoomId = matrixDomain

@@ -216,3 +216,13 @@ export type MappedRoomMember = Pick<RoomMember,
 > & {
   user: MappedUser
 }
+
+
+export type UrlPreview = {
+  "og:type"?: string
+  "og:url"?: string
+  "og:title"?: string
+  "og:image"?: string
+  "og:description"?: string
+  "og:site_name"?: string
+}
