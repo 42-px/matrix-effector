@@ -173,3 +173,11 @@ export interface UploadProgress {
 export declare type MappedRoomMember = Pick<RoomMember, "membership" | "name" | "powerLevel" | "powerLevelNorm" | "rawDisplayName" | "roomId" | "typing" | "userId"> & {
     user: MappedUser;
 };
+export declare type UrlPreview = {
+    "og:type"?: string;
+    "og:url"?: string;
+    "og:title"?: string;
+    "og:image"?: string;
+    "og:description"?: string;
+    "og:site_name"?: string;
+};

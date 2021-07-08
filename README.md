@@ -35,6 +35,7 @@ import {
   getRoomsWithActivitiesFx,
   createOnSyncThrottled,
   checkEventPermissionsFx,
+  getUrlPreviewFx
 } from '@42px/matrix-effector'
 import { forward, guard, sample } from 'effector'
 import {

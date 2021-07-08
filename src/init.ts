@@ -42,6 +42,7 @@ import {
     uploadContentFx,
     onUploadProgress,
     $currentRoomMembers,
+    getUrlPreviewFx
 } from "./public"
 import {
     paginateRoomFx,
@@ -641,4 +642,15 @@ getRoomMembersFx.use((roomId) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     return Object.values(room.currentState.members).map(toMappedRoomMember)
+})
+
+getUrlPreviewFx.use(({url, ts, timeout = 5000}) => {
+    return new Promise((resolve)=>{
+        client().getUrlPreview(url, ts)
+            .then(resolve)
+            .catch(()=> resolve({"og:url": url}))
+        setTimeout(()=>{
+            resolve({"og:url": url})
+        }, timeout)
+    })
 })
