@@ -82,6 +82,7 @@ import { checkIsDirect } from "./utils"
 import { debounce } from "patronum"
 
 const RoomNotFound = createCustomError("RoomNotFound")
+const UserNotFound = createCustomError("UserNotFound")
 const TimelineWindowUndefined = createCustomError("TimelineWindowUndefined")
 const EventNotFound = createCustomError("EventNotFound")
 const ClientNotInitialized = createCustomError("ClientNotInitialized")
@@ -641,7 +642,12 @@ uploadContentFx.use(({
 getRoomMembersFx.use((roomId) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
-    return Object.values(room.currentState.members).map(toMappedRoomMember)
+    return Object.values(room.currentState.members)
+        .map((member) => {
+            const user = client().getUser(member.userId)
+            if (!user) throw new UserNotFound()
+            return toMappedRoomMember(member, user)
+        })
 })
 
 getUrlPreviewFx.use(({url, ts, timeout = 5000}) => {
