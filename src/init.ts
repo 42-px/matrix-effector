@@ -666,7 +666,7 @@ getUrlPreviewFx.use(({url, ts, timeout = 5000}) => {
     })
 })
 
-getNoficiationRulesFx.use(async () => {
+getNoficiationRulesFx.use(() => {
     return client().getPushRules() as Promise<NotificationRulesResult>
 })
 
