@@ -18,12 +18,15 @@ import {
     MappedUser,
     Message,
     MessageEvent,
+    NotificationRulesResult,
     PaginateParams,
     ReadAllMessagesParams,
     RoomInfo,
     RoomWithActivity,
     SearchRoomMessagesPayload,
     SendMessagePayload,
+    SetNotificationsRuleEnabledParams,
+    SetNotificationsRuleParams,
     StartClientParams,
     UploadContentParams,
     UploadContentResult,
@@ -61,7 +64,12 @@ export const uploadContentFx = matrixDomain
     .effect<UploadContentParams, UploadContentResult, Error>()
 export const getUrlPreviewFx = matrixDomain
     .effect<{url: string; ts: number; timeout?: number}, UrlPreview, Error >()
-
+export const getNoficiationRulesFx = matrixDomain
+    .effect<void,NotificationRulesResult,Error>()
+export const setNotificationRuleActionFx = matrixDomain
+    .effect<SetNotificationsRuleParams,void,Error>()
+export const setNotificationRuleEnabledFx = matrixDomain
+    .effect<SetNotificationsRuleEnabledParams,void,Error>()
 
 export const $currentRoomId = matrixDomain
     .store<RoomWithActivity["roomId"] | null>(null)

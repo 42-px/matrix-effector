@@ -42,7 +42,10 @@ import {
     uploadContentFx,
     onUploadProgress,
     $currentRoomMembers,
-    getUrlPreviewFx
+    getUrlPreviewFx,
+    getNoficiationRulesFx,
+    setNotificationRuleEnabledFx,
+    setNotificationRuleActionFx
 } from "./public"
 import {
     paginateRoomFx,
@@ -71,6 +74,8 @@ import {
     LoadRoomFxParams,
     PaginateParams,
     UploadContentResult,
+    NotificationRulesResult,
+    SetNotificationsRuleParams,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,
@@ -659,4 +664,16 @@ getUrlPreviewFx.use(({url, ts, timeout = 5000}) => {
             resolve({"og:url": url})
         }, timeout)
     })
+})
+
+getNoficiationRulesFx.use(async () => {
+    return client().getPushRules() as Promise<NotificationRulesResult>
+})
+
+setNotificationRuleActionFx.use(async (payload: SetNotificationsRuleParams) => {
+    await client().setPushRuleActions(payload.scope, payload.kind, payload.ruleId, payload.actions)
+})
+
+setNotificationRuleEnabledFx.use(async (payload) => {
+    await client().setPushRuleEnabled(payload.scope, payload.kind, payload.ruleId, payload.enabled)
 })
