@@ -66,7 +66,7 @@ export const uploadContentFx = matrixDomain
     .effect<UploadContentParams, UploadContentResult, Error>()
 export const getUrlPreviewFx = matrixDomain
     .effect<{url: string; ts: number; timeout?: number}, UrlPreview, Error >()
-export const getNoficiationRulesFx = matrixDomain
+export const getNotificationRulesFx = matrixDomain
     .effect<void,NotificationRulesResult,Error>()
 export const setNotificationRuleActionFx = matrixDomain
     .effect<SetNotificationsRuleParams,void,Error>()

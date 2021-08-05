@@ -43,7 +43,7 @@ import {
     onUploadProgress,
     $currentRoomMembers,
     getUrlPreviewFx,
-    getNoficiationRulesFx,
+    getNotificationRulesFx,
     setNotificationRuleEnabledFx,
     setNotificationRuleActionFx,
 } from "./public"
@@ -675,7 +675,7 @@ getUrlPreviewFx.use(({url, ts, timeout = 5000}) => {
     })
 })
 
-getNoficiationRulesFx.use(() => {
+getNotificationRulesFx.use(() => {
     return client().getPushRules() as Promise<NotificationRulesResult>
 })
 
