@@ -46,7 +46,6 @@ import {
     getNoficiationRulesFx,
     setNotificationRuleEnabledFx,
     setNotificationRuleActionFx,
-    getProfileInfoFx
 } from "./public"
 import {
     paginateRoomFx,
@@ -286,18 +285,27 @@ forward({
     from: initRoom,
     to: initRoomFx,
 })
-getLoggedUserFx.use(() => {
+getLoggedUserFx.use(async () => {
     const cl = client()
     if (!cl) return null
     const loggedUserId = cl.getUserId()
     if (!loggedUserId) return null
     const user = cl.getUser(loggedUserId)
     if (!user) return null
+    // FixMe: Необъяснимое поведение получения юзера через getUser
+    // Аватар и дисплейнейм не приходят, и приходится получать 
+    let avatarUrl = user.avatarUrl
+    let displayName = user.displayName
+    if (!user?.avatarUrl || !user?.displayName) {
+        const profileInfo = await cl.getProfileInfo(loggedUserId)
+        avatarUrl = profileInfo.avatar_url as string
+        displayName = profileInfo.displayname as string
+    }
     return {
-        avatarUrl: user.avatarUrl,
+        avatarUrl,
         userId: user.userId,
         currentlyActive: user.currentlyActive,
-        displayName: user.displayName,
+        displayName,
         lastActiveAgo: user.lastActiveAgo,
         lastPresenceTs: user.lastPresenceTs,
         presence: user.presence as any
@@ -672,13 +680,19 @@ getNoficiationRulesFx.use(() => {
 })
 
 setNotificationRuleActionFx.use(async (payload: SetNotificationsRuleParams) => {
-    await client().setPushRuleActions(payload.scope, payload.kind, payload.ruleId, payload.actions)
+    await client().setPushRuleActions(
+        payload.scope, 
+        payload.kind, 
+        payload.ruleId, 
+        payload.actions
+    )
 })
 
 setNotificationRuleEnabledFx.use(async (payload) => {
-    await client().setPushRuleEnabled(payload.scope, payload.kind, payload.ruleId, payload.enabled)
-})
-
-getProfileInfoFx.use(async(payload) => {
-    return client().getProfileInfo(payload.userId)
+    await client().setPushRuleEnabled(
+        payload.scope,
+        payload.kind,
+        payload.ruleId,
+        payload.enabled
+    )
 })
