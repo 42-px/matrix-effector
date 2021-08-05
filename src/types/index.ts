@@ -291,3 +291,12 @@ export type SetNotificationsRuleEnabledParams = {
   ruleId: NotificationContentRuleId | NotificationUnderrideRuleId | NotificationOverrideRuleId
   enabled: boolean
 }
+
+export type GetUserInfoParams = {
+  userId: string
+}
+
+export type GetUserInfoResult = {
+    displayname?: string;
+    avatar_url?: string;
+}

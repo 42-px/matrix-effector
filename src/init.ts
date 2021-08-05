@@ -45,7 +45,8 @@ import {
     getUrlPreviewFx,
     getNoficiationRulesFx,
     setNotificationRuleEnabledFx,
-    setNotificationRuleActionFx
+    setNotificationRuleActionFx,
+    getProfileInfoFx
 } from "./public"
 import {
     paginateRoomFx,
@@ -676,4 +677,8 @@ setNotificationRuleActionFx.use(async (payload: SetNotificationsRuleParams) => {
 
 setNotificationRuleEnabledFx.use(async (payload) => {
     await client().setPushRuleEnabled(payload.scope, payload.kind, payload.ruleId, payload.enabled)
+})
+
+getProfileInfoFx.use(async(payload) => {
+    return client().getProfileInfo(payload.userId)
 })
