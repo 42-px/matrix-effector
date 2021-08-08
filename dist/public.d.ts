@@ -1,5 +1,5 @@
 import { TimelineWindow } from "matrix-js-sdk";
-import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, EventPermissions, GetUserInfoParams, GetUserInfoResult, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, MessageEvent, NotificationRulesResult, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, SetNotificationsRuleEnabledParams, SetNotificationsRuleParams, UploadContentParams, UploadContentResult, UploadProgress, UrlPreview } from "./types";
+import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, EditMessagePayload, EventPermissions, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, MessageEvent, NotificationRulesResult, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, SetNotificationsRuleEnabledParams, SetNotificationsRuleParams, UploadContentParams, UploadContentResult, UploadProgress, UrlPreview } from "./types";
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
@@ -29,10 +29,9 @@ export declare const getUrlPreviewFx: import("effector").Effect<{
     ts: number;
     timeout?: number | undefined;
 }, UrlPreview, Error>;
-export declare const getNoficiationRulesFx: import("effector").Effect<void, NotificationRulesResult, Error>;
+export declare const getNotificationRulesFx: import("effector").Effect<void, NotificationRulesResult, Error>;
 export declare const setNotificationRuleActionFx: import("effector").Effect<SetNotificationsRuleParams, void, Error>;
 export declare const setNotificationRuleEnabledFx: import("effector").Effect<SetNotificationsRuleEnabledParams, void, Error>;
-export declare const getProfileInfoFx: import("effector").Effect<GetUserInfoParams, GetUserInfoResult, Error>;
 export declare const $currentRoomId: import("effector").Store<string | null>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;

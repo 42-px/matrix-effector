@@ -303,11 +303,3 @@ export type SetNotificationsRuleEnabledParams = {
   enabled: boolean
 }
 
-export type GetUserInfoParams = {
-  userId: string
-}
-
-export type GetUserInfoResult = {
-    displayname?: string
-    avatar_url?: string
-}
