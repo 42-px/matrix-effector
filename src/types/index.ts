@@ -303,3 +303,13 @@ export type SetNotificationsRuleEnabledParams = {
   enabled: boolean
 }
 
+
+export type DeleteNotificationsRuleEnabledParams = {
+  scope: NotificationScope
+  kind: NotificationKind
+  ruleId: 
+    NotificationContentRuleId | 
+    NotificationUnderrideRuleId | 
+    NotificationOverrideRuleId
+}
+

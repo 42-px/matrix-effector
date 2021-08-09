@@ -6,10 +6,9 @@ import {
     CheckEventPermissionsParams,
     DeleteMessagePayload,
     DeleteMessageResult,
+    DeleteNotificationsRuleEnabledParams,
     EditMessagePayload,
     EventPermissions,
-    GetUserInfoParams,
-    GetUserInfoResult,
     InitRoomParams,
     LoadRoomParams,
     LoginByPasswordParams,
@@ -72,6 +71,8 @@ export const setNotificationRuleActionFx = matrixDomain
     .effect<SetNotificationsRuleParams,void,Error>()
 export const setNotificationRuleEnabledFx = matrixDomain
     .effect<SetNotificationsRuleEnabledParams,void,Error>()
+export const deleteNotificationRuleFx = matrixDomain
+    .effect<DeleteNotificationsRuleEnabledParams, void, Error>()
 
 export const $currentRoomId = matrixDomain
     .store<RoomWithActivity["roomId"] | null>(null)

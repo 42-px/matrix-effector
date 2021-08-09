@@ -46,6 +46,7 @@ import {
     getNotificationRulesFx,
     setNotificationRuleEnabledFx,
     setNotificationRuleActionFx,
+    deleteNotificationRuleFx,
 } from "./public"
 import {
     paginateRoomFx,
@@ -694,5 +695,13 @@ setNotificationRuleEnabledFx.use(async (payload) => {
         payload.kind,
         payload.ruleId,
         payload.enabled
+    )
+})
+
+deleteNotificationRuleFx.use(async(payload) => {
+    await client().deletePushRule(
+        payload.scope,
+        payload.kind,
+        payload.ruleId
     )
 })
