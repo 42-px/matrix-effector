@@ -289,7 +289,8 @@ export type SetNotificationsRuleParams = {
   ruleId: 
     NotificationContentRuleId |
     NotificationUnderrideRuleId | 
-    NotificationOverrideRuleId
+    NotificationOverrideRuleId |
+    string
   actions: ("notify" | "dont_notify" | "coalesce" | "set_tweak")[]
 }
 
@@ -299,7 +300,8 @@ export type SetNotificationsRuleEnabledParams = {
   ruleId: 
     NotificationContentRuleId | 
     NotificationUnderrideRuleId | 
-    NotificationOverrideRuleId
+    NotificationOverrideRuleId |
+    string
   enabled: boolean
 }
 
@@ -310,6 +312,7 @@ export type DeleteNotificationsRuleEnabledParams = {
   ruleId: 
     NotificationContentRuleId | 
     NotificationUnderrideRuleId | 
-    NotificationOverrideRuleId
+    NotificationOverrideRuleId |
+    string
 }
 

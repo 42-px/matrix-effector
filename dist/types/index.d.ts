@@ -212,12 +212,17 @@ export declare type NotificationRulesResult = {
 export declare type SetNotificationsRuleParams = {
     scope: NotificationScope;
     kind: NotificationKind;
-    ruleId: NotificationContentRuleId | NotificationUnderrideRuleId | NotificationOverrideRuleId;
+    ruleId: NotificationContentRuleId | NotificationUnderrideRuleId | NotificationOverrideRuleId | string;
     actions: ("notify" | "dont_notify" | "coalesce" | "set_tweak")[];
 };
 export declare type SetNotificationsRuleEnabledParams = {
     scope: NotificationScope;
     kind: NotificationKind;
-    ruleId: NotificationContentRuleId | NotificationUnderrideRuleId | NotificationOverrideRuleId;
+    ruleId: NotificationContentRuleId | NotificationUnderrideRuleId | NotificationOverrideRuleId | string;
     enabled: boolean;
+};
+export declare type DeleteNotificationsRuleEnabledParams = {
+    scope: NotificationScope;
+    kind: NotificationKind;
+    ruleId: NotificationContentRuleId | NotificationUnderrideRuleId | NotificationOverrideRuleId | string;
 };
