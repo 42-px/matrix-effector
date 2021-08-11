@@ -293,10 +293,10 @@ export type SetNotificationsRuleParams = {
     NotificationUnderrideRuleId | 
     NotificationOverrideRuleId |
     string
-  actions: ("notify" | "dont_notify" | "coalesce" | "set_tweak") | {
+  actions: (("notify" | "dont_notify" | "coalesce" | "set_tweak") | {
     set_tweak: NotificationTweak
     value: string
-  }[]
+  })[]
 }
 
 export type SetNotificationsRuleEnabledParams = {
