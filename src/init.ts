@@ -42,7 +42,11 @@ import {
     uploadContentFx,
     onUploadProgress,
     $currentRoomMembers,
-    getUrlPreviewFx
+    getUrlPreviewFx,
+    getNotificationRulesFx,
+    setNotificationRuleEnabledFx,
+    setNotificationRuleActionFx,
+    deleteNotificationRuleFx,
 } from "./public"
 import {
     paginateRoomFx,
@@ -71,6 +75,8 @@ import {
     LoadRoomFxParams,
     PaginateParams,
     UploadContentResult,
+    NotificationRulesResult,
+    SetNotificationsRuleParams,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,
@@ -280,18 +286,27 @@ forward({
     from: initRoom,
     to: initRoomFx,
 })
-getLoggedUserFx.use(() => {
+getLoggedUserFx.use(async () => {
     const cl = client()
     if (!cl) return null
     const loggedUserId = cl.getUserId()
     if (!loggedUserId) return null
     const user = cl.getUser(loggedUserId)
     if (!user) return null
+    // FixMe: Необъяснимое поведение получения юзера через getUser
+    // Аватар и дисплейнейм не приходят, и приходится получать 
+    let avatarUrl = user.avatarUrl
+    let displayName = user.displayName
+    if (!user?.avatarUrl || !user?.displayName) {
+        const profileInfo = await cl.getProfileInfo(loggedUserId)
+        avatarUrl = profileInfo.avatar_url as string
+        displayName = profileInfo.displayname as string
+    }
     return {
-        avatarUrl: user.avatarUrl,
+        avatarUrl,
         userId: user.userId,
         currentlyActive: user.currentlyActive,
-        displayName: user.displayName,
+        displayName,
         lastActiveAgo: user.lastActiveAgo,
         lastPresenceTs: user.lastPresenceTs,
         presence: user.presence as any
@@ -659,4 +674,50 @@ getUrlPreviewFx.use(({url, ts, timeout = 5000}) => {
             resolve({"og:url": url})
         }, timeout)
     })
+})
+
+getNotificationRulesFx.use(() => {
+    return client().getPushRules() as Promise<NotificationRulesResult>
+})
+
+setNotificationRuleActionFx.use(async (payload: SetNotificationsRuleParams) => {
+    try {
+        await client().setPushRuleActions(
+            payload.scope, 
+            payload.kind, 
+            payload.ruleId, 
+            // FixMe: Если в будущем в matrix-js-sdk пофиксят
+            // типы - убрать as any
+            payload.actions as any
+        )
+    } catch (err) {
+        console.error('Error while setNotificationRuleAction.Fx')
+        console.error(err)
+        throw err
+    }
+})
+
+setNotificationRuleEnabledFx.use(async (payload) => {
+    try {
+        console.error('Getting push rules...')
+        const rules = await client().getPushRules() as any
+        console.error(rules.global.room)
+        await client().setPushRuleEnabled(
+            payload.scope,
+            payload.kind,
+            payload.ruleId,
+            payload.enabled
+        )
+    } catch (err) {
+        console.error('Error while setNotificationRuleEnabled')
+        console.error(err)
+    }
+})
+
+deleteNotificationRuleFx.use(async(payload) => {
+    await client().deletePushRule(
+        payload.scope,
+        payload.kind,
+        payload.ruleId
+    )
 })
