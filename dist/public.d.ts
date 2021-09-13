@@ -1,5 +1,5 @@
 import { TimelineWindow } from "matrix-js-sdk";
-import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, DeleteNotificationsRuleEnabledParams, EditMessagePayload, EventPermissions, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, MessageEvent, NotificationRulesResult, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, SetNotificationsRuleEnabledParams, SetNotificationsRuleParams, UploadContentParams, UploadContentResult, UploadProgress, UrlPreview } from "./types";
+import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, DeleteNotificationsRuleEnabledParams, EditMessagePayload, EventPermissions, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, NotificationRulesResult, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, SetNotificationsRuleEnabledParams, SetNotificationsRuleParams, UploadContentParams, UploadContentResult, UploadProgress, UrlPreview } from "./types";
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
@@ -43,8 +43,8 @@ export declare const $paginateBackwardPending: import("effector").Store<boolean>
 export declare const $isLive: import("effector").Store<boolean | null>;
 export declare const $canPaginateBackward: import("effector").Store<boolean>;
 export declare const $canPaginateForward: import("effector").Store<boolean>;
-export declare const roomMessage: import("effector").Event<MessageEvent>;
-export declare const createRoomMessageBatch: (ms: number) => import("effector").Event<MessageEvent[]>;
+export declare const roomMessage: import("effector").Event<Message>;
+export declare const newMessagesLoaded: import("effector").Event<Message[]>;
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
 export declare const onSync: import("effector").Event<MappedRoom[]>;

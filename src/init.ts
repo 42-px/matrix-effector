@@ -47,6 +47,7 @@ import {
     setNotificationRuleEnabledFx,
     setNotificationRuleActionFx,
     deleteNotificationRuleFx,
+    newMessagesLoaded,
 } from "./public"
 import {
     paginateRoomFx,
@@ -57,17 +58,16 @@ import {
     getRoomMembers,
     getRoomMembersFx,
     onRoomMemberUpdate,
-    onRoomUserUpdate
+    onRoomUserUpdate,
 } from "./private"
 import {
     mergeMessageEvents,
     toMappedRoom,
     toMappedRoomMember,
     toMessage,
-    toMessageEvent,
     toRoomInfo,
 } from "./mappers"
-import { client, onClientEvent } from "./matrix-client"
+import { client, createRoomMessageBatch, onClientEvent } from "./matrix-client"
 import {
     DeleteMessageResult,
     Room,
@@ -77,6 +77,7 @@ import {
     UploadContentResult,
     NotificationRulesResult,
     SetNotificationsRuleParams,
+    Message,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,
@@ -102,6 +103,8 @@ function getMessages(timelineWindow: TimelineWindow) {
         .reduce(mergeMessageEvents, [])
 }
 
+const roomMessageBatch = createRoomMessageBatch()
+
 const paginateBackwardFx = attach({
     source: [$currentRoomId, $timelineWindow],
     effect: paginateRoomFx,
@@ -122,6 +125,27 @@ const paginateForwardFx = attach({
         direction: "forward" as const,
         ...params,
     })
+})
+
+const loadNewMessagesFx = attach({
+    effect: paginateForwardFx,
+    mapParams: ({ messages }: { messages: Message[] }) => ({
+        size: messages.length,
+    }) 
+})
+
+forward({
+    from: sample(
+        $messages,
+        loadNewMessagesFx.done,
+        (_, { params }) => params.messages
+    ),
+    to: newMessagesLoaded
+})
+
+forward({
+    from: roomMessageBatch.map((messages) => ({ messages })),
+    to: loadNewMessagesFx,
 })
 
 const $loadFilter = combine(
@@ -402,7 +426,7 @@ onClientEvent([
                 || eventType === ROOM_REDACTION_EVENT
             ) {
                 if (!toStartOfTimeline && data.liveEvent) {
-                    roomMessage(toMessageEvent(event))
+                    roomMessage(toMessage(event))
                 }
             }
         }],
@@ -691,7 +715,7 @@ setNotificationRuleActionFx.use(async (payload: SetNotificationsRuleParams) => {
             payload.actions as any
         )
     } catch (err) {
-        console.error('Error while setNotificationRuleAction.Fx')
+        console.error("Error while setNotificationRuleAction.Fx")
         console.error(err)
         throw err
     }
@@ -699,7 +723,7 @@ setNotificationRuleActionFx.use(async (payload: SetNotificationsRuleParams) => {
 
 setNotificationRuleEnabledFx.use(async (payload) => {
     try {
-        console.error('Getting push rules...')
+        console.error("Getting push rules...")
         const rules = await client().getPushRules() as any
         console.error(rules.global.room)
         await client().setPushRuleEnabled(
@@ -709,7 +733,7 @@ setNotificationRuleEnabledFx.use(async (payload) => {
             payload.enabled
         )
     } catch (err) {
-        console.error('Error while setNotificationRuleEnabled')
+        console.error("Error while setNotificationRuleEnabled")
         console.error(err)
     }
 })
