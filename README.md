@@ -20,7 +20,7 @@ import {
   loginByPasswordFx,
   prependClientParams,
   onInitialSync,
-  createRoomMessageBatch,
+  newMessagesLoaded,
   initTimelineWindowFx,
   $currentRoomId, // Use these stores in your view
   $messages,
@@ -87,12 +87,9 @@ forward({
   from: loginByPasswordFx.done,
   to: getLoggedUserFx,
 })
-const roomMessageBatch = createRoomMessageBatch(200)
-guard({
-  source: roomMessageBatch.map((batch) => ({ size: batch.length })),
-  filter: $currentRoomId.map((roomId) => Boolean(roomId)),
-  target: paginateForward,
-})
+// new messages event (live timeline)
+newMessagesLoaded.watch((messages) => console.log(messages))
+
 // To select current room trigger initRoom - it will also create a TimelineWindow instance for it
 forward({
   from: roomSelected.map((roomId) => { roomId }),

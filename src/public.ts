@@ -87,9 +87,8 @@ export const $isLive = matrixDomain.store<boolean | null>(null)
 export const $canPaginateBackward = matrixDomain.store(true)
 export const $canPaginateForward = matrixDomain.store(true)
 
-export const roomMessage = matrixDomain.event<MessageEvent>()
-export const createRoomMessageBatch = (ms: number) =>
-    batchEvents(roomMessage, ms)
+export const roomMessage = matrixDomain.event<Message>()
+export const newMessagesLoaded = matrixDomain.event<Message[]>()
 export const onInitialSync = matrixDomain.event<MappedRoom[]>()
 export const onCachedState = matrixDomain.event<MappedRoom[]>()
 export const onSync = matrixDomain.event<MappedRoom[]>()
