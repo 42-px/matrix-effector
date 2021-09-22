@@ -90,6 +90,9 @@ forward({
 // new messages event (live timeline)
 newMessagesLoaded.watch((messages) => console.log(messages))
 
+// on back pagination complete
+onPaginateBackwardDone.watch(() => console.log('paginated back in history'))
+
 // To select current room trigger initRoom - it will also create a TimelineWindow instance for it
 forward({
   from: roomSelected.map((roomId) => { roomId }),

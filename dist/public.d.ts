@@ -45,6 +45,7 @@ export declare const $canPaginateBackward: import("effector").Store<boolean>;
 export declare const $canPaginateForward: import("effector").Store<boolean>;
 export declare const roomMessage: import("effector").Event<Message>;
 export declare const newMessagesLoaded: import("effector").Event<Message[]>;
+export declare const onPaginateBackwardDone: import("effector").Event<void>;
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
 export declare const onSync: import("effector").Event<MappedRoom[]>;

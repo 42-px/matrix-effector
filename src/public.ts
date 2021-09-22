@@ -89,6 +89,7 @@ export const $canPaginateForward = matrixDomain.store(true)
 
 export const roomMessage = matrixDomain.event<Message>()
 export const newMessagesLoaded = matrixDomain.event<Message[]>()
+export const onPaginateBackwardDone = matrixDomain.event<void>()
 export const onInitialSync = matrixDomain.event<MappedRoom[]>()
 export const onCachedState = matrixDomain.event<MappedRoom[]>()
 export const onSync = matrixDomain.event<MappedRoom[]>()

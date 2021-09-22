@@ -87,6 +87,7 @@ import {
 } from "./constants"
 import { checkIsDirect } from "./utils"
 import { debounce } from "patronum"
+import { onPaginateBackwardDone } from "."
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const UserNotFound = createCustomError("UserNotFound")
@@ -141,6 +142,11 @@ forward({
         (_, { params }) => params.messages
     ),
     to: newMessagesLoaded
+})
+
+forward({
+    from: paginateBackwardFx.done,
+    to: onPaginateBackwardDone,
 })
 
 forward({
