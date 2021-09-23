@@ -93,6 +93,11 @@ newMessagesLoaded.watch((messages) => console.log(messages))
 // on back pagination complete
 onPaginateBackwardDone.watch(() => console.log('paginated back in history'))
 
+// explicit triger to load live timeline (for example: to get to the end of history)
+toLiveTimeline()
+
+liveTimelineLoaded.watch(() => console.log('room live timeline loaded'))
+
 // To select current room trigger initRoom - it will also create a TimelineWindow instance for it
 forward({
   from: roomSelected.map((roomId) => { roomId }),

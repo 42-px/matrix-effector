@@ -48,6 +48,9 @@ import {
     setNotificationRuleActionFx,
     deleteNotificationRuleFx,
     newMessagesLoaded,
+    toLiveTimeline,
+    liveTimelineLoaded,
+    onPaginateBackwardDone,
 } from "./public"
 import {
     paginateRoomFx,
@@ -87,7 +90,6 @@ import {
 } from "./constants"
 import { checkIsDirect } from "./utils"
 import { debounce } from "patronum"
-import { onPaginateBackwardDone } from "."
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const UserNotFound = createCustomError("UserNotFound")
@@ -133,6 +135,10 @@ const loadNewMessagesFx = attach({
     mapParams: ({ messages }: { messages: Message[] }) => ({
         size: messages.length,
     }) 
+})
+
+const toLiveTimelineFx = attach({
+    effect: loadRoomFx,
 })
 
 forward({
@@ -268,6 +274,10 @@ forward({
     }),
     to: onRoomInitialized,
 })
+forward({
+    from: toLiveTimelineFx.done,
+    to: liveTimelineLoaded,
+})
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
@@ -301,6 +311,22 @@ guard({
     ),
     filter: $loadFilter,
     target: loadRoomFx
+})
+guard({
+    source: sample(
+        [$currentRoomId, $timelineWindow],
+        toLiveTimeline,
+        ([
+            roomId,
+            timelineWindow
+        ]): LoadRoomFxParams => ({
+            roomId: roomId as string,
+            timelineWindow: timelineWindow as TimelineWindow,
+            loadAdditionalDataDirection: "BACKWARD"
+        })
+    ),
+    filter: $loadFilter,
+    target: toLiveTimelineFx,
 })
 guard({
     source: paginateBackward,

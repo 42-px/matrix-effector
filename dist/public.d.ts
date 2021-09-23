@@ -56,3 +56,5 @@ export declare const loadRoom: import("effector").Event<LoadRoomParams>;
 export declare const paginateForward: import("effector").Event<PaginateParams>;
 export declare const paginateBackward: import("effector").Event<PaginateParams>;
 export declare const onUploadProgress: import("effector").Event<UploadProgress>;
+export declare const toLiveTimeline: import("effector").Event<void>;
+export declare const liveTimelineLoaded: import("effector").Event<void>;
