@@ -48,6 +48,9 @@ import {
     setNotificationRuleActionFx,
     deleteNotificationRuleFx,
     newMessagesLoaded,
+    toLiveTimeline,
+    liveTimelineLoaded,
+    onPaginateBackwardDone,
 } from "./public"
 import {
     paginateRoomFx,
@@ -134,6 +137,10 @@ const loadNewMessagesFx = attach({
     }) 
 })
 
+const toLiveTimelineFx = attach({
+    effect: loadRoomFx,
+})
+
 forward({
     from: sample(
         $messages,
@@ -141,6 +148,11 @@ forward({
         (_, { params }) => params.messages
     ),
     to: newMessagesLoaded
+})
+
+forward({
+    from: paginateBackwardFx.done,
+    to: onPaginateBackwardDone,
 })
 
 forward({
@@ -262,6 +274,10 @@ forward({
     }),
     to: onRoomInitialized,
 })
+forward({
+    from: toLiveTimelineFx.done,
+    to: liveTimelineLoaded,
+})
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
@@ -295,6 +311,22 @@ guard({
     ),
     filter: $loadFilter,
     target: loadRoomFx
+})
+guard({
+    source: sample(
+        [$currentRoomId, $timelineWindow],
+        toLiveTimeline,
+        ([
+            roomId,
+            timelineWindow
+        ]): LoadRoomFxParams => ({
+            roomId: roomId as string,
+            timelineWindow: timelineWindow as TimelineWindow,
+            loadAdditionalDataDirection: "BACKWARD"
+        })
+    ),
+    filter: $loadFilter,
+    target: toLiveTimelineFx,
 })
 guard({
     source: paginateBackward,
