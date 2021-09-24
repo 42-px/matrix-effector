@@ -98,6 +98,11 @@ toLiveTimeline()
 
 liveTimelineLoaded.watch(() => console.log('room live timeline loaded'))
 
+// events to go to message in current room
+loadRoomMessage({ initialEventId: 'messageId' })
+
+loadRoomMessageDone.watch(() => console.log('loaded timeline around message'))
+
 // To select current room trigger initRoom - it will also create a TimelineWindow instance for it
 forward({
   from: roomSelected.map((roomId) => { roomId }),

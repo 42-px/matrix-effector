@@ -1,5 +1,5 @@
 import { TimelineWindow } from "matrix-js-sdk";
-import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, DeleteNotificationsRuleEnabledParams, EditMessagePayload, EventPermissions, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, NotificationRulesResult, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, SetNotificationsRuleEnabledParams, SetNotificationsRuleParams, UploadContentParams, UploadContentResult, UploadProgress, UrlPreview } from "./types";
+import { CheckEventPermissionsParams, DeleteMessagePayload, DeleteMessageResult, DeleteNotificationsRuleEnabledParams, EditMessagePayload, EventPermissions, GoToMessageParams, InitRoomParams, LoadRoomParams, LoginByPasswordParams, LoginByTokenParams, LoginPayload, MappedRoom, MappedRoomMember, MappedUser, Message, NotificationRulesResult, PaginateParams, ReadAllMessagesParams, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload, SendMessagePayload, SetNotificationsRuleEnabledParams, SetNotificationsRuleParams, UploadContentParams, UploadContentResult, UploadProgress, UrlPreview } from "./types";
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
@@ -53,8 +53,10 @@ export declare const createOnSyncThrottled: (ms: number) => import("effector").E
 export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const onRoomInitialized: import("effector").Event<void>;
 export declare const loadRoom: import("effector").Event<LoadRoomParams>;
+export declare const loadRoomMessage: import("effector").Event<GoToMessageParams>;
 export declare const paginateForward: import("effector").Event<PaginateParams>;
 export declare const paginateBackward: import("effector").Event<PaginateParams>;
 export declare const onUploadProgress: import("effector").Event<UploadProgress>;
 export declare const toLiveTimeline: import("effector").Event<void>;
 export declare const liveTimelineLoaded: import("effector").Event<void>;
+export declare const loadRoomMessageDone: import("effector").Event<void>;

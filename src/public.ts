@@ -9,6 +9,7 @@ import {
     DeleteNotificationsRuleEnabledParams,
     EditMessagePayload,
     EventPermissions,
+    GoToMessageParams,
     InitRoomParams,
     LoadRoomParams,
     LoginByPasswordParams,
@@ -98,8 +99,10 @@ export const createOnSyncThrottled = (ms: number) =>
 export const initRoom = matrixDomain.event<InitRoomParams>()
 export const onRoomInitialized = matrixDomain.event<void>()
 export const loadRoom = matrixDomain.event<LoadRoomParams>()
+export const loadRoomMessage = matrixDomain.event<GoToMessageParams>()
 export const paginateForward = matrixDomain.event<PaginateParams>()
 export const paginateBackward = matrixDomain.event<PaginateParams>()
 export const onUploadProgress = matrixDomain.event<UploadProgress>()
 export const toLiveTimeline = matrixDomain.event<void>()
 export const liveTimelineLoaded = matrixDomain.event<void>()
+export const loadRoomMessageDone = matrixDomain.event<void>()

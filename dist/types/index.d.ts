@@ -131,6 +131,10 @@ export declare type LoadRoomParams = {
     initialWindowSize?: number;
     loadAdditionalDataDirection?: "BACKWARD" | "FORWARD";
 };
+export declare type GoToMessageParams = {
+    initialEventId: string;
+    initialWindowSize?: number;
+};
 export declare type PaginateParams = {
     size: number;
     makeRequest?: boolean;
