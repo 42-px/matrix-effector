@@ -163,6 +163,10 @@ export type LoadRoomParams = {
   initialWindowSize?: number
   loadAdditionalDataDirection?: "BACKWARD" | "FORWARD"
 }
+export type GoToMessageParams = {
+  initialEventId: string
+  initialWindowSize?: number
+}
 export type PaginateParams = {
   size: number
   makeRequest?: boolean

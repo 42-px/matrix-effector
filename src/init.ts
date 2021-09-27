@@ -51,6 +51,8 @@ import {
     toLiveTimeline,
     liveTimelineLoaded,
     onPaginateBackwardDone,
+    loadRoomMessage,
+    loadRoomMessageDone,
 } from "./public"
 import {
     paginateRoomFx,
@@ -81,6 +83,7 @@ import {
     NotificationRulesResult,
     SetNotificationsRuleParams,
     Message,
+    GoToMessageParams,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,
@@ -138,6 +141,9 @@ const loadNewMessagesFx = attach({
 })
 
 const toLiveTimelineFx = attach({
+    effect: loadRoomFx,
+})
+const loadRoomMessageFx = attach({
     effect: loadRoomFx,
 })
 
@@ -278,6 +284,10 @@ forward({
     from: toLiveTimelineFx.done,
     to: liveTimelineLoaded,
 })
+forward({
+    from: loadRoomMessageFx.done,
+    to: loadRoomMessageDone,
+})
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
@@ -327,6 +337,27 @@ guard({
     ),
     filter: $loadFilter,
     target: toLiveTimelineFx,
+})
+guard({
+    source: sample(
+        [$currentRoomId, $timelineWindow],
+        loadRoomMessage,
+        ([
+            roomId,
+            timelineWindow
+        ], {
+            initialEventId,
+            initialWindowSize,
+        }): LoadRoomFxParams => ({
+            roomId: roomId as string,
+            timelineWindow: timelineWindow as TimelineWindow,
+            initialEventId,
+            initialWindowSize,
+            loadAdditionalDataDirection: "BACKWARD"
+        })
+    ),
+    filter: $loadFilter,
+    target: loadRoomMessageFx,
 })
 guard({
     source: paginateBackward,
