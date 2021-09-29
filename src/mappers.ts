@@ -37,6 +37,7 @@ export function toMessage(
     event: MatrixEvent,
     originalEventId?: MatrixEvent["event"]["event_id"]
 ): Message {
+    const relation = event.getRelation()
     return {
         originalEventId: originalEventId !== undefined ?
             originalEventId :
@@ -44,8 +45,8 @@ export function toMessage(
         content: getMappedContent(event),
         sender: event.sender,
         originServerTs: event.getDate(),
-        edited: Boolean(event.replacingEventId()),
-        redacted: event.isRedacted(),
+        edited: (relation as any)?.["rel_type"] === "m.replace",
+        redacted: event.isRedacted() || event.isRedaction(),
     }
 }
 
