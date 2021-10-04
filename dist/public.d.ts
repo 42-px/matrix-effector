@@ -33,6 +33,7 @@ export declare const getNotificationRulesFx: import("effector").Effect<void, Not
 export declare const setNotificationRuleActionFx: import("effector").Effect<SetNotificationsRuleParams, void, Error>;
 export declare const setNotificationRuleEnabledFx: import("effector").Effect<SetNotificationsRuleEnabledParams, void, Error>;
 export declare const deleteNotificationRuleFx: import("effector").Effect<DeleteNotificationsRuleEnabledParams, void, Error>;
+export declare const logoutFx: import("effector").Effect<void, void, Error>;
 export declare const $currentRoomId: import("effector").Store<string | null>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
