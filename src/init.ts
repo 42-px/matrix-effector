@@ -84,7 +84,6 @@ import {
     NotificationRulesResult,
     SetNotificationsRuleParams,
     Message,
-    GoToMessageParams,
 } from "./types"
 import {
     ROOM_MESSAGE_EVENT,

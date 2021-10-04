@@ -1,4 +1,3 @@
-import { batchEvents } from "@42px/effector-extra"
 import { TimelineWindow } from "matrix-js-sdk"
 import { throttle } from "patronum/throttle"
 import { matrixDomain } from "./domain"
@@ -19,7 +18,6 @@ import {
     MappedRoomMember,
     MappedUser,
     Message,
-    MessageEvent,
     NotificationRulesResult,
     PaginateParams,
     ReadAllMessagesParams,
