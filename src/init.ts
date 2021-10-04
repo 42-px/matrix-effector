@@ -188,6 +188,12 @@ const $paginateFilter = combine(
       && !roomLoading
 )
 
+$paginateBackwardPending
+    .on(paginateBackwardFx.pending, (_, value) => value)
+    .reset($currentRoomId)
+$paginateForwardPending
+    .on(paginateForwardFx.pending, (_, value) => value)
+    .reset($currentRoomId)
 $currentRoomId.on(initRoom, (_, { roomId }) => roomId)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
@@ -264,14 +270,7 @@ forward({
     from: loadRoomFx.pending,
     to: $loadRoomFxPending,
 })
-forward({
-    from: paginateForwardFx.pending,
-    to: $paginateForwardPending,
-})
-forward({
-    from: paginateBackwardFx.pending,
-    to: $paginateBackwardPending,
-})
+
 forward({
     from: sample({
         source: $timelineWindow,
