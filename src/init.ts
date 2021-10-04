@@ -93,6 +93,7 @@ import {
 } from "./constants"
 import { checkIsDirect } from "./utils"
 import { debounce } from "patronum"
+import { logoutFx } from "."
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const UserNotFound = createCustomError("UserNotFound")
@@ -808,3 +809,5 @@ deleteNotificationRuleFx.use(async(payload) => {
         payload.ruleId
     )
 })
+
+logoutFx.use(() => client().logout())

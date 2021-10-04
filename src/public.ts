@@ -74,6 +74,8 @@ export const setNotificationRuleEnabledFx = matrixDomain
     .effect<SetNotificationsRuleEnabledParams,void,Error>()
 export const deleteNotificationRuleFx = matrixDomain
     .effect<DeleteNotificationsRuleEnabledParams, void, Error>()
+export const logoutFx = matrixDomain
+    .effect<void,void,Error>()
 
 export const $currentRoomId = matrixDomain
     .store<RoomWithActivity["roomId"] | null>(null)
