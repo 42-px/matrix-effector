@@ -7,7 +7,7 @@ let clientStore: MatrixClient
 let options: Parameters<typeof matrix.createClient>[0]
 let messageBatchInterval = 500
 const callbacksStore: EventListener[] = []
-export const createClient = () => {
+export const createClient = (): void => {
     if (clientStore) {
         clientStore.removeAllListeners()
         clientStore = null as any

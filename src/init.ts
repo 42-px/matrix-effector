@@ -53,6 +53,7 @@ import {
     onPaginateBackwardDone,
     loadRoomMessage,
     loadRoomMessageDone,
+    logoutFx
 } from "./public"
 import {
     paginateRoomFx,
@@ -93,7 +94,6 @@ import {
 } from "./constants"
 import { checkIsDirect } from "./utils"
 import { debounce } from "patronum"
-import { logoutFx } from "."
 
 const RoomNotFound = createCustomError("RoomNotFound")
 const UserNotFound = createCustomError("UserNotFound")
