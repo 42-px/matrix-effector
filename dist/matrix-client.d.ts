@@ -1,6 +1,7 @@
 import { CreateClientOption, MatrixClient } from "matrix-js-sdk";
 import { EventListener } from "./types";
 declare let messageBatchInterval: number;
+export declare const createClient: () => void;
 export declare const client: () => MatrixClient;
 export declare const prependClientParams: (opts: string | (CreateClientOption & {
     messageBatchInterval?: number;

@@ -53,6 +53,7 @@ import {
     onPaginateBackwardDone,
     loadRoomMessage,
     loadRoomMessageDone,
+    logoutFx
 } from "./public"
 import {
     paginateRoomFx,
@@ -808,3 +809,5 @@ deleteNotificationRuleFx.use(async(payload) => {
         payload.ruleId
     )
 })
+
+logoutFx.use(() => client().logout())
