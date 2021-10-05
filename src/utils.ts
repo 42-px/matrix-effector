@@ -8,7 +8,6 @@ import {
     MxcUrlToHttpParams
 } from "./types"
 
-// PRIVATE!!!
 export function getMessages(timelineWindow: TimelineWindow) {
     return timelineWindow
         .getEvents()
