@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
@@ -50,7 +50,7 @@
     "typescript": "^4.1.3"
   },
   "peerDependencies": {
-    "@42px/custom-errors": "^1.0.2",
+    "@42px/custom-errors": "^1.0.4",
     "@42px/effector-extra": "^1.1.1",
     "effector": "^21.7.5",
     "matrix-js-sdk": "^9.6.0",

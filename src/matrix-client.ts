@@ -1,6 +1,6 @@
 import { batchEvents } from "@42px/effector-extra"
 import matrix, { CreateClientOption, MatrixClient } from "matrix-js-sdk"
-import { roomMessage } from "./public"
+import { roomMessage } from "./room-messages"
 import { EventListener } from "./types"
 
 let clientStore: MatrixClient

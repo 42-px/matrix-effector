@@ -1,10 +1,20 @@
-import { MatrixEvent } from "matrix-js-sdk"
+import { MatrixEvent, TimelineWindow } from "matrix-js-sdk"
+import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
+import { mergeMessageEvents } from "./mappers"
 import { client } from "./matrix-client"
 import {
     GetRoomMemberAvatarParams,
     GetSenderAvatarParams,
     MxcUrlToHttpParams
 } from "./types"
+
+export function getMessages(timelineWindow: TimelineWindow) {
+    return timelineWindow
+        .getEvents()
+        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
+            .includes(event.getType()))
+        .reduce(mergeMessageEvents, [])
+}
 
 export const getSenderAvatarUrl = ({
     sender,
