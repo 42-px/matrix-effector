@@ -1,4 +1,5 @@
 import { MatrixEvent, RoomMember, User } from "matrix-js-sdk"
+import { MappedRoomMember } from "./room"
 import {
     Message,
     MessageEvent,
@@ -6,7 +7,6 @@ import {
     MappedRoom,
     RoomInfo,
     MessageContent,
-    MappedRoomMember,
 } from "./types"
 
 function getMappedContent(event: MatrixEvent): MessageContent {

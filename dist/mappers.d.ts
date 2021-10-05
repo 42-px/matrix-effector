@@ -1,5 +1,6 @@
 import { MatrixEvent, RoomMember, User } from "matrix-js-sdk";
-import { Message, MessageEvent, Room, MappedRoom, RoomInfo, MappedRoomMember } from "./types";
+import { MappedRoomMember } from "./room";
+import { Message, MessageEvent, Room, MappedRoom, RoomInfo } from "./types";
 export declare function toMessageEvent(event: MatrixEvent): MessageEvent;
 export declare function toMessage(event: MatrixEvent, originalEventId?: MatrixEvent["event"]["event_id"]): Message;
 export declare function toMappedRoom(room: Room): MappedRoom;

@@ -1,0 +1,18 @@
+import { TimelineWindow } from "matrix-js-sdk";
+import { MappedRoom, Message, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload } from "@/types";
+import { GoToMessageParams, InitRoomParams, LoadRoomParams, MappedRoomMember } from "./types";
+export declare const $isLive: import("effector").Store<boolean | null>;
+export declare const $loadRoomFxPending: import("effector").Store<boolean>;
+export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
+export declare const $currentRoomId: import("effector").Store<string | null>;
+export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
+export declare const initRoom: import("effector").Event<InitRoomParams>;
+export declare const liveTimelineLoaded: import("effector").Event<void>;
+export declare const onRoomInitialized: import("effector").Event<void>;
+export declare const loadRoomMessageDone: import("effector").Event<void>;
+export declare const loadRoom: import("effector").Event<LoadRoomParams>;
+export declare const toLiveTimeline: import("effector").Event<void>;
+export declare const loadRoomMessage: import("effector").Event<GoToMessageParams>;
+export declare const searchRoomMessagesFx: import("effector").Effect<SearchRoomMessagesPayload, Message[], Error>;
+export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
+export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;
