@@ -34,7 +34,13 @@ import {
     loadRoomMessageDone,
     onRoomInitialized,
     searchRoomMessagesFx,
-    toLiveTimeline
+    toLiveTimeline,
+    createRoomFx, 
+    getAllUsersFx, 
+    inviteUserFx, 
+    kickUserRoomFx,
+    renameRoomFx,
+    joinRoomFx
 } from "./public"
 import { LoadRoomFxParams } from "./types"
 import {
@@ -266,6 +272,7 @@ getRoomsWithActivitiesFx.use((rooms) => {
             lastMessage,
             isDirect,
             directUserId: DMUser?.userId,
+            myMembership: matrixRoom.getMyMembership(),
             // ToDo: Разобраться, почему у для некоторых юзеров не прилетает объект user в DMUSER
             // Гипотеза 1: Шифрованные чаты как-то с этим могут быть связаны
             isOnline: DMUser
@@ -305,4 +312,32 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
             event.sender = membersCache[senderId]
             return toMessage(event)
         })
+})
+
+getAllUsersFx.use(() => client().getUsers())
+
+createRoomFx.use(async ( {name, isDirect, invite, visibility} ) => {
+   const { room_id } = await client().createRoom({
+    name, 
+    is_direct: isDirect, 
+    invite,
+    visibility,
+   } as any )
+   return room_id
+})
+
+inviteUserFx.use(({userId, roomId}) => {
+    return client().invite(roomId, userId)
+})
+
+kickUserRoomFx.use(({ roomId, userId, reason }) => {
+    return client().kick(roomId, userId, reason)
+})
+
+renameRoomFx.use(({roomId, name}) => {
+    return client().setRoomName(roomId, name)
+})
+
+joinRoomFx.use((roomId) => {
+    return client().joinRoom(roomId)
 })

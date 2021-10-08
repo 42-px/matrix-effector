@@ -38,3 +38,26 @@ export type GoToMessageParams = {
     initialEventId: string
     initialWindowSize?: number
 }
+
+export interface CreateRoomParams {
+    isDirect: boolean;
+    name: string;
+    invite: string[];
+    visibility: "public" | "private";
+}
+
+export type InviteUserParams = {
+    roomId: string;
+    userId: string
+}
+
+export type KickUserParams = {
+    roomId: string;
+    userId: string;
+    reason?: string;
+}
+
+export type RenameRoomParams = {
+    roomId: string;
+    name: string;
+}

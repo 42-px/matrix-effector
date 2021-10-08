@@ -1,5 +1,6 @@
 import {
     MatrixEvent,
+    MembershipType,
     Room,
     RoomMember,
     RoomSummary,
@@ -62,6 +63,7 @@ export type MappedRoom = {
     roomId: string
     name: string
     summary: RoomSummary
+    myMembership: MembershipType | null
 }
 export interface RoomWithActivity extends MappedRoom {
     unreadCount: number
