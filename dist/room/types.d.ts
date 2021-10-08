@@ -28,3 +28,22 @@ export declare type GoToMessageParams = {
     initialEventId: string;
     initialWindowSize?: number;
 };
+export interface CreateRoomParams {
+    isDirect: boolean;
+    name: string;
+    invite: string[];
+    visibility: "public" | "private";
+}
+export declare type InviteUserParams = {
+    roomId: string;
+    userId: string;
+};
+export declare type KickUserParams = {
+    roomId: string;
+    userId: string;
+    reason?: string;
+};
+export declare type RenameRoomParams = {
+    roomId: string;
+    name: string;
+};

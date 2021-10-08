@@ -1,6 +1,6 @@
-import { TimelineWindow } from "matrix-js-sdk";
+import { TimelineWindow, User, Room } from "matrix-js-sdk";
 import { MappedRoom, Message, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload } from "@/types";
-import { GoToMessageParams, InitRoomParams, LoadRoomParams, MappedRoomMember } from "./types";
+import { GoToMessageParams, InitRoomParams, LoadRoomParams, MappedRoomMember, CreateRoomParams, InviteUserParams, KickUserParams, RenameRoomParams } from "./types";
 export declare const $isLive: import("effector").Store<boolean | null>;
 export declare const $loadRoomFxPending: import("effector").Store<boolean>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
@@ -16,3 +16,9 @@ export declare const loadRoomMessage: import("effector").Event<GoToMessageParams
 export declare const searchRoomMessagesFx: import("effector").Effect<SearchRoomMessagesPayload, Message[], Error>;
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
 export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;
+export declare const getAllUsersFx: import("effector").Effect<void, User[], Error>;
+export declare const createRoomFx: import("effector").Effect<CreateRoomParams, string, Error>;
+export declare const inviteUserFx: import("effector").Effect<InviteUserParams, Promise<void>, Error>;
+export declare const kickUserRoomFx: import("effector").Effect<KickUserParams, Promise<void>, Error>;
+export declare const renameRoomFx: import("effector").Effect<RenameRoomParams, Promise<void>, Error>;
+export declare const joinRoomFx: import("effector").Effect<string, Promise<Room>, Error>;
