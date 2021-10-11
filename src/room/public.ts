@@ -1,6 +1,7 @@
-import { TimelineWindow, User, Room } from "matrix-js-sdk"
+import { TimelineWindow } from "matrix-js-sdk"
 import {
     MappedRoom,
+    MappedUser,
     Message,
     RoomInfo,
     RoomWithActivity,
@@ -41,9 +42,9 @@ export const getRoomsWithActivitiesFx = roomDomain
 export const getRoomInfoFx = roomDomain
     .effect<string, RoomInfo, Error>()
 export const getAllUsersFx = roomDomain
-    .effect<void, User[], Error>()
-export const createRoomFx = roomDomain.effect<CreateRoomParams, string, Error>()
-export const inviteUserFx = roomDomain.effect<InviteUserParams, Promise<void>, Error>()
-export const kickUserRoomFx = roomDomain.effect<KickUserParams, Promise<void>, Error>()
-export const renameRoomFx = roomDomain.effect<RenameRoomParams, Promise<void>, Error>()
-export const joinRoomFx = roomDomain.effect<string, Promise<Room>, Error>()
+    .effect<void, MappedUser[], Error>()
+export const createRoomFx = roomDomain.effect<CreateRoomParams, { roomId: string }, Error>()
+export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
+export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
+export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
+export const joinRoomFx = roomDomain.effect<string, RoomWithActivity, Error>()

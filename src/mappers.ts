@@ -1,4 +1,7 @@
 import { MatrixEvent, RoomMember, User } from "matrix-js-sdk"
+import { checkIsDirect, client } from "."
+import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
+import { RoomNotFound } from "./errors"
 import { MappedRoomMember } from "./room"
 import {
     Message,
@@ -7,6 +10,8 @@ import {
     MappedRoom,
     RoomInfo,
     MessageContent,
+    MappedUser,
+    RoomWithActivity,
 } from "./types"
 
 function getMappedContent(event: MatrixEvent): MessageContent {
@@ -55,6 +60,7 @@ export function toMappedRoom(room: Room): MappedRoom {
         roomId: room.roomId,
         name: room.name,
         summary: room.summary,
+        myMembership: room.getMyMembership()
     }
 }
 
@@ -74,6 +80,19 @@ export function toRoomInfo(room: Room): RoomInfo {
         roomMembersCount: room.getJoinedMemberCount()
     }
 }
+
+export const toMappedUser = (user: User): MappedUser => (
+    {
+        avatarUrl: user.avatarUrl,
+        userId: user.userId,
+        currentlyActive: user.currentlyActive,
+        displayName: user.displayName,
+        lastActiveAgo: user.lastActiveAgo,
+        lastPresenceTs: user.lastPresenceTs,
+        presence: user.presence as any,
+    }
+)
+
 export function toMappedRoomMember(
     roomMember: RoomMember,
     user: User
@@ -86,15 +105,49 @@ export function toMappedRoomMember(
         rawDisplayName: roomMember.rawDisplayName,
         roomId: roomMember.roomId,
         typing: roomMember.typing,
-        user: {
-            avatarUrl: user.avatarUrl,
-            userId : user.userId,
-            currentlyActive :  user.currentlyActive,
-            displayName :  user.displayName,
-            lastActiveAgo :  user.lastActiveAgo,
-            lastPresenceTs :  user.lastPresenceTs,
-            presence: user.presence as any,
-        },
+        user: toMappedUser(user),
         userId: roomMember.userId,
+    }
+}
+
+export function toRoomWithActivity(room: MappedRoom, maxHistory: number): RoomWithActivity {
+    const cl = client()
+    const matrixRoom = cl.getRoom(room.roomId)
+    if (!matrixRoom) throw new RoomNotFound()
+    const events = matrixRoom.getLiveTimeline().getEvents()
+    let unreadCount = 0
+    for (let i = events.length - 1; i >= 0; i--) {
+        if (i === events.length - maxHistory) break
+        const event = events[i]
+        const isReadUpTo = matrixRoom
+            .hasUserReadEvent(cl.getUserId() as string, event.getId())
+        if (isReadUpTo) {
+            break
+        }
+        unreadCount += 1
+    }
+    const mergedMessageEvents = events
+        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
+            .includes(event.getType()))
+        .reduce(mergeMessageEvents, [])
+    const lastMessage = mergedMessageEvents.length ?
+        mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
+    const isDirect = checkIsDirect(room.roomId)
+    const DMUser = isDirect
+        ? matrixRoom.getMember(matrixRoom.guessDMUserId())
+        : null
+
+    return {
+        ...room,
+        unreadCount,
+        lastMessage,
+        isDirect,
+        directUserId: DMUser?.userId,
+        // ToDo: Разобраться, почему у для некоторых юзеров не прилетает объект user в DMUSER
+        // Гипотеза 1: Шифрованные чаты как-то с этим могут быть связаны
+        isOnline: DMUser
+            ? Boolean(DMUser.user?.currentlyActive)
+            : undefined,
+        lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
     }
 }

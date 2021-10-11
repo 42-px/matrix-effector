@@ -1,6 +1,6 @@
 import { forward } from "effector"
 import { User } from "matrix-js-sdk"
-import { toMappedRoom, toMessage } from "@/mappers"
+import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import { client, onClientEvent } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
 import { MatrixEvent, Room, RoomMember } from "@/types"
@@ -131,22 +131,13 @@ getLoggedUserFx.use(async () => {
     if (!loggedUserId) return null
     const user = cl.getUser(loggedUserId)
     if (!user) return null
+    const mappedUser = toMappedUser(user)
     // FixMe: Необъяснимое поведение получения юзера через getUser
     // Аватар и дисплейнейм не приходят, и приходится получать 
-    let avatarUrl = user.avatarUrl
-    let displayName = user.displayName
-    if (!user?.avatarUrl || !user?.displayName) {
+    if (!mappedUser.avatarUrl || !mappedUser.displayName) {
         const profileInfo = await cl.getProfileInfo(loggedUserId)
-        avatarUrl = profileInfo.avatar_url as string
-        displayName = profileInfo.displayname as string
+        mappedUser.avatarUrl = profileInfo.avatar_url as string
+        mappedUser.displayName = profileInfo.displayname as string
     }
-    return {
-        avatarUrl,
-        userId: user.userId,
-        currentlyActive: user.currentlyActive,
-        displayName,
-        lastActiveAgo: user.lastActiveAgo,
-        lastPresenceTs: user.lastPresenceTs,
-        presence: user.presence as any
-    }
+    return mappedUser;
 })

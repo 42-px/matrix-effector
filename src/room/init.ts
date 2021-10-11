@@ -1,16 +1,17 @@
 import matrix, { TimelineWindow } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
-import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "@/constants"
 import {
-    mergeMessageEvents,
+    toMappedRoom,
     toMappedRoomMember,
+    toMappedUser,
     toMessage,
-    toRoomInfo
+    toRoomInfo,
+    toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
 import { MatrixEvent, RoomMember } from "@/types"
-import { checkIsDirect, getMessages } from "@/utils"
+import { getMessages } from "@/utils"
 import {
     $loadFilter,
     getRoomMembers,
@@ -240,47 +241,7 @@ getRoomsWithActivitiesFx.use((rooms) => {
     const cl = client()
     if (!cl) throw new ClientNotInitialized()
     const maxHistory = 99
-    return rooms.map((room) => {
-        const matrixRoom = cl.getRoom(room.roomId)
-        if (!matrixRoom) throw new RoomNotFound()
-        const events = matrixRoom.getLiveTimeline().getEvents()
-        let unreadCount = 0
-        for (let i = events.length - 1; i >= 0; i--) {
-            if (i === events.length - maxHistory) break
-            const event = events[i]
-            const isReadUpTo = matrixRoom
-                .hasUserReadEvent(cl.getUserId() as string, event.getId())
-            if (isReadUpTo) {
-                break
-            }
-            unreadCount += 1
-        }
-        const mergedMessageEvents = events
-            .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-                .includes(event.getType()))
-            .reduce(mergeMessageEvents, [])
-        const lastMessage = mergedMessageEvents.length ?
-            mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
-        const isDirect = checkIsDirect(matrixRoom.roomId)
-        const DMUser = isDirect
-            ? matrixRoom.getMember(matrixRoom.guessDMUserId())
-            : null
-
-        return {
-            ...room,
-            unreadCount,
-            lastMessage,
-            isDirect,
-            directUserId: DMUser?.userId,
-            myMembership: matrixRoom.getMyMembership(),
-            // ToDo: Разобраться, почему у для некоторых юзеров не прилетает объект user в DMUSER
-            // Гипотеза 1: Шифрованные чаты как-то с этим могут быть связаны
-            isOnline: DMUser
-                ? Boolean(DMUser.user?.currentlyActive)
-                : undefined,
-            lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
-        }
-    })
+    return rooms.map((room) => toRoomWithActivity(room, maxHistory))
 })
 
 searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
@@ -314,30 +275,31 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
         })
 })
 
-getAllUsersFx.use(() => client().getUsers())
+getAllUsersFx.use(() => client().getUsers().map(toMappedUser))
 
 createRoomFx.use(async ( {name, isDirect, invite, visibility} ) => {
-   const { room_id } = await client().createRoom({
-    name, 
-    is_direct: isDirect, 
-    invite,
-    visibility,
-   } as any )
-   return room_id
+    const { room_id } = await client().createRoom({
+        name, 
+        is_direct: isDirect, 
+        invite,
+        visibility,
+    } as any )
+    return { roomId: room_id } 
 })
 
-inviteUserFx.use(({userId, roomId}) => {
-    return client().invite(roomId, userId)
+inviteUserFx.use( async ({userId, roomId}) => {
+    await client().invite(roomId, userId)
 })
 
-kickUserRoomFx.use(({ roomId, userId, reason }) => {
-    return client().kick(roomId, userId, reason)
+kickUserRoomFx.use( async ({ roomId, userId, reason }) => {
+    await client().kick(roomId, userId, reason)
 })
 
-renameRoomFx.use(({roomId, name}) => {
-    return client().setRoomName(roomId, name)
+renameRoomFx.use( async ({roomId, name}) => {
+    await client().setRoomName(roomId, name)
 })
 
-joinRoomFx.use((roomId) => {
-    return client().joinRoom(roomId)
+joinRoomFx.use( async (roomId) => {
+    const room = await client().joinRoom(roomId)
+    return toRoomWithActivity(toMappedRoom(room), 99)
 })
