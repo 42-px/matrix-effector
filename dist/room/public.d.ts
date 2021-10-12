@@ -1,6 +1,6 @@
 import { TimelineWindow } from "matrix-js-sdk";
 import { MappedRoom, MappedUser, Message, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload } from "@/types";
-import { GoToMessageParams, InitRoomParams, LoadRoomParams, MappedRoomMember, CreateRoomParams, InviteUserParams, KickUserParams, RenameRoomParams } from "./types";
+import { GoToMessageParams, InitRoomParams, LoadRoomParams, MappedRoomMember, CreateRoomParams, InviteUserParams, KickUserParams, RenameRoomParams, CreateDirectRoomParams } from "./types";
 export declare const $isLive: import("effector").Store<boolean | null>;
 export declare const $loadRoomFxPending: import("effector").Store<boolean>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
@@ -18,6 +18,9 @@ export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedR
 export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;
 export declare const getAllUsersFx: import("effector").Effect<void, MappedUser[], Error>;
 export declare const createRoomFx: import("effector").Effect<CreateRoomParams, {
+    roomId: string;
+}, Error>;
+export declare const createDirectRoomFx: import("effector").Effect<CreateDirectRoomParams, {
     roomId: string;
 }, Error>;
 export declare const inviteUserFx: import("effector").Effect<InviteUserParams, void, Error>;

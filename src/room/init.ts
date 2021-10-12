@@ -1,4 +1,4 @@
-import matrix, { TimelineWindow } from "matrix-js-sdk"
+import matrix, { EventType, TimelineWindow, Room } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
 import {
@@ -41,9 +41,10 @@ import {
     inviteUserFx, 
     kickUserRoomFx,
     renameRoomFx,
-    joinRoomFx
+    joinRoomFx,
+    createDirectRoomFx,
 } from "./public"
-import { LoadRoomFxParams } from "./types"
+import { LoadRoomFxParams, Visibility } from "./types"
 import {
     ClientNotInitialized,
     RoomNotFound,
@@ -277,14 +278,49 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
 
 getAllUsersFx.use(() => client().getUsers().map(toMappedUser))
 
-createRoomFx.use(async ( {name, isDirect, invite, visibility} ) => {
-    const { room_id } = await client().createRoom({
+createRoomFx.use(async ( {name, invite, visibility, initialState = [], preset} ) => {
+    const options = {
         name, 
-        is_direct: isDirect, 
         invite,
         visibility,
-    } as any )
+        initial_state: initialState.map((state) => ({ 
+            ...state,
+            state_key: state.stateKey,
+            stateKey: undefined,
+        })),
+        preset,
+    }
+
+    const { room_id } = await client().createRoom(options)
+
     return { roomId: room_id } 
+})
+
+createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
+    const cl = client()
+    const roomsIds = (Object.values((cl.getAccountData('m.direct' as EventType) as MatrixEvent).getContent()) ?? []).flatMap((room) => room)
+    const findRoomId = roomsIds.find((roomId) => (cl.getRoom(roomId) as Room).currentState.members[user.userId])
+    if (findRoomId) return { roomId: findRoomId }
+    
+    const options = {
+        is_direct: true, 
+        invite: [user.userId],
+        visibility: Visibility.private,
+        initial_state: initialState.map((state) => ({ 
+            ...state,
+            state_key: state.stateKey,
+            stateKey: undefined,
+        })),
+        preset,
+    }
+    const { room_id } = await cl.createRoom(options as any)
+
+    const userId = (cl.getUserId() as string)
+    await cl.setAccountData(('m.direct' as EventType), {
+        [userId]: [...roomsIds, room_id],
+    })
+
+    return { roomId: "test" }
 })
 
 inviteUserFx.use( async ({userId, roomId}) => {

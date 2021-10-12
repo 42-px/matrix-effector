@@ -16,7 +16,8 @@ import {
     CreateRoomParams,
     InviteUserParams, 
     KickUserParams, 
-    RenameRoomParams
+    RenameRoomParams,
+    CreateDirectRoomParams
 } from "./types"
 
 export const $isLive = roomDomain.store<boolean | null>(null)
@@ -44,6 +45,7 @@ export const getRoomInfoFx = roomDomain
 export const getAllUsersFx = roomDomain
     .effect<void, MappedUser[], Error>()
 export const createRoomFx = roomDomain.effect<CreateRoomParams, { roomId: string }, Error>()
+export const createDirectRoomFx = roomDomain.effect<CreateDirectRoomParams, { roomId: string }, Error>()
 export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
 export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()

@@ -29,10 +29,30 @@ export declare type GoToMessageParams = {
     initialWindowSize?: number;
 };
 export interface CreateRoomParams {
-    isDirect: boolean;
     name: string;
     invite: string[];
-    visibility: "public" | "private";
+    visibility: Visibility;
+    initialState?: InitialState[];
+    preset?: Preset;
+}
+export interface CreateDirectRoomParams {
+    user: MappedUser;
+    initialState?: InitialState[];
+    preset?: Preset;
+}
+export declare enum Visibility {
+    public = "public",
+    private = "private"
+}
+export declare enum Preset {
+    trustedPrivateChat = "trusted_private_chat",
+    privateChat = "private_chat",
+    publicChat = "public_chat"
+}
+export interface InitialState {
+    content: any;
+    stateKey: string;
+    type: string;
 }
 export declare type InviteUserParams = {
     roomId: string;
