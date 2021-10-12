@@ -10,6 +10,7 @@ export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const liveTimelineLoaded: import("effector").Event<void>;
 export declare const onRoomInitialized: import("effector").Event<void>;
 export declare const loadRoomMessageDone: import("effector").Event<void>;
+export declare const loadInitialRoomDone: import("effector").Event<void>;
 export declare const loadRoom: import("effector").Event<LoadRoomParams>;
 export declare const toLiveTimeline: import("effector").Event<void>;
 export declare const loadRoomMessage: import("effector").Event<GoToMessageParams>;
