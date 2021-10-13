@@ -35,7 +35,7 @@ import {
     onRoomInitialized,
     searchRoomMessagesFx,
     toLiveTimeline,
-    loadInitialRoomDone
+    onRoomLoaded
 } from "./public"
 import { LoadRoomFxParams } from "./types"
 import {
@@ -89,7 +89,7 @@ forward({
 })
 forward({
     from: loadInitialRoomFx.done,
-    to: loadInitialRoomDone,
+    to: onRoomLoaded,
 })
 
 guard({

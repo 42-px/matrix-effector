@@ -12,7 +12,6 @@ npm install @42px/matrix-effector
 
 ## Usage
 
-
 ```js
 import { IndexedDBStore } from 'matrix-js-sdk'
 import {
@@ -188,4 +187,92 @@ const avatarUrl = getSenderAvatarUrl({
   resizeMethod: 'crop',
 })
 
+```
+
+# API Reference
+
+## Store
+
+### $messages
+
+```ts
+const $messages = store<Message>()
+```
+
+> Store provides access to messages in opened room
+
+
+## Events 
+
+### **onRoomLoaded**
+
+```ts
+const onRoomLoaded = event<void>()
+```
+
+> Event emmits when room initialized and messages loaded in $messages.
+
+
+## Types
+
+### Message
+
+```ts
+type Message = {
+    originalEventId: string // event identifier
+    content: MessageContent // kind of content
+    sender: RoomMember // Message author
+    originServerTs: Date // Message Date
+    edited: boolean
+    redacted: boolean
+}
+
+export type MessageContent = AudioContent |
+  BadEncryptedContent |
+  EmoteContent |
+  FileContent |
+  ImageContent |
+  NoticeContent |
+  TextContent |
+  VideoContent |
+  LocationContent |
+  Record<string, never>
+
+
+```
+> The type describes **mapped** message instance from matrix-js-sdk
+
+### Room member
+
+```ts
+export class RoomMember {
+    roomId: string;  
+    userId: string; 
+    typing: boolean;  
+    name: string;  
+    rawDisplayName: string; 
+    powerLevel: number; 
+    powerLevelNorm: number;  
+    user: User;   
+    membership: MembershipType;   
+    events: object; 
+
+    constructor(roomId: string, userId: string)
+    getAvatarUrl(
+        baseUrl: string, 
+        width: number, 
+        height: number, 
+        resizeMethod: string, 
+        allowDefault: boolean, 
+        allowDirectLinks: boolean
+    ): null | string;
+    getDMInviter(): string;
+    getLastModifiedTime(): number;
+    getMxcAvatarUrl(): string;
+    isOutOfBand(): boolean;
+    markOutOfBand(): void;
+    setMembershipEvent(event: MatrixEvent, roomState: RoomState): void;
+    setPowerLevelEvent(powerLevelEvent: MatrixEvent): void;
+    setTypingEvent(event: MatrixEvent): void;
+}
 ```
