@@ -11,7 +11,7 @@ import {
 } from "@/mappers"
 import { client } from "@/matrix-client"
 import { MatrixEvent, RoomMember } from "@/types"
-import { getMessages } from "@/utils"
+import { getIsDirectRoomsIds, getMessages } from "@/utils"
 import {
     $loadFilter,
     getRoomMembers,
@@ -298,8 +298,8 @@ createRoomFx.use(async ( {name, invite, visibility, initialState = [], preset} )
 
 createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
     const cl = client()
-    const roomsIds = (Object.values((cl.getAccountData('m.direct' as EventType) as MatrixEvent).getContent()) ?? []).flatMap((room) => room)
-    const findRoomId = roomsIds.find((roomId) => (cl.getRoom(roomId) as Room).currentState.members[user.userId])
+    const roomsIds = getIsDirectRoomsIds()
+    const findRoomId = roomsIds.find((roomId) => cl.getRoom(roomId)?.currentState.members[user.userId])
     if (findRoomId) return { roomId: findRoomId }
     
     const options = {
@@ -312,6 +312,9 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
             stateKey: undefined,
         })),
         preset,
+        creation_content: {
+            isDirect: true
+        }
     }
     const { room_id } = await cl.createRoom(options as any)
 
@@ -336,6 +339,16 @@ renameRoomFx.use( async ({roomId, name}) => {
 })
 
 joinRoomFx.use( async (roomId) => {
-    const room = await client().joinRoom(roomId)
+    const cl = client()
+    const room = await cl.joinRoom(roomId)
+    const createEvent = room.getLiveTimeline().getEvents().find(({ event }) => event.type === 'm.room.create' as EventType)
+    console.log(createEvent)
+    if ((createEvent?.event.content as any ).isDirect) {
+        const userId = cl.getUserId() as string
+        const roomsIds = getIsDirectRoomsIds()
+        cl.setAccountData('m.direct' as EventType , {
+            [userId]: [...roomsIds, roomId]
+        })
+    }
     return toRoomWithActivity(toMappedRoom(room), 99)
 })

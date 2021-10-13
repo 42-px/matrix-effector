@@ -65,7 +65,7 @@ export enum Preset {
 }
 
 export interface InitialState {
-    content: any;
+    content: Object;
     stateKey: string;
     type: string
 }

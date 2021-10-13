@@ -1,4 +1,4 @@
-import { MatrixEvent, TimelineWindow } from "matrix-js-sdk"
+import { EventType, MatrixEvent, TimelineWindow } from "matrix-js-sdk"
 import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
 import { mergeMessageEvents } from "./mappers"
 import { client } from "./matrix-client"
@@ -61,6 +61,12 @@ export const getRoomMemberAvatarUrl = ({
     )
 }
 
+export const getIsDirectRoomsIds = ():string[] => {
+    const cl = client()
+    const userDirectRooms = (cl.getAccountData('m.direct' as EventType) as MatrixEvent)?.getContent()
+    return userDirectRooms && Object.values(userDirectRooms).flatMap((room) => room)
+}
+
 export const mxcUrlToHttp = ({
     mxcUrl,
     width,
@@ -76,20 +82,7 @@ export const mxcUrlToHttp = ({
         allowDirectLinks !== undefined ? allowDirectLinks : null,
     )
 
-export const checkIsDirect = (roomId: string): boolean => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const directEvent = client().getAccountData("m.direct") as MatrixEvent
-    const aDirectRooms = directEvent
-        ? Object.values(directEvent.getContent())
-        : []
-    let summaryDirects: string[] = []
-    for (const accountDirects of aDirectRooms) {
-        summaryDirects = [...summaryDirects, ...accountDirects]
-    }
-    if (summaryDirects.includes(roomId)) return true
-    return false
-} 
+export const checkIsDirect = (roomId: string): boolean => getIsDirectRoomsIds().includes(roomId)
 
 
 export const getUploadCredentials = () => {
