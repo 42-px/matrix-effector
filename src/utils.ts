@@ -1,5 +1,5 @@
 import { EventType, MatrixEvent, TimelineWindow } from "matrix-js-sdk"
-import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
+import { DIRECT_EVENT, ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
 import { mergeMessageEvents } from "./mappers"
 import { client } from "./matrix-client"
 import {
@@ -63,7 +63,7 @@ export const getRoomMemberAvatarUrl = ({
 
 export const getIsDirectRoomsIds = ():string[] => {
     const cl = client()
-    const userDirectRooms = (cl.getAccountData('m.direct' as EventType) as MatrixEvent)?.getContent()
+    const userDirectRooms = (cl.getAccountData(DIRECT_EVENT as EventType) as MatrixEvent)?.getContent()
     return userDirectRooms && Object.values(userDirectRooms).flatMap((room) => room)
 }
 
@@ -92,4 +92,18 @@ export const getUploadCredentials = () => {
             Authorization : `Bearer ${client().getAccessToken()}`
         },
     })
+}
+
+export const setDirectRoom = (roomId: string) => {
+    const cl = client()
+    const directRoomsIds = getIsDirectRoomsIds()
+    if (!directRoomsIds.includes(roomId)) {
+        // @ts-ignore
+        const { creator } = cl.getRoom(roomId)?.currentState.getStateEvents('m.room.create' as EventType, undefined)[0]?.getContent()
+        const prevData = (cl.getAccountData(DIRECT_EVENT as EventType) as MatrixEvent)?.getContent()
+        return cl.setAccountData(DIRECT_EVENT as EventType, {
+            ...prevData,
+            [creator]: [roomId]
+        })
+    }
 }
