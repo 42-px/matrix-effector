@@ -1,5 +1,5 @@
 import { forward } from "effector"
-import { User } from "matrix-js-sdk"
+import { EventType, User } from "matrix-js-sdk"
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import { client, onClientEvent } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
@@ -24,6 +24,7 @@ import {
 } from "@/constants"
 import { updateMessages } from "@/room-messages/private"
 import { roomMessage } from "@/room-messages"
+import { newDirectRoom, newRoom } from "@/room"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -51,6 +52,16 @@ onClientEvent([
                 if (!toStartOfTimeline && data.liveEvent) {
                     roomMessage(toMessage(event))
                 }
+            }
+        }],
+        ["Room", (room: Room) => {
+
+            // @ts-ignore
+            const isDirect = room.currentState.getStateEvents("m.room.create" as EventType, undefined)[0]?.getContent()?.isDirect
+            if (isDirect) {
+                newDirectRoom(room)
+            } else {
+                newRoom(room)
             }
         }],
     ["Room.localEchoUpdated", () => updateMessages()],

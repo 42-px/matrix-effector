@@ -12,3 +12,4 @@ export declare const getUploadCredentials: () => {
         Authorization: string;
     };
 };
+export declare const setDirectRoom: (roomId: string) => Promise<void> | undefined;

@@ -1,4 +1,4 @@
-import { TimelineWindow } from "matrix-js-sdk"
+import { TimelineWindow, Room } from "matrix-js-sdk"
 import {
     MappedRoom,
     MappedUser,
@@ -35,6 +35,8 @@ export const loadRoomMessageDone = roomDomain.event<void>()
 export const loadRoom = roomDomain.event<LoadRoomParams>()
 export const toLiveTimeline = roomDomain.event<void>()
 export const loadRoomMessage = roomDomain.event<GoToMessageParams>()
+export const newDirectRoom = roomDomain.event<Room>()
+export const newRoom = roomDomain.event<Room>()
 
 export const searchRoomMessagesFx = roomDomain
     .effect<SearchRoomMessagesPayload, Message[], Error>()
@@ -49,4 +51,4 @@ export const createDirectRoomFx = roomDomain.effect<CreateDirectRoomParams, { ro
 export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
 export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
-export const joinRoomFx = roomDomain.effect<string, RoomWithActivity, Error>()
+export const joinRoomFx = roomDomain.effect<{roomId: string, isDirect?: boolean}, RoomWithActivity, Error>()

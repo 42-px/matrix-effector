@@ -1,4 +1,4 @@
-import matrix, { EventType, TimelineWindow, Room } from "matrix-js-sdk"
+import matrix, { TimelineWindow } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/mappers"
 import { client } from "@/matrix-client"
 import { MatrixEvent, RoomMember } from "@/types"
-import { getIsDirectRoomsIds, getMessages } from "@/utils"
+import { getIsDirectRoomsIds, getMessages, setDirectRoom } from "@/utils"
 import {
     $loadFilter,
     getRoomMembers,
@@ -19,7 +19,7 @@ import {
     initRoomFx,
     loadRoomFx,
     onRoomMemberUpdate,
-    onRoomUserUpdate
+    onRoomUserUpdate,
 } from "./private"
 import {
     $currentRoomId,
@@ -313,17 +313,14 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
         })),
         preset,
         creation_content: {
-            isDirect: true
+            isDirect: true,
+            creator: cl.getUserId() 
         }
     }
     const { room_id } = await cl.createRoom(options as any)
+    setDirectRoom(room_id)
 
-    const userId = (cl.getUserId() as string)
-    await cl.setAccountData(('m.direct' as EventType), {
-        [userId]: [...roomsIds, room_id],
-    })
-
-    return { roomId: "test" }
+    return { roomId: room_id }
 })
 
 inviteUserFx.use( async ({userId, roomId}) => {
@@ -338,17 +335,11 @@ renameRoomFx.use( async ({roomId, name}) => {
     await client().setRoomName(roomId, name)
 })
 
-joinRoomFx.use( async (roomId) => {
+joinRoomFx.use( async ({roomId, isDirect = false}) => {
     const cl = client()
     const room = await cl.joinRoom(roomId)
-    const createEvent = room.getLiveTimeline().getEvents().find(({ event }) => event.type === 'm.room.create' as EventType)
-    console.log(createEvent)
-    if ((createEvent?.event.content as any ).isDirect) {
-        const userId = cl.getUserId() as string
-        const roomsIds = getIsDirectRoomsIds()
-        cl.setAccountData('m.direct' as EventType , {
-            [userId]: [...roomsIds, roomId]
-        })
+    if (isDirect) {
+        setDirectRoom(roomId)
     }
     return toRoomWithActivity(toMappedRoom(room), 99)
 })
