@@ -54,7 +54,7 @@ onClientEvent([
                 }
             }
         }],
-    ["Room", async (room: Room) => {
+    ["Room", (room: Room) => {
         const cl = client()
         const user = room.getMember(cl.getUserId() as string)
         if (user && user.membership !== "invite") return
@@ -64,7 +64,7 @@ onClientEvent([
                 "m.room.create" as EventType, 
                 undefined as any
             ) as any)[0]?.getContent()?.isDirect
-            
+
         if (isDirect) {
             directRoomCreated(room)
         } else {
