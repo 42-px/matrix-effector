@@ -54,8 +54,9 @@ onClientEvent([
                 }
             }
         }],
-        ["Room", (room: Room) => {
-
+        ["Room", async (room: Room) => {
+            const { joined_rooms } = await client().getJoinedRooms() as any
+            if (joined_rooms && joined_rooms.includes(room.roomId)) return
             // @ts-ignore
             const isDirect = room.currentState.getStateEvents("m.room.create" as EventType, undefined)[0]?.getContent()?.isDirect
             if (isDirect) {

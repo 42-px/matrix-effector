@@ -59,12 +59,5 @@
   "files": [
     "dist"
   ],
-  "typings": "./dist",
-  "dependencies": {
-    "@42px/custom-errors": "^1.0.4",
-    "@42px/effector-extra": "^2.0.1",
-    "effector": "^22.1.2",
-    "matrix-js-sdk": "^14.0.1",
-    "patronum": "^1.1.0"
-  }
+  "typings": "./dist"
 }
