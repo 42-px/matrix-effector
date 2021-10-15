@@ -103,13 +103,11 @@ export const getUploadCredentials = () => {
 
 export const setDirectRoom = (roomId: string) => {
     const cl = client()
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { creator } = cl.getRoom(roomId)?.currentState
+    const { creator } = (cl.getRoom(roomId)?.currentState
         .getStateEvents(
             "m.room.create" as EventType,
             undefined as any
-        )[0]?.getContent()
+        ) as any )[0]?.getContent()
     const prevData = (cl.getAccountData(
         DIRECT_EVENT as EventType
     ) as MatrixEvent)?.getContent()
