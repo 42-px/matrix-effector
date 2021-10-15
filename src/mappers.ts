@@ -110,7 +110,10 @@ export function toMappedRoomMember(
     }
 }
 
-export function toRoomWithActivity(room: MappedRoom, maxHistory: number): RoomWithActivity {
+export function toRoomWithActivity(
+    room: MappedRoom, 
+    maxHistory: number
+): RoomWithActivity {
     const cl = client()
     const matrixRoom = cl.getRoom(room.roomId)
     if (!matrixRoom) throw new RoomNotFound()

@@ -1,5 +1,9 @@
 import { EventType, MatrixEvent, TimelineWindow } from "matrix-js-sdk"
-import { DIRECT_EVENT, ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
+import { 
+    DIRECT_EVENT, 
+    ROOM_MESSAGE_EVENT, 
+    ROOM_REDACTION_EVENT 
+} from "./constants"
 import { mergeMessageEvents } from "./mappers"
 import { client } from "./matrix-client"
 import {
@@ -63,8 +67,10 @@ export const getRoomMemberAvatarUrl = ({
 
 export const getIsDirectRoomsIds = ():string[] => {
     const cl = client()
-    const userDirectRooms = (cl.getAccountData(DIRECT_EVENT as EventType) as MatrixEvent)?.getContent()
-    return userDirectRooms && Object.values(userDirectRooms).flatMap((room) => room)
+    const directRooms = (cl.getAccountData(
+        DIRECT_EVENT as EventType) as MatrixEvent
+    )?.getContent()
+    return directRooms && Object.values(directRooms).flatMap((room) => room)
 }
 
 export const mxcUrlToHttp = ({
@@ -82,7 +88,8 @@ export const mxcUrlToHttp = ({
         allowDirectLinks !== undefined ? allowDirectLinks : null,
     )
 
-export const checkIsDirect = (roomId: string): boolean => getIsDirectRoomsIds().includes(roomId)
+export const checkIsDirect = (roomId: string): boolean => (
+    getIsDirectRoomsIds().includes(roomId))
 
 
 export const getUploadCredentials = () => {
@@ -96,14 +103,18 @@ export const getUploadCredentials = () => {
 
 export const setDirectRoom = (roomId: string) => {
     const cl = client()
-    const directRoomsIds = getIsDirectRoomsIds()
-    if (!directRoomsIds.includes(roomId)) {
-        // @ts-ignore
-        const { creator } = cl.getRoom(roomId)?.currentState.getStateEvents('m.room.create' as EventType, undefined)[0]?.getContent()
-        const prevData = (cl.getAccountData(DIRECT_EVENT as EventType) as MatrixEvent)?.getContent()
-        return cl.setAccountData(DIRECT_EVENT as EventType, {
-            ...prevData,
-            [creator]: [roomId]
-        })
-    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { creator } = cl.getRoom(roomId)?.currentState
+        .getStateEvents(
+            "m.room.create" as EventType,
+            undefined as any
+        )[0]?.getContent()
+    const prevData = (cl.getAccountData(
+        DIRECT_EVENT as EventType
+    ) as MatrixEvent)?.getContent()
+    return cl.setAccountData(DIRECT_EVENT as EventType, {
+        ...prevData,
+        [creator]: [roomId]
+    })
 }

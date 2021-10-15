@@ -40,17 +40,17 @@ export type GoToMessageParams = {
 }
 
 export interface CreateRoomParams {
-    name: string;
-    invite: string[];
-    visibility: Visibility;
-    initialState?: InitialState[];
-    preset?: Preset;
+    name: string
+    invite: string[]
+    visibility: Visibility
+    initialState?: InitialState[]
+    preset?: Preset
 }
 
 export interface CreateDirectRoomParams {
-    user: MappedUser;
-    initialState?: InitialState[];
-    preset?: Preset;
+    user: MappedUser
+    initialState?: InitialState[]
+    preset?: Preset
 }
 
 export enum Visibility {
@@ -65,23 +65,23 @@ export enum Preset {
 }
 
 export interface InitialState {
-    content: Object;
-    stateKey: string;
+    content: Object
+    stateKey: string
     type: string
 }
 
 export type InviteUserParams = {
-    roomId: string;
+    roomId: string
     userId: string
 }
 
 export type KickUserParams = {
-    roomId: string;
-    userId: string;
-    reason?: string;
+    roomId: string
+    userId: string
+    reason?: string
 }
 
 export type RenameRoomParams = {
-    roomId: string;
-    name: string;
+    roomId: string
+    name: string
 }

@@ -35,8 +35,8 @@ export const loadRoomMessageDone = roomDomain.event<void>()
 export const loadRoom = roomDomain.event<LoadRoomParams>()
 export const toLiveTimeline = roomDomain.event<void>()
 export const loadRoomMessage = roomDomain.event<GoToMessageParams>()
-export const newDirectRoom = roomDomain.event<Room>()
-export const newRoom = roomDomain.event<Room>()
+export const directRoomCreated = roomDomain.event<Room>()
+export const roomCreated = roomDomain.event<Room>()
 
 export const searchRoomMessagesFx = roomDomain
     .effect<SearchRoomMessagesPayload, Message[], Error>()
@@ -46,9 +46,12 @@ export const getRoomInfoFx = roomDomain
     .effect<string, RoomInfo, Error>()
 export const getAllUsersFx = roomDomain
     .effect<void, MappedUser[], Error>()
-export const createRoomFx = roomDomain.effect<CreateRoomParams, { roomId: string }, Error>()
-export const createDirectRoomFx = roomDomain.effect<CreateDirectRoomParams, { roomId: string }, Error>()
+export const createRoomFx = roomDomain
+    .effect<CreateRoomParams, { roomId: string }, Error>()
+export const createDirectRoomFx = roomDomain
+    .effect<CreateDirectRoomParams, { roomId: string }, Error>()
 export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
 export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
-export const joinRoomFx = roomDomain.effect<{roomId: string, isDirect?: boolean}, RoomWithActivity, Error>()
+export const joinRoomFx = roomDomain
+    .effect<{roomId: string; isDirect?: boolean}, RoomWithActivity, Error>()

@@ -278,7 +278,13 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
 
 getAllUsersFx.use(() => client().getUsers().map(toMappedUser))
 
-createRoomFx.use(async ( {name, invite, visibility, initialState = [], preset} ) => {
+createRoomFx.use(async ({
+    name, 
+    invite, 
+    visibility, 
+    initialState = [], 
+    preset
+}) => {
     const options = {
         name, 
         invite,
@@ -299,7 +305,9 @@ createRoomFx.use(async ( {name, invite, visibility, initialState = [], preset} )
 createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
     const cl = client()
     const roomsIds = getIsDirectRoomsIds()
-    const findRoomId = roomsIds.find((roomId) => cl.getRoom(roomId)?.currentState.members[user.userId])
+    const findRoomId = roomsIds.find(
+        (roomId) => cl.getRoom(roomId)?.currentState.members[user.userId]
+    )
     if (findRoomId) return { roomId: findRoomId }
     
     const options = {
@@ -318,7 +326,7 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
         }
     }
     const { room_id } = await cl.createRoom(options as any)
-    setDirectRoom(room_id)
+    await setDirectRoom(room_id)
 
     return { roomId: room_id }
 })
@@ -339,7 +347,7 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     const cl = client()
     const room = await cl.joinRoom(roomId)
     if (isDirect) {
-        setDirectRoom(roomId)
+        await setDirectRoom(roomId)
     }
     return toRoomWithActivity(toMappedRoom(room), 99)
 })

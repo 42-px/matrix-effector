@@ -24,7 +24,7 @@ import {
 } from "@/constants"
 import { updateMessages } from "@/room-messages/private"
 import { roomMessage } from "@/room-messages"
-import { newDirectRoom, newRoom } from "@/room"
+import { directRoomCreated, roomCreated } from "@/room"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -54,17 +54,23 @@ onClientEvent([
                 }
             }
         }],
-        ["Room", async (room: Room) => {
-            const { joined_rooms } = await client().getJoinedRooms() as any
-            if (joined_rooms && joined_rooms.includes(room.roomId)) return
-            // @ts-ignore
-            const isDirect = room.currentState.getStateEvents("m.room.create" as EventType, undefined)[0]?.getContent()?.isDirect
-            if (isDirect) {
-                newDirectRoom(room)
-            } else {
-                newRoom(room)
-            }
-        }],
+    ["Room", async (room: Room) => {
+        const cl = client()
+        const user = room.getMember(cl.getUserId() as string)
+        if (user && user.membership !== "invite") return
+
+        const isDirect = (room.currentState
+            .getStateEvents(
+                "m.room.create" as EventType, 
+                undefined as any
+            ) as any)[0]?.getContent()?.isDirect
+            
+        if (isDirect) {
+            directRoomCreated(room)
+        } else {
+            roomCreated(room)
+        }
+    }],
     ["Room.localEchoUpdated", () => updateMessages()],
     ["sync", (state, prevState) => {
         if (state === "PREPARED") {
@@ -151,5 +157,5 @@ getLoggedUserFx.use(async () => {
         mappedUser.avatarUrl = profileInfo.avatar_url as string
         mappedUser.displayName = profileInfo.displayname as string
     }
-    return mappedUser;
+    return mappedUser
 })
