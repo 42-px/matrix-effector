@@ -101,7 +101,7 @@ export const getUploadCredentials = () => {
     })
 }
 
-export const setDirectRoom = (roomId: string) => {
+export const setDirectRoom = (roomId: string): Promise<void> => {
     const cl = client()
     const { creator } = (cl.getRoom(roomId)?.currentState
         .getStateEvents(
