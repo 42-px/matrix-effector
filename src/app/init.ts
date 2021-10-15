@@ -1,6 +1,6 @@
 import { forward } from "effector"
-import { User } from "matrix-js-sdk"
-import { toMappedRoom, toMessage } from "@/mappers"
+import { EventType, User } from "matrix-js-sdk"
+import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import { client, onClientEvent } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
 import { MatrixEvent, Room, RoomMember } from "@/types"
@@ -24,6 +24,7 @@ import {
 } from "@/constants"
 import { updateMessages } from "@/room-messages/private"
 import { roomMessage } from "@/room-messages"
+import { directRoomCreated, roomCreated } from "@/room"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -53,6 +54,23 @@ onClientEvent([
                 }
             }
         }],
+    ["Room", (room: Room) => {
+        const cl = client()
+        const user = room.getMember(cl.getUserId() as string)
+        if (user && user.membership !== "invite") return
+
+        const isDirect = (room.currentState
+            .getStateEvents(
+                "m.room.create" as EventType, 
+                undefined as any
+            ) as any)[0]?.getContent()?.isDirect
+
+        if (isDirect) {
+            directRoomCreated(room)
+        } else {
+            roomCreated(room)
+        }
+    }],
     ["Room.localEchoUpdated", () => updateMessages()],
     ["sync", (state, prevState) => {
         if (state === "PREPARED") {
@@ -131,22 +149,13 @@ getLoggedUserFx.use(async () => {
     if (!loggedUserId) return null
     const user = cl.getUser(loggedUserId)
     if (!user) return null
+    const mappedUser = toMappedUser(user)
     // FixMe: Необъяснимое поведение получения юзера через getUser
     // Аватар и дисплейнейм не приходят, и приходится получать 
-    let avatarUrl = user.avatarUrl
-    let displayName = user.displayName
-    if (!user?.avatarUrl || !user?.displayName) {
+    if (!mappedUser.avatarUrl || !mappedUser.displayName) {
         const profileInfo = await cl.getProfileInfo(loggedUserId)
-        avatarUrl = profileInfo.avatar_url as string
-        displayName = profileInfo.displayname as string
+        mappedUser.avatarUrl = profileInfo.avatar_url as string
+        mappedUser.displayName = profileInfo.displayname as string
     }
-    return {
-        avatarUrl,
-        userId: user.userId,
-        currentlyActive: user.currentlyActive,
-        displayName,
-        lastActiveAgo: user.lastActiveAgo,
-        lastPresenceTs: user.lastPresenceTs,
-        presence: user.presence as any
-    }
+    return mappedUser
 })

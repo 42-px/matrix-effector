@@ -1,5 +1,9 @@
-import { MatrixEvent, TimelineWindow } from "matrix-js-sdk"
-import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
+import { EventType, MatrixEvent, TimelineWindow } from "matrix-js-sdk"
+import { 
+    DIRECT_EVENT, 
+    ROOM_MESSAGE_EVENT, 
+    ROOM_REDACTION_EVENT 
+} from "./constants"
 import { mergeMessageEvents } from "./mappers"
 import { client } from "./matrix-client"
 import {
@@ -61,6 +65,14 @@ export const getRoomMemberAvatarUrl = ({
     )
 }
 
+export const getIsDirectRoomsIds = ():string[] => {
+    const cl = client()
+    const directRooms = (cl.getAccountData(
+        DIRECT_EVENT as EventType) as MatrixEvent
+    )?.getContent()
+    return directRooms && Object.values(directRooms).flatMap((room) => room)
+}
+
 export const mxcUrlToHttp = ({
     mxcUrl,
     width,
@@ -76,20 +88,8 @@ export const mxcUrlToHttp = ({
         allowDirectLinks !== undefined ? allowDirectLinks : null,
     )
 
-export const checkIsDirect = (roomId: string): boolean => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const directEvent = client().getAccountData("m.direct") as MatrixEvent
-    const aDirectRooms = directEvent
-        ? Object.values(directEvent.getContent())
-        : []
-    let summaryDirects: string[] = []
-    for (const accountDirects of aDirectRooms) {
-        summaryDirects = [...summaryDirects, ...accountDirects]
-    }
-    if (summaryDirects.includes(roomId)) return true
-    return false
-} 
+export const checkIsDirect = (roomId: string): boolean => (
+    getIsDirectRoomsIds().includes(roomId))
 
 
 export const getUploadCredentials = () => {
@@ -98,5 +98,21 @@ export const getUploadCredentials = () => {
         headers: {
             Authorization : `Bearer ${client().getAccessToken()}`
         },
+    })
+}
+
+export const setDirectRoom = (roomId: string): Promise<void> => {
+    const cl = client()
+    const { creator } = (cl.getRoom(roomId)?.currentState
+        .getStateEvents(
+            "m.room.create" as EventType,
+            undefined as any
+        ) as any )[0]?.getContent()
+    const prevData = (cl.getAccountData(
+        DIRECT_EVENT as EventType
+    ) as MatrixEvent)?.getContent()
+    return cl.setAccountData(DIRECT_EVENT as EventType, {
+        ...prevData,
+        [creator]: [roomId]
     })
 }

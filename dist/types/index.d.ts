@@ -1,4 +1,4 @@
-import { MatrixEvent, Room, RoomMember, RoomSummary, User } from "matrix-js-sdk";
+import { MatrixEvent, MembershipType, Room, RoomMember, RoomSummary, User } from "matrix-js-sdk";
 import { MessageContent } from "./content";
 export * from "./content";
 export { Room, LoginPayload, MatrixEvent, RoomMember, } from "matrix-js-sdk";
@@ -38,6 +38,7 @@ export declare type MappedRoom = {
     roomId: string;
     name: string;
     summary: RoomSummary;
+    myMembership: MembershipType | null;
 };
 export interface RoomWithActivity extends MappedRoom {
     unreadCount: number;
