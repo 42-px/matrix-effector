@@ -23,6 +23,7 @@ import {
     paginateForward,
 } from "./public"
 import { TimelineWindowUndefined } from "@/errors"
+import { onPaginateForwardDone } from "."
 
 const $paginateFilter = combine(
     $loadFilter,
@@ -56,6 +57,11 @@ $canPaginateForward
 forward({
     from: paginateBackwardFx.done,
     to: onPaginateBackwardDone,
+})
+
+forward({
+    from: paginateForwardFx.done,
+    to: onPaginateForwardDone,
 })
 
 guard({
