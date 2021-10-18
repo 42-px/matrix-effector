@@ -21,9 +21,9 @@ import {
     onPaginateBackwardDone,
     paginateBackward,
     paginateForward,
+    onPaginateForwardDone
 } from "./public"
 import { TimelineWindowUndefined } from "@/errors"
-import { onPaginateForwardDone } from "."
 
 const $paginateFilter = combine(
     $loadFilter,
