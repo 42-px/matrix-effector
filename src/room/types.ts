@@ -1,4 +1,4 @@
-import { TimelineWindow } from "matrix-js-sdk"
+import { TimelineWindow, Room } from "matrix-js-sdk"
 import { RoomMember, MappedUser, Message } from "@/types"
 
 export type InitRoomParams = {
@@ -37,4 +37,51 @@ export type LoadRoomParams = {
 export type GoToMessageParams = {
     initialEventId: string
     initialWindowSize?: number
+}
+
+export interface CreateRoomParams {
+    name: string
+    invite: string[]
+    visibility: Visibility
+    initialState?: InitialState[]
+    preset?: Preset
+}
+
+export interface CreateDirectRoomParams {
+    user: MappedUser
+    initialState?: InitialState[]
+    preset?: Preset
+}
+
+export enum Visibility {
+    public = "public",
+    private = "private"
+}
+
+export enum Preset {
+    trustedPrivateChat = "trusted_private_chat",
+    privateChat = "private_chat",
+    publicChat = "public_chat"
+}
+
+export interface InitialState {
+    content: Object
+    stateKey: string
+    type: string
+}
+
+export type InviteUserParams = {
+    roomId: string
+    userId: string
+}
+
+export type KickUserParams = {
+    roomId: string
+    userId: string
+    reason?: string
+}
+
+export type RenameRoomParams = {
+    roomId: string
+    name: string
 }

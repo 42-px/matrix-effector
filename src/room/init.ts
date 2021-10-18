@@ -1,16 +1,17 @@
 import matrix, { TimelineWindow } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
-import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "@/constants"
 import {
-    mergeMessageEvents,
+    toMappedRoom,
     toMappedRoomMember,
+    toMappedUser,
     toMessage,
-    toRoomInfo
+    toRoomInfo,
+    toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
 import { MatrixEvent, RoomMember } from "@/types"
-import { checkIsDirect, getMessages } from "@/utils"
+import { getIsDirectRoomsIds, getMessages, setDirectRoom } from "@/utils"
 import {
     $loadFilter,
     getRoomMembers,
@@ -18,7 +19,7 @@ import {
     initRoomFx,
     loadRoomFx,
     onRoomMemberUpdate,
-    onRoomUserUpdate
+    onRoomUserUpdate,
 } from "./private"
 import {
     $currentRoomId,
@@ -35,9 +36,16 @@ import {
     onRoomInitialized,
     searchRoomMessagesFx,
     toLiveTimeline,
-    onRoomLoaded
+    onRoomLoaded,
+    createRoomFx, 
+    getAllUsersFx, 
+    inviteUserFx, 
+    kickUserRoomFx,
+    renameRoomFx,
+    joinRoomFx,
+    createDirectRoomFx,
 } from "./public"
-import { LoadRoomFxParams } from "./types"
+import { LoadRoomFxParams, Visibility } from "./types"
 import {
     ClientNotInitialized,
     RoomNotFound,
@@ -240,46 +248,7 @@ getRoomsWithActivitiesFx.use((rooms) => {
     const cl = client()
     if (!cl) throw new ClientNotInitialized()
     const maxHistory = 99
-    return rooms.map((room) => {
-        const matrixRoom = cl.getRoom(room.roomId)
-        if (!matrixRoom) throw new RoomNotFound()
-        const events = matrixRoom.getLiveTimeline().getEvents()
-        let unreadCount = 0
-        for (let i = events.length - 1; i >= 0; i--) {
-            if (i === events.length - maxHistory) break
-            const event = events[i]
-            const isReadUpTo = matrixRoom
-                .hasUserReadEvent(cl.getUserId() as string, event.getId())
-            if (isReadUpTo) {
-                break
-            }
-            unreadCount += 1
-        }
-        const mergedMessageEvents = events
-            .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-                .includes(event.getType()))
-            .reduce(mergeMessageEvents, [])
-        const lastMessage = mergedMessageEvents.length ?
-            mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
-        const isDirect = checkIsDirect(matrixRoom.roomId)
-        const DMUser = isDirect
-            ? matrixRoom.getMember(matrixRoom.guessDMUserId())
-            : null
-
-        return {
-            ...room,
-            unreadCount,
-            lastMessage,
-            isDirect,
-            directUserId: DMUser?.userId,
-            // ToDo: Разобраться, почему у для некоторых юзеров не прилетает объект user в DMUSER
-            // Гипотеза 1: Шифрованные чаты как-то с этим могут быть связаны
-            isOnline: DMUser
-                ? Boolean(DMUser.user?.currentlyActive)
-                : undefined,
-            lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
-        }
-    })
+    return rooms.map((room) => toRoomWithActivity(room, maxHistory))
 })
 
 searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
@@ -311,4 +280,80 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
             event.sender = membersCache[senderId]
             return toMessage(event)
         })
+})
+
+getAllUsersFx.use(() => client().getUsers().map(toMappedUser))
+
+createRoomFx.use(async ({
+    name, 
+    invite, 
+    visibility, 
+    initialState = [], 
+    preset
+}) => {
+    const options = {
+        name, 
+        invite,
+        visibility,
+        initial_state: initialState.map((state) => ({ 
+            ...state,
+            state_key: state.stateKey,
+            stateKey: undefined,
+        })),
+        preset,
+    }
+
+    const { room_id } = await client().createRoom(options)
+
+    return { roomId: room_id } 
+})
+
+createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
+    const cl = client()
+    const roomsIds = getIsDirectRoomsIds()
+    const findRoomId = roomsIds.find(
+        (roomId) => cl.getRoom(roomId)?.currentState.members[user.userId]
+    )
+    if (findRoomId) return { roomId: findRoomId }
+    
+    const options = {
+        is_direct: true, 
+        invite: [user.userId],
+        visibility: Visibility.private,
+        initial_state: initialState.map((state) => ({ 
+            ...state,
+            state_key: state.stateKey,
+            stateKey: undefined,
+        })),
+        preset,
+        creation_content: {
+            isDirect: true,
+            creator: cl.getUserId() 
+        }
+    }
+    const { room_id } = await cl.createRoom(options as any)
+    await setDirectRoom(room_id)
+
+    return { roomId: room_id }
+})
+
+inviteUserFx.use( async ({userId, roomId}) => {
+    await client().invite(roomId, userId)
+})
+
+kickUserRoomFx.use( async ({ roomId, userId, reason }) => {
+    await client().kick(roomId, userId, reason)
+})
+
+renameRoomFx.use( async ({roomId, name}) => {
+    await client().setRoomName(roomId, name)
+})
+
+joinRoomFx.use( async ({roomId, isDirect = false}) => {
+    const cl = client()
+    const room = await cl.joinRoom(roomId)
+    if (isDirect) {
+        await setDirectRoom(roomId)
+    }
+    return toRoomWithActivity(toMappedRoom(room), 99)
 })
