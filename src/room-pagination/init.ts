@@ -21,6 +21,7 @@ import {
     onPaginateBackwardDone,
     paginateBackward,
     paginateForward,
+    onPaginateForwardDone
 } from "./public"
 import { TimelineWindowUndefined } from "@/errors"
 
@@ -56,6 +57,11 @@ $canPaginateForward
 forward({
     from: paginateBackwardFx.done,
     to: onPaginateBackwardDone,
+})
+
+forward({
+    from: paginateForwardFx.done,
+    to: onPaginateForwardDone,
 })
 
 guard({

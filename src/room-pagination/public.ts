@@ -7,5 +7,6 @@ export const $canPaginateBackward = paginationDomain.store(true)
 export const $canPaginateForward = paginationDomain.store(true)
 
 export const onPaginateBackwardDone = paginationDomain.event<void>()
+export const onPaginateForwardDone = paginationDomain.event<void>()
 export const paginateForward = paginationDomain.event<PaginateParams>()
 export const paginateBackward = paginationDomain.event<PaginateParams>()

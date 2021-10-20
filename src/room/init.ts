@@ -36,6 +36,7 @@ import {
     onRoomInitialized,
     searchRoomMessagesFx,
     toLiveTimeline,
+    onRoomLoaded,
     createRoomFx, 
     getAllUsersFx, 
     inviteUserFx, 
@@ -54,6 +55,7 @@ import {
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
+const loadInitialRoomFx = attach({ effect: loadRoomFx })
 
 const getRoomMembersDebounced = debounce({
     source: getRoomMembers,
@@ -92,6 +94,10 @@ forward({
 forward({
     from: loadRoomMessageFx.done,
     to: loadRoomMessageDone,
+})
+forward({
+    from: loadInitialRoomFx.done,
+    to: onRoomLoaded,
 })
 
 guard({
@@ -140,7 +146,7 @@ guard({
         })
     ),
     filter: $loadFilter,
-    target: loadRoomFx
+    target: loadInitialRoomFx
 })
 guard({
     source: sample(

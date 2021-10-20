@@ -12,7 +12,6 @@ npm install @42px/matrix-effector
 
 ## Usage
 
-
 ```js
 import { IndexedDBStore } from 'matrix-js-sdk'
 import {
@@ -189,3 +188,27 @@ const avatarUrl = getSenderAvatarUrl({
 })
 
 ```
+
+# API Reference
+
+## Store
+
+### $messages
+
+```ts
+const $messages = store<Message>()
+```
+
+> Store provides access to messages in opened room
+
+
+## Events 
+
+### **onRoomLoaded**
+
+```ts
+const onRoomLoaded = event<void>()
+```
+
+> Event emmits when room initialized and messages loaded in $messages.
+
