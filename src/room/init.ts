@@ -20,7 +20,7 @@ import {
     loadRoomFx,
     onRoomMemberUpdate,
     onRoomUserUpdate,
-    updatePowerLevelFx,
+    updatePowerLevelFx, updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
     $currentRoomId,
@@ -47,6 +47,12 @@ import {
     createDirectRoomFx,
     clearCurrentRoomState,
     $myPowerLevel,
+    $requiredPowerLevelForKick,
+    $requiredPowerLevelForBan,
+    $requiredPowerLevelForInvite,
+    $requiredPowerLevelForDefaultEvents,
+    $requiredPowerLevelForRedact,
+    $requiredPowerLevelForStateDefault,
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -77,6 +83,24 @@ $currentRoomMembers
 $myPowerLevel
     .on(updatePowerLevelFx.doneData, (_, powerLevel) => powerLevel)
     .reset(clearCurrentRoomState)
+$requiredPowerLevelForKick
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.kick)
+$requiredPowerLevelForBan
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.ban)
+$requiredPowerLevelForInvite
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.invite)
+$requiredPowerLevelForDefaultEvents
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.defaultEvents)
+$requiredPowerLevelForRedact
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.redact)
+$requiredPowerLevelForStateDefault
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.stateDefault)
 
 forward({
     from: loadRoomFx.pending,
@@ -197,7 +221,7 @@ guard({
 guard({
     clock: $currentRoomId,
     filter: Boolean,
-    target: updatePowerLevelFx
+    target: [updatePowerLevelFx, updateRequiredPowerLevelForRoomFx]
 })
 
 updatePowerLevelFx.use((roomId) => {
@@ -208,6 +232,23 @@ updatePowerLevelFx.use((roomId) => {
     const user = room.getMember(userId)
     if (!user) throw new UserNotFound()
     return user.powerLevel
+})
+
+updateRequiredPowerLevelForRoomFx.use((roomId) => {
+    const cl = client()
+    const room = cl.getRoom(roomId) as Room
+    const powerLevelsContent  = (
+        room.currentState
+            .getStateEvents("m.room.power_levels", "") as MatrixEvent[])[0]
+        .getContent() as any
+    return {
+        kick: powerLevelsContent.kick ?? 50,
+        ban: powerLevelsContent.ban ?? 50,
+        invite: powerLevelsContent.invite ?? 50,
+        defaultEvents: powerLevelsContent.events_default ?? 0,
+        stateDefault: powerLevelsContent.state_default ?? 0,
+        redact: powerLevelsContent.redact ?? 50
+    }
 })
 
 getRoomMembersFx.use((roomId) => {

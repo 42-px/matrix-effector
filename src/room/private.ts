@@ -4,7 +4,7 @@ import {
     InitRoomParams,
     LoadRoomFxParams,
     MappedRoomMember,
-    MessageResponse
+    MessageResponse, RoomPowerLevels
 } from "./types"
 import { roomDomain } from "./domain"
 import { $currentRoomId, $timelineWindow } from "./public"
@@ -27,3 +27,5 @@ export const getRoomMembersFx = roomDomain
     .effect<string, MappedRoomMember[], Error>()
 export const updatePowerLevelFx = roomDomain
     .effect<string, number, Error>()
+export const updateRequiredPowerLevelForRoomFx = roomDomain
+    .effect<string, RoomPowerLevels, Error>()

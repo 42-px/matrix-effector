@@ -67,3 +67,11 @@ export declare type RenameRoomParams = {
     roomId: string;
     name: string;
 };
+export declare type RoomPowerLevels = {
+    ban: number;
+    kick: number;
+    invite: number;
+    defaultEvents: number;
+    redact: number;
+    stateDefault: number;
+};

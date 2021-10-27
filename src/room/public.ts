@@ -29,6 +29,13 @@ export const $currentRoomId = roomDomain
     export const clearCurrentRoomState = roomDomain.event()
 export const $timelineWindow = roomDomain.store<TimelineWindow | null>(null)
 export const $myPowerLevel = roomDomain.store<number>(0)
+export const $requiredPowerLevelForKick = roomDomain.store<number>(50)
+export const $requiredPowerLevelForInvite = roomDomain.store<number>(50)
+export const $requiredPowerLevelForBan = roomDomain.store<number>(50)
+export const $requiredPowerLevelForDefaultEvents = roomDomain.store<number>(0)
+export const $requiredPowerLevelForRedact = roomDomain.store<number>(50)
+export const $requiredPowerLevelForStateDefault = roomDomain.store<number>(50)
+
 
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()
