@@ -7,6 +7,7 @@ export declare const $currentRoomMembers: import("effector").Store<MappedRoomMem
 export declare const $currentRoomId: import("effector").Store<string | null>;
 export declare const clearCurrentRoomState: import("effector").Event<void>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
+export declare const $myPowerLevel: import("effector").Store<number>;
 export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const liveTimelineLoaded: import("effector").Event<void>;
 export declare const onRoomInitialized: import("effector").Event<void>;

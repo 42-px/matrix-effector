@@ -1,4 +1,4 @@
-import matrix, { TimelineWindow } from "matrix-js-sdk"
+import matrix, { Room, TimelineWindow } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
 import {
@@ -20,6 +20,7 @@ import {
     loadRoomFx,
     onRoomMemberUpdate,
     onRoomUserUpdate,
+    updatePowerLevelFx,
 } from "./private"
 import {
     $currentRoomId,
@@ -37,14 +38,15 @@ import {
     searchRoomMessagesFx,
     toLiveTimeline,
     onRoomLoaded,
-    createRoomFx, 
-    getAllUsersFx, 
-    inviteUserFx, 
+    createRoomFx,
+    getAllUsersFx,
+    inviteUserFx,
     kickUserRoomFx,
     renameRoomFx,
     joinRoomFx,
     createDirectRoomFx,
-    clearCurrentRoomState
+    clearCurrentRoomState,
+    $myPowerLevel,
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -72,6 +74,9 @@ $timelineWindow
 $currentRoomMembers
     .on(getRoomMembersFx.doneData, (_, value) => value)
     .reset($currentRoomId)
+$myPowerLevel
+    .on(updatePowerLevelFx.doneData, (_, powerLevel) => powerLevel)
+    .reset(clearCurrentRoomState)
 
 forward({
     from: loadRoomFx.pending,
@@ -187,6 +192,22 @@ guard({
     ),
     filter: $loadFilter,
     target: toLiveTimelineFx,
+})
+
+guard({
+    clock: $currentRoomId,
+    filter: Boolean,
+    target: updatePowerLevelFx
+})
+
+updatePowerLevelFx.use((roomId) => {
+    const cl = client()
+    const room = cl.getRoom(roomId) as Room
+    const userId = cl.getUserId()
+    if (!userId) throw new UserNotFound()
+    const user = room.getMember(userId)
+    if (!user) throw new UserNotFound()
+    return user.powerLevel
 })
 
 getRoomMembersFx.use((roomId) => {

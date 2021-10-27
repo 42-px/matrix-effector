@@ -25,3 +25,5 @@ export const loadRoomFx = roomDomain
     .effect<LoadRoomFxParams, MessageResponse, Error>()
 export const getRoomMembersFx = roomDomain
     .effect<string, MappedRoomMember[], Error>()
+export const updatePowerLevelFx = roomDomain
+    .effect<string, number, Error>()

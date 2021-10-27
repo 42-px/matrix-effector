@@ -28,6 +28,7 @@ export const $currentRoomId = roomDomain
     .store<RoomWithActivity["roomId"] | null>(null)
     export const clearCurrentRoomState = roomDomain.event()
 export const $timelineWindow = roomDomain.store<TimelineWindow | null>(null)
+export const $myPowerLevel = roomDomain.store<number>(0)
 
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()

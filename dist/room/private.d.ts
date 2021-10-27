@@ -7,3 +7,4 @@ export declare const getRoomMembers: import("effector").Event<void>;
 export declare const initRoomFx: import("effector").Effect<InitRoomParams, TimelineWindow, Error>;
 export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
 export declare const getRoomMembersFx: import("effector").Effect<string, MappedRoomMember[], Error>;
+export declare const updatePowerLevelFx: import("effector").Effect<string, number, Error>;
