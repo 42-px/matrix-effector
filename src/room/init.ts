@@ -61,8 +61,14 @@ const getRoomMembersDebounced = debounce({
     source: getRoomMembers,
     timeout: 500
 })
-
-$currentRoomId.on(initRoom, (_, { roomId }) => roomId)
+console.log('ЭТА СЕКЦИЯ')
+$currentRoomId.on(initRoom, (oldState, { roomId }) => {
+    console.log('ВОТ ОНА ПЯТАЯ КОЛОННА')   
+    console.log(oldState)
+    console.log(roomId)
+    return roomId
+})
+console.log('КОНЕЦ ЭТОЙ СЕКЦИИ СЕКЦИЯ')
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
     .reset($currentRoomId)

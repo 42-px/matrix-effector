@@ -5,6 +5,7 @@ export declare const $isLive: import("effector").Store<boolean | null>;
 export declare const $loadRoomFxPending: import("effector").Store<boolean>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
 export declare const $currentRoomId: import("effector").Store<string | null>;
+export declare const clearCurrentRoomId: import("effector").Event<void>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
 export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const liveTimelineLoaded: import("effector").Event<void>;
