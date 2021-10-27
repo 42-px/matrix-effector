@@ -26,6 +26,7 @@ export const $currentRoomMembers = roomDomain
     .store<MappedRoomMember[] | null>(null)
 export const $currentRoomId = roomDomain
     .store<RoomWithActivity["roomId"] | null>(null)
+    export const clearCurrentRoomState = roomDomain.event()
 export const $timelineWindow = roomDomain.store<TimelineWindow | null>(null)
 
 export const initRoom = roomDomain.event<InitRoomParams>()

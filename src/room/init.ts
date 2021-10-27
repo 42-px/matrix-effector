@@ -44,6 +44,7 @@ import {
     renameRoomFx,
     joinRoomFx,
     createDirectRoomFx,
+    clearCurrentRoomState
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -62,7 +63,9 @@ const getRoomMembersDebounced = debounce({
     timeout: 500
 })
 
-$currentRoomId.on(initRoom, (_, { roomId }) => roomId)
+$currentRoomId
+    .on(initRoom, (_, { roomId }) => roomId)
+    .reset(clearCurrentRoomState)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
     .reset($currentRoomId)
