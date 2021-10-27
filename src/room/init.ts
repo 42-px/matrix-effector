@@ -86,21 +86,27 @@ $myPowerLevel
 $requiredPowerLevelForKick
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.kick)
+    .reset(clearCurrentRoomState)
 $requiredPowerLevelForBan
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.ban)
+    .reset(clearCurrentRoomState)
 $requiredPowerLevelForInvite
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.invite)
+    .reset(clearCurrentRoomState)
 $requiredPowerLevelForDefaultEvents
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.defaultEvents)
+    .reset(clearCurrentRoomState)
 $requiredPowerLevelForRedact
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.redact)
+    .reset(clearCurrentRoomState)
 $requiredPowerLevelForStateDefault
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.stateDefault)
+    .reset(clearCurrentRoomState)
 
 forward({
     from: loadRoomFx.pending,
