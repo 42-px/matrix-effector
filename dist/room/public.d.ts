@@ -1,6 +1,12 @@
 import { TimelineWindow, Room } from "matrix-js-sdk";
 import { MappedRoom, MappedUser, Message, RoomInfo, RoomWithActivity, SearchRoomMessagesPayload } from "@/types";
 import { GoToMessageParams, InitRoomParams, LoadRoomParams, MappedRoomMember, CreateRoomParams, InviteUserParams, KickUserParams, RenameRoomParams, CreateDirectRoomParams } from "./types";
+export declare const DEFAULT_INVITE_POWERLEVEL = 50;
+export declare const DEFAULT_BAN_POWERLEVEL = 50;
+export declare const DEFAULT_KICK_POWERLEVEL = 50;
+export declare const DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL = 0;
+export declare const DEFAULT_SET_DEFAULT_STATE_POWERLEVEL = 50;
+export declare const DEFAULT_REDACT_POWERLEVEL = 50;
 export declare const $isLive: import("effector").Store<boolean | null>;
 export declare const $loadRoomFxPending: import("effector").Store<boolean>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;

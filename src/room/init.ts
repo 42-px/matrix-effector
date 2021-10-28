@@ -53,6 +53,10 @@ import {
     $requiredPowerLevelForDefaultEvents,
     $requiredPowerLevelForRedact,
     $requiredPowerLevelForDefaultState,
+    DEFAULT_KICK_POWERLEVEL,
+    DEFAULT_BAN_POWERLEVEL,
+    DEFAULT_INVITE_POWERLEVEL,
+    DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL, DEFAULT_SET_DEFAULT_STATE_POWERLEVEL, DEFAULT_REDACT_POWERLEVEL,
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -248,12 +252,14 @@ updateRequiredPowerLevelForRoomFx.use((roomId) => {
             .getStateEvents("m.room.power_levels", "") as MatrixEvent[])[0]
         .getContent() as any
     return {
-        kick: powerLevelsContent.kick ?? 50,
-        ban: powerLevelsContent.ban ?? 50,
-        invite: powerLevelsContent.invite ?? 50,
-        defaultEvents: powerLevelsContent.events_default ?? 0,
-        stateDefault: powerLevelsContent.state_default ?? 0,
-        redact: powerLevelsContent.redact ?? 50
+        kick: powerLevelsContent.kick ?? DEFAULT_KICK_POWERLEVEL,
+        ban: powerLevelsContent.ban ?? DEFAULT_BAN_POWERLEVEL,
+        invite: powerLevelsContent.invite ?? DEFAULT_INVITE_POWERLEVEL,
+        defaultEvents: powerLevelsContent.events_default ??
+            DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL,
+        stateDefault: powerLevelsContent.state_default ??
+            DEFAULT_SET_DEFAULT_STATE_POWERLEVEL,
+        redact: powerLevelsContent.redact ?? DEFAULT_REDACT_POWERLEVEL
     }
 })
 
