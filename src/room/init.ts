@@ -52,7 +52,7 @@ import {
     $requiredPowerLevelForInvite,
     $requiredPowerLevelForDefaultEvents,
     $requiredPowerLevelForRedact,
-    $requiredPowerLevelForStateDefault,
+    $requiredPowerLevelForDefaultState,
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -82,31 +82,31 @@ $currentRoomMembers
     .reset($currentRoomId)
 $myPowerLevel
     .on(updatePowerLevelFx.doneData, (_, powerLevel) => powerLevel)
-    .reset(clearCurrentRoomState)
+    .reset($currentRoomId)
 $requiredPowerLevelForKick
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.kick)
-    .reset(clearCurrentRoomState)
+    .reset($currentRoomId)
 $requiredPowerLevelForBan
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.ban)
-    .reset(clearCurrentRoomState)
+    .reset($currentRoomId)
 $requiredPowerLevelForInvite
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.invite)
-    .reset(clearCurrentRoomState)
+    .reset($currentRoomId)
 $requiredPowerLevelForDefaultEvents
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.defaultEvents)
-    .reset(clearCurrentRoomState)
+    .reset($currentRoomId)
 $requiredPowerLevelForRedact
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.redact)
-    .reset(clearCurrentRoomState)
-$requiredPowerLevelForStateDefault
+    .reset($currentRoomId)
+$requiredPowerLevelForDefaultState
     .on(updateRequiredPowerLevelForRoomFx.doneData,
         (_, powerLevels) => powerLevels.stateDefault)
-    .reset(clearCurrentRoomState)
+    .reset($currentRoomId)
 
 forward({
     from: loadRoomFx.pending,

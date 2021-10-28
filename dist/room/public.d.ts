@@ -13,7 +13,13 @@ export declare const $requiredPowerLevelForInvite: import("effector").Store<numb
 export declare const $requiredPowerLevelForBan: import("effector").Store<number>;
 export declare const $requiredPowerLevelForDefaultEvents: import("effector").Store<number>;
 export declare const $requiredPowerLevelForRedact: import("effector").Store<number>;
-export declare const $requiredPowerLevelForStateDefault: import("effector").Store<number>;
+export declare const $requiredPowerLevelForDefaultState: import("effector").Store<number>;
+export declare const $canKick: import("effector").Store<boolean>;
+export declare const $canInvite: import("effector").Store<boolean>;
+export declare const $canBan: import("effector").Store<boolean>;
+export declare const $canSendDefaultEvent: import("effector").Store<boolean>;
+export declare const $canRedact: import("effector").Store<boolean>;
+export declare const $canSetDefaultState: import("effector").Store<boolean>;
 export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const liveTimelineLoaded: import("effector").Event<void>;
 export declare const onRoomInitialized: import("effector").Event<void>;
