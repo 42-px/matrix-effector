@@ -1,4 +1,4 @@
-import matrix, { TimelineWindow } from "matrix-js-sdk"
+import matrix, { Room, TimelineWindow } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
 import {
@@ -20,6 +20,7 @@ import {
     loadRoomFx,
     onRoomMemberUpdate,
     onRoomUserUpdate,
+    updatePowerLevelFx, updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
     $currentRoomId,
@@ -37,14 +38,25 @@ import {
     searchRoomMessagesFx,
     toLiveTimeline,
     onRoomLoaded,
-    createRoomFx, 
-    getAllUsersFx, 
-    inviteUserFx, 
+    createRoomFx,
+    getAllUsersFx,
+    inviteUserFx,
     kickUserRoomFx,
     renameRoomFx,
     joinRoomFx,
     createDirectRoomFx,
-    clearCurrentRoomState
+    clearCurrentRoomState,
+    $myPowerLevel,
+    $requiredPowerLevelForKick,
+    $requiredPowerLevelForBan,
+    $requiredPowerLevelForInvite,
+    $requiredPowerLevelForDefaultEvents,
+    $requiredPowerLevelForRedact,
+    $requiredPowerLevelForDefaultState,
+    DEFAULT_KICK_POWERLEVEL,
+    DEFAULT_BAN_POWERLEVEL,
+    DEFAULT_INVITE_POWERLEVEL,
+    DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL, DEFAULT_SET_DEFAULT_STATE_POWERLEVEL, DEFAULT_REDACT_POWERLEVEL,
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -71,6 +83,33 @@ $timelineWindow
     .reset($currentRoomId)
 $currentRoomMembers
     .on(getRoomMembersFx.doneData, (_, value) => value)
+    .reset($currentRoomId)
+$myPowerLevel
+    .on(updatePowerLevelFx.doneData, (_, powerLevel) => powerLevel)
+    .reset($currentRoomId)
+$requiredPowerLevelForKick
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.kick)
+    .reset($currentRoomId)
+$requiredPowerLevelForBan
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.ban)
+    .reset($currentRoomId)
+$requiredPowerLevelForInvite
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.invite)
+    .reset($currentRoomId)
+$requiredPowerLevelForDefaultEvents
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.defaultEvents)
+    .reset($currentRoomId)
+$requiredPowerLevelForRedact
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.redact)
+    .reset($currentRoomId)
+$requiredPowerLevelForDefaultState
+    .on(updateRequiredPowerLevelForRoomFx.doneData,
+        (_, powerLevels) => powerLevels.stateDefault)
     .reset($currentRoomId)
 
 forward({
@@ -187,6 +226,41 @@ guard({
     ),
     filter: $loadFilter,
     target: toLiveTimelineFx,
+})
+
+guard({
+    clock: $currentRoomId,
+    filter: Boolean,
+    target: [updatePowerLevelFx, updateRequiredPowerLevelForRoomFx]
+})
+
+updatePowerLevelFx.use((roomId) => {
+    const cl = client()
+    const room = cl.getRoom(roomId) as Room
+    const userId = cl.getUserId()
+    if (!userId) throw new UserNotFound()
+    const user = room.getMember(userId)
+    if (!user) throw new UserNotFound()
+    return user.powerLevel
+})
+
+updateRequiredPowerLevelForRoomFx.use((roomId) => {
+    const cl = client()
+    const room = cl.getRoom(roomId) as Room
+    const powerLevelsContent  = (
+        room.currentState
+            .getStateEvents("m.room.power_levels", "") as MatrixEvent[])[0]
+        .getContent() as any
+    return {
+        kick: powerLevelsContent.kick ?? DEFAULT_KICK_POWERLEVEL,
+        ban: powerLevelsContent.ban ?? DEFAULT_BAN_POWERLEVEL,
+        invite: powerLevelsContent.invite ?? DEFAULT_INVITE_POWERLEVEL,
+        defaultEvents: powerLevelsContent.events_default ??
+            DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL,
+        stateDefault: powerLevelsContent.state_default ??
+            DEFAULT_SET_DEFAULT_STATE_POWERLEVEL,
+        redact: powerLevelsContent.redact ?? DEFAULT_REDACT_POWERLEVEL
+    }
 })
 
 getRoomMembersFx.use((roomId) => {

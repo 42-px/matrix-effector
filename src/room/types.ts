@@ -85,3 +85,12 @@ export type RenameRoomParams = {
     roomId: string
     name: string
 }
+
+export type RoomPowerLevels = {
+    ban: number
+    kick: number
+    invite: number
+    defaultEvents: number
+    redact: number
+    stateDefault: number
+}
