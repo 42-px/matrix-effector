@@ -5,7 +5,6 @@ import {
     client,
     createClient,
     onClientEvent,
-    prependClientParams
 } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
 import { MatrixEvent, Room, RoomMember, LoginPayload } from "@/types"
@@ -20,8 +19,8 @@ import {
     onSync,
     startClientFx,
     stopClientFx,
-    prependAndCreateClientFx,
-    destroyClientAndLogoutFx 
+    authClientFx,
+    logoutClientFx 
 } from "./public"
 import { AuthData } from "./types"
 import {
@@ -188,15 +187,14 @@ getLoggedUserFx.use(async () => {
     return mappedUser
 })
 
-prependAndCreateClientFx.use(async ({ prependParams, createClientParams }) => {
-    prependClientParams(prependParams)
-    createClient()
+authClientFx.use(async ({ prependParams, createClientParams }) => {
+    createClient(prependParams)
     const { store } = client()
     if (store) await store.startup()
     await client().startClient(createClientParams)
 })
 
-destroyClientAndLogoutFx.use(async () => {
+logoutClientFx.use(async () => {
     const cl = client()
     if (!cl) return
     await cl.logout() 

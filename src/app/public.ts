@@ -7,7 +7,7 @@ import {
     StartClientParams
 } from "./types"
 import { appDomain } from "./domain"
-import { PrependAndCreateClientParams, AuthData } from "./types"
+import { AuthClientParams, AuthData } from "./types"
 
 export const onInitialSync = appDomain.event<MappedRoom[]>()
 export const onCachedState = appDomain.event<MappedRoom[]>()
@@ -26,7 +26,7 @@ export const getLoggedUserFx = appDomain
     .effect<void, MappedUser | null, Error>()
 export const stopClientFx = appDomain.effect<void, void, Error>()
 export const logoutFx = appDomain.effect<void, void, Error>()
-export const prependAndCreateClientFx = appDomain
-    .effect<PrependAndCreateClientParams, void, Error>()
-export const destroyClientAndLogoutFx = appDomain
+export const authClientFx = appDomain
+    .effect<AuthClientParams, void, Error>()
+export const logoutClientFx = appDomain
     .effect<void, void, Error>()

@@ -15,7 +15,7 @@ export declare type AuthData = {
     accessToken: string;
     wellKnown?: string;
 };
-export declare type PrependAndCreateClientParams = {
+export declare type AuthClientParams = {
     prependParams: CreateClientOption & {
         messageBatchInterval?: number;
     };

@@ -19,7 +19,7 @@ export type AuthData = {
     wellKnown?: string
 }
 
-export type PrependAndCreateClientParams = {
+export type AuthClientParams = {
     prependParams: CreateClientOption & {
         messageBatchInterval?: number
     }
