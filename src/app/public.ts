@@ -1,9 +1,9 @@
 import { throttle } from "patronum/throttle"
+import { LoginPayload } from "matrix-js-sdk";
 import { MappedRoom, MappedUser } from "@/types"
 import {
     LoginByPasswordParams,
     LoginByTokenParams,
-    LoginPayload,
     StartClientParams
 } from "./types"
 import { appDomain } from "./domain"

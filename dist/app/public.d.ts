@@ -1,5 +1,6 @@
+import { LoginPayload } from "matrix-js-sdk";
 import { MappedRoom, MappedUser } from "@/types";
-import { LoginByPasswordParams, LoginByTokenParams, LoginPayload } from "./types";
+import { LoginByPasswordParams, LoginByTokenParams } from "./types";
 import { CreateClientParams, AuthData } from "./types";
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
