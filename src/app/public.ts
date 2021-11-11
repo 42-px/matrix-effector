@@ -1,12 +1,13 @@
 import { throttle } from "patronum/throttle"
+import { LoginPayload } from "matrix-js-sdk";
 import { MappedRoom, MappedUser } from "@/types"
 import {
     LoginByPasswordParams,
     LoginByTokenParams,
-    LoginPayload,
     StartClientParams
 } from "./types"
 import { appDomain } from "./domain"
+import { CreateClientParams, AuthData } from "./types"
 
 export const onInitialSync = appDomain.event<MappedRoom[]>()
 export const onCachedState = appDomain.event<MappedRoom[]>()
@@ -17,7 +18,7 @@ export const createOnSyncThrottled = (ms: number) =>
 export const loginByPasswordFx = appDomain
     .effect<LoginByPasswordParams, LoginPayload, Error>()
 export const loginByTokenFx = appDomain
-    .effect<LoginByTokenParams, LoginPayload, Error>()
+    .effect<LoginByTokenParams, AuthData, Error>()
 export const initStoreFx = appDomain.effect<void, void, Error>()
 export const startClientFx = appDomain
     .effect<StartClientParams, void, Error>()
@@ -25,3 +26,7 @@ export const getLoggedUserFx = appDomain
     .effect<void, MappedUser | null, Error>()
 export const stopClientFx = appDomain.effect<void, void, Error>()
 export const logoutFx = appDomain.effect<void, void, Error>()
+export const createClientFx = appDomain
+    .effect<CreateClientParams, void, Error>()
+export const destroyClientFx = appDomain
+    .effect<void, void, Error>()

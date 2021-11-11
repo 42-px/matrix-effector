@@ -1,4 +1,4 @@
-import { MatrixEvent, MembershipType, Room, RoomMember, RoomSummary, User } from "matrix-js-sdk";
+import { CreateClientOption, MatrixEvent, MembershipType, Room, RoomMember, RoomSummary, User } from "matrix-js-sdk";
 import { MessageContent } from "./content";
 export * from "./content";
 export { Room, LoginPayload, MatrixEvent, RoomMember, } from "matrix-js-sdk";
@@ -74,4 +74,8 @@ export declare type MxcUrlToHttpParams = {
     height?: number;
     resizeMethod?: "crop" | "scale";
     allowDirectLinks?: boolean;
+};
+export declare type createClientOptions = {
+    options: CreateClientOption;
+    messageBatchInterval?: number;
 };

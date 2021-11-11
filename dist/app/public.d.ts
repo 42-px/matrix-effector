@@ -1,11 +1,13 @@
+import { LoginPayload } from "matrix-js-sdk";
 import { MappedRoom, MappedUser } from "@/types";
-import { LoginByPasswordParams, LoginByTokenParams, LoginPayload } from "./types";
+import { LoginByPasswordParams, LoginByTokenParams } from "./types";
+import { CreateClientParams, AuthData } from "./types";
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
 export declare const onSync: import("effector").Event<MappedRoom[]>;
 export declare const createOnSyncThrottled: (ms: number) => import("effector").Event<MappedRoom[]>;
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, LoginPayload, Error>;
-export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, LoginPayload, Error>;
+export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, AuthData, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
 export declare const startClientFx: import("effector").Effect<number | {
     initialSyncLimit?: number | undefined;
@@ -20,3 +22,5 @@ export declare const startClientFx: import("effector").Effect<number | {
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
+export declare const createClientFx: import("effector").Effect<CreateClientParams, void, Error>;
+export declare const destroyClientFx: import("effector").Effect<void, void, Error>;

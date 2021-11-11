@@ -1,4 +1,5 @@
 import {
+    CreateClientOption,
     MatrixEvent,
     MembershipType,
     Room,
@@ -104,4 +105,9 @@ export type MxcUrlToHttpParams = {
     height?: number
     resizeMethod?: "crop" | "scale"
     allowDirectLinks?: boolean
+}
+
+export type createClientOptions = {
+    options: CreateClientOption
+    messageBatchInterval?: number
 }

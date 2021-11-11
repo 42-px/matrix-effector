@@ -1,9 +1,14 @@
 import { forward } from "effector"
 import { EventType, User } from "matrix-js-sdk"
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
-import { client, onClientEvent } from "@/matrix-client"
+import {
+    client,
+    createClient,
+    destroyClient,
+    onClientEvent,
+} from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
-import { MatrixEvent, Room, RoomMember } from "@/types"
+import { MatrixEvent, Room, RoomMember, LoginPayload } from "@/types"
 import {
     getLoggedUserFx,
     initStoreFx,
@@ -14,8 +19,11 @@ import {
     onInitialSync,
     onSync,
     startClientFx,
-    stopClientFx
+    stopClientFx,
+    createClientFx,
+    destroyClientFx
 } from "./public"
+import { AuthData } from "./types"
 import {
     LOGIN_BY_PASSWORD,
     LOGIN_BY_TOKEN,
@@ -129,7 +137,27 @@ onClientEvent([
 
 loginByPasswordFx.use((params) => client().login(LOGIN_BY_PASSWORD, params))
 
-loginByTokenFx.use((params) => client().login(LOGIN_BY_TOKEN, params))
+loginByTokenFx.use(async (params): Promise<AuthData> => {
+    const response = await fetch(
+        `${params.baseUrl}/_matrix/client/r0/login`,
+        { 
+            method: "POST", 
+            body: JSON.stringify({type: LOGIN_BY_TOKEN, token: params.token }) 
+        }
+    )
+    const { 
+        user_id,
+        access_token,
+        device_id,
+        well_known
+    }: LoginPayload = await response.json()
+    return { 
+        userId: user_id, 
+        accessToken: access_token,
+        deviceId: device_id,
+        wellKnown: well_known
+    }
+})
 
 initStoreFx.use(async () => {
     const { store } = client()
@@ -158,4 +186,25 @@ getLoggedUserFx.use(async () => {
         mappedUser.displayName = profileInfo.displayname as string
     }
     return mappedUser
+})
+
+createClientFx.use(async (
+    {
+        createClientParams,
+        startClientParams
+    }
+) => {
+    createClient(createClientParams)
+    const { store } = client()
+    if (store) await store.startup()
+    await client().startClient(startClientParams)
+})
+
+destroyClientFx.use(async () => {
+    const cl = client()
+    if (!cl) return
+    await cl.logout() 
+    await cl.store?.deleteAllData()
+    cl.stopClient()
+    destroyClient()
 })
