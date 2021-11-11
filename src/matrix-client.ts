@@ -1,5 +1,5 @@
 import { batchEvents } from "@42px/effector-extra"
-import matrix, { MatrixClient } from "matrix-js-sdk"
+import matrix, { CreateClientOption, MatrixClient } from "matrix-js-sdk"
 import { roomMessage } from "./room-messages"
 import { EventListener } from "./types"
 
@@ -7,20 +7,17 @@ let clientStore: MatrixClient
 let messageBatchInterval = 500
 const callbacksStore: EventListener[] = []
 
+export type createClientOptions = {
+    options: CreateClientOption
+    messageBatchInterval?: number
+}
+
 export const createClient = (
-    options?: Parameters<typeof matrix.createClient>[0] & {
-        messageBatchInterval?: number
-    }
+    {options, messageBatchInterval: ms}: createClientOptions
 ): void => {
-    if (clientStore) {
-        clientStore.removeAllListeners()
-        clientStore = null as any
-    }
-    if (typeof options === "object") {
-        const { messageBatchInterval: ms} = options
-        if (ms !== undefined) messageBatchInterval = ms
-    }
-    clientStore = matrix.createClient(options ?? "")
+    destroyClient()
+    if (ms !== undefined) messageBatchInterval = ms
+    clientStore = matrix.createClient(options)
     callbacksStore.forEach(([eventName, cb]) => {
         clientStore.on(eventName, cb)
     })
@@ -33,4 +30,11 @@ export const onClientEvent = (callbacks: EventListener[]): void => {
 
 export const createRoomMessageBatch = () => {
     return batchEvents(roomMessage, messageBatchInterval)
+}
+
+export const destroyClient = () => {
+    if (clientStore) {
+        clientStore.removeAllListeners()
+        clientStore = null as any
+    }
 }

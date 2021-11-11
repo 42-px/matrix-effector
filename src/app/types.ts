@@ -1,4 +1,5 @@
-import { CreateClientOption, MatrixClient } from "matrix-js-sdk"
+import { MatrixClient } from "matrix-js-sdk"
+import { createClientOptions } from "@/matrix-client"
 
 export { LoginPayload } from "matrix-js-sdk"
 
@@ -19,9 +20,7 @@ export type AuthData = {
     wellKnown?: string
 }
 
-export type AuthClientParams = {
-    prependParams: CreateClientOption & {
-        messageBatchInterval?: number
-    }
-    createClientParams: StartClientParams
+export type CreateClientParams = {
+    createClientParams: createClientOptions
+    startClientParams: StartClientParams
 }

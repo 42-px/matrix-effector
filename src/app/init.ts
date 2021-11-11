@@ -1,9 +1,10 @@
 import { forward } from "effector"
 import { EventType, User } from "matrix-js-sdk"
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
-import { 
+import {
     client,
     createClient,
+    destroyClient,
     onClientEvent,
 } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
@@ -19,8 +20,8 @@ import {
     onSync,
     startClientFx,
     stopClientFx,
-    authClientFx,
-    logoutClientFx 
+    createClientFx,
+    destroyClientFx
 } from "./public"
 import { AuthData } from "./types"
 import {
@@ -187,17 +188,23 @@ getLoggedUserFx.use(async () => {
     return mappedUser
 })
 
-authClientFx.use(async ({ prependParams, createClientParams }) => {
-    createClient(prependParams)
+createClientFx.use(async (
+    {
+        createClientParams,
+        startClientParams
+    }
+) => {
+    createClient(createClientParams)
     const { store } = client()
     if (store) await store.startup()
-    await client().startClient(createClientParams)
+    await client().startClient(startClientParams)
 })
 
-logoutClientFx.use(async () => {
+destroyClientFx.use(async () => {
     const cl = client()
     if (!cl) return
     await cl.logout() 
     await cl.store?.deleteAllData()
     cl.stopClient()
+    destroyClient()
 })
