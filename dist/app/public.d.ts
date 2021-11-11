@@ -1,6 +1,6 @@
 import { MappedRoom, MappedUser } from "@/types";
 import { LoginByPasswordParams, LoginByTokenParams, LoginPayload } from "./types";
-import { AuthClientParams, AuthData } from "./types";
+import { CreateClientParams, AuthData } from "./types";
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
 export declare const onSync: import("effector").Event<MappedRoom[]>;
@@ -21,5 +21,5 @@ export declare const startClientFx: import("effector").Effect<number | {
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
-export declare const authClientFx: import("effector").Effect<AuthClientParams, void, Error>;
-export declare const logoutClientFx: import("effector").Effect<void, void, Error>;
+export declare const createClientFx: import("effector").Effect<CreateClientParams, void, Error>;
+export declare const destroyClientFx: import("effector").Effect<void, void, Error>;
