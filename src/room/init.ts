@@ -14,6 +14,7 @@ import { MatrixEvent, RoomMember } from "@/types"
 import { getIsDirectRoomsIds, getMessages, setDirectRoom } from "@/utils"
 import {
     $loadFilter,
+    getRoomByIdFx,
     getRoomMembers,
     getRoomMembersFx,
     initRoomFx,
@@ -53,6 +54,7 @@ import {
     $requiredPowerLevelForDefaultEvents,
     $requiredPowerLevelForRedact,
     $requiredPowerLevelForDefaultState,
+    $currentRoom,
     DEFAULT_KICK_POWERLEVEL,
     DEFAULT_BAN_POWERLEVEL,
     DEFAULT_INVITE_POWERLEVEL,
@@ -79,6 +81,9 @@ const getRoomMembersDebounced = debounce({
 
 $currentRoomId
     .on(initRoom, (_, { roomId }) => roomId)
+    .reset(clearCurrentRoomState)
+$currentRoom
+    .on(getRoomByIdFx.doneData, (_, room) => room)
     .reset(clearCurrentRoomState)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
@@ -143,6 +148,12 @@ forward({
     from: loadInitialRoomFx.done,
     to: onRoomLoaded,
 })
+
+guard({
+    clock: $currentRoomId,
+    filter: Boolean,
+    target: getRoomByIdFx,
+})    
 
 guard({
     source: $currentRoomId,
@@ -326,8 +337,7 @@ loadRoomFx.use(async ({
 getRoomsWithActivitiesFx.use((rooms) => {
     const cl = client()
     if (!cl) throw new ClientNotInitialized()
-    const maxHistory = 99
-    return rooms.map((room) => toRoomWithActivity(room, maxHistory))
+    return rooms.map((room) => toRoomWithActivity(room))
 })
 
 searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
@@ -434,5 +444,11 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     if (isDirect) {
         await setDirectRoom(roomId)
     }
-    return toRoomWithActivity(toMappedRoom(room), 99)
+    return toRoomWithActivity(toMappedRoom(room))
+})
+
+getRoomByIdFx.use((roomId) => {
+    const matrixRoom = client().getRoom(roomId)
+    if (!matrixRoom) return null
+    return toRoomWithActivity(toMappedRoom(matrixRoom))
 })

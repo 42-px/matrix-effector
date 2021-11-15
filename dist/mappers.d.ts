@@ -8,4 +8,4 @@ export declare function mergeMessageEvents(acc: Message[], event: MatrixEvent): 
 export declare function toRoomInfo(room: Room): RoomInfo;
 export declare const toMappedUser: (user: User) => MappedUser;
 export declare function toMappedRoomMember(roomMember: RoomMember, user: User): MappedRoomMember;
-export declare function toRoomWithActivity(room: MappedRoom, maxHistory: number): RoomWithActivity;
+export declare function toRoomWithActivity(room: MappedRoom, maxHistory?: number): RoomWithActivity;

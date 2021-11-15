@@ -11,6 +11,7 @@ export declare const $isLive: import("effector").Store<boolean | null>;
 export declare const $loadRoomFxPending: import("effector").Store<boolean>;
 export declare const $currentRoomMembers: import("effector").Store<MappedRoomMember[] | null>;
 export declare const $currentRoomId: import("effector").Store<string | null>;
+export declare const $currentRoom: import("effector").Store<RoomWithActivity | null>;
 export declare const clearCurrentRoomState: import("effector").Event<void>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
 export declare const $myPowerLevel: import("effector").Store<number>;
@@ -20,6 +21,7 @@ export declare const $requiredPowerLevelForBan: import("effector").Store<number>
 export declare const $requiredPowerLevelForDefaultEvents: import("effector").Store<number>;
 export declare const $requiredPowerLevelForRedact: import("effector").Store<number>;
 export declare const $requiredPowerLevelForDefaultState: import("effector").Store<number>;
+export declare const $currentJoinedRoomMembers: import("effector").Store<MappedRoomMember[]>;
 export declare const $canKick: import("effector").Store<boolean>;
 export declare const $canInvite: import("effector").Store<boolean>;
 export declare const $canBan: import("effector").Store<boolean>;
