@@ -20,5 +20,3 @@ export {
 } from "./utils"
 
 import "./init"
-
-console.log("updated matrix effector")
