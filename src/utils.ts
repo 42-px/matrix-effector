@@ -110,9 +110,10 @@ export const setDirectRoom = (roomId: string): Promise<void> => {
         ) as any )[0]?.getContent()
     const prevData = (cl.getAccountData(
         DIRECT_EVENT as EventType
-    ) as MatrixEvent)?.getContent()
+    ) as MatrixEvent)?.getContent() as any
+    const prevRoomsId = prevData[creator] ?? []
     return cl.setAccountData(DIRECT_EVENT as EventType, {
         ...prevData,
-        [creator]: [roomId]
+        [creator]: [...prevRoomsId, roomId]
     })
 }

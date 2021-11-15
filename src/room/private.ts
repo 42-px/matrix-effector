@@ -21,7 +21,7 @@ export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
 export const getRoomMembers = roomDomain.event<void>()
 
 export const getRoomByIdFx = roomDomain
-    .effect<RoomWithActivity["roomId"] | null, RoomWithActivity | null, Error>()
+    .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()
 export const initRoomFx = roomDomain
     .effect<InitRoomParams, TimelineWindow, Error>()
 export const loadRoomFx = roomDomain

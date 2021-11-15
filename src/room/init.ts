@@ -84,6 +84,7 @@ $currentRoomId
     .reset(clearCurrentRoomState)
 $currentRoom
     .on(getRoomByIdFx.doneData, (_, room) => room)
+    .reset(clearCurrentRoomState)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
     .reset($currentRoomId)
@@ -119,11 +120,6 @@ $requiredPowerLevelForDefaultState
     .reset($currentRoomId)
 
 forward({
-    from: $currentRoomId,
-    to: getRoomByIdFx,
-})      
-
-forward({
     from: loadRoomFx.pending,
     to: $loadRoomFxPending,
 })    
@@ -152,6 +148,12 @@ forward({
     from: loadInitialRoomFx.done,
     to: onRoomLoaded,
 })
+
+guard({
+    clock: $currentRoomId,
+    filter: Boolean,
+    target: getRoomByIdFx,
+})    
 
 guard({
     source: $currentRoomId,
@@ -446,7 +448,6 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
 })
 
 getRoomByIdFx.use((roomId) => {
-    if (!roomId) return null
     const matrixRoom = client().getRoom(roomId)
     if (!matrixRoom) return null
     return toRoomWithActivity(toMappedRoom(matrixRoom))
