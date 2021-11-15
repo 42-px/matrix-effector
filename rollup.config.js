@@ -42,14 +42,6 @@ export default {
         }
     ],
     plugins: [
-        /*
-            TODO
-            нам следует использовать @rollup/plugin-typescript так как
-            мы положили на isolatedModules и экспортируем типы 
-            вместе со значениями через *
-            в идеале в будущем отказаться от него и ограничиться @babel/preset-typescript. 
-            В целом нам этот плагин не нужен
-        */
         typescript({ tsconfig: "./tsconfig.json" }),
         babel({
             babelHelpers: "runtime",
