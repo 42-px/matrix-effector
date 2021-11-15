@@ -112,7 +112,7 @@ export function toMappedRoomMember(
 
 export function toRoomWithActivity(
     room: MappedRoom, 
-    maxHistory: number
+    maxHistory = 99
 ): RoomWithActivity {
     const cl = client()
     const matrixRoom = cl.getRoom(room.roomId)

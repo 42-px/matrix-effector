@@ -34,15 +34,29 @@ export const $currentRoomMembers = roomDomain
     .store<MappedRoomMember[] | null>(null)
 export const $currentRoomId = roomDomain
     .store<RoomWithActivity["roomId"] | null>(null)
+export const $currentRoom = roomDomain.store<RoomWithActivity | null>(null)
 export const clearCurrentRoomState = roomDomain.event()
 export const $timelineWindow = roomDomain.store<TimelineWindow | null>(null)
 export const $myPowerLevel = roomDomain.store<number>(0)
-export const $requiredPowerLevelForKick = roomDomain.store<number>(DEFAULT_KICK_POWERLEVEL)
-export const $requiredPowerLevelForInvite = roomDomain.store<number>(DEFAULT_INVITE_POWERLEVEL)
-export const $requiredPowerLevelForBan = roomDomain.store<number>(DEFAULT_BAN_POWERLEVEL)
-export const $requiredPowerLevelForDefaultEvents = roomDomain.store<number>(DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL)
-export const $requiredPowerLevelForRedact = roomDomain.store<number>(DEFAULT_REDACT_POWERLEVEL)
-export const $requiredPowerLevelForDefaultState = roomDomain.store<number>(DEFAULT_SET_DEFAULT_STATE_POWERLEVEL)
+
+export const $requiredPowerLevelForKick = roomDomain
+    .store<number>(DEFAULT_KICK_POWERLEVEL)
+export const $requiredPowerLevelForInvite = roomDomain
+    .store<number>(DEFAULT_INVITE_POWERLEVEL)
+export const $requiredPowerLevelForBan = roomDomain
+    .store<number>(DEFAULT_BAN_POWERLEVEL)
+export const $requiredPowerLevelForDefaultEvents = roomDomain
+    .store<number>(DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL)
+export const $requiredPowerLevelForRedact = roomDomain
+    .store<number>(DEFAULT_REDACT_POWERLEVEL)
+export const $requiredPowerLevelForDefaultState = roomDomain
+    .store<number>(DEFAULT_SET_DEFAULT_STATE_POWERLEVEL)
+
+export const $currentJoinedRoomMembers = $currentRoomMembers
+    .map(
+        (members) => members?.filter(
+            (member) => member.membership === "join") ?? []
+    )
 
 export const $canKick = combine(
     $myPowerLevel, $requiredPowerLevelForKick,
