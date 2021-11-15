@@ -1,4 +1,4 @@
-import { MatrixEvent, RoomMember, User } from "matrix-js-sdk"
+import { MatrixEvent, RoomMember, User, Room } from "matrix-js-sdk"
 import { checkIsDirect, client } from "@/index"
 import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
 import { RoomNotFound } from "./errors"
@@ -6,7 +6,6 @@ import { MappedRoomMember } from "./room"
 import {
     Message,
     MessageEvent,
-    Room,
     MappedRoom,
     RoomInfo,
     MessageContent,

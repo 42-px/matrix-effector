@@ -11,13 +11,6 @@ import { MessageContent } from "./content"
 
 export * from "./content"
 
-export {
-    Room,
-    LoginPayload,
-    MatrixEvent,
-    RoomMember,
-} from "matrix-js-sdk"
-
 export type MappedUser = Pick<User,
     "avatarUrl" |
     "userId" |

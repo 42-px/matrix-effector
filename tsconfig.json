@@ -1,11 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "sourceMap": true,
+    "target": "esnext",
     "baseUrl": ".",
     "strict": true,
-    "outDir": "./dist",
-    "declaration": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -15,8 +12,10 @@
       "@/*": [
         "./src/*"
       ],
-      "matrix-js-sdk": ["node_modules/@types/matrix-js-sdk/index.d.ts"]
-    },
+      "matrix-js-sdk": [
+        "node_modules/@types/matrix-js-sdk/index.d.ts"
+      ]
+    }
   },
   "include": [
     "src/**/*"
