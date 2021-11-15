@@ -1,18 +1,16 @@
 import {
     MatrixEvent,
-    MembershipType,
     Room,
     RoomMember,
-    RoomSummary,
     User,
 } from "matrix-js-sdk"
+import { RoomSummary } from "matrix-js-sdk/src/models/room-summary"
 import { MessageContent } from "./content"
 
 export * from "./content"
 
 export {
     Room,
-    LoginPayload,
     MatrixEvent,
     RoomMember,
 } from "matrix-js-sdk"
@@ -41,7 +39,7 @@ export interface SearchRoomMessagesPayload {
 export type MessageEvent = {
     eventId: string
     content: MessageContent
-    originServerTs: Date
+    originServerTs: Date | null
     roomId: string
     sender: RoomMember
     type: string
@@ -54,7 +52,7 @@ export type Message = {
     originalEventId: string
     content: MessageContent
     sender: RoomMember
-    originServerTs: Date
+    originServerTs: Date | null
     edited: boolean
     redacted: boolean
 }
@@ -63,7 +61,7 @@ export type MappedRoom = {
     roomId: string
     name: string
     summary: RoomSummary
-    myMembership: MembershipType | null
+    myMembership: string | null
 }
 export interface RoomWithActivity extends MappedRoom {
     unreadCount: number

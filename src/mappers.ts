@@ -15,7 +15,7 @@ import {
 } from "./types"
 
 function getMappedContent(event: MatrixEvent): MessageContent {
-    const matrixContent = event.getContent() as MessageContent
+    const matrixContent = event.getContent<MessageContent>()
     return {...matrixContent}
 }
 
@@ -54,6 +54,7 @@ export function toMessage(
         redacted: event.isRedacted() || event.isRedaction(),
     }
 }
+
 
 export function toMappedRoom(room: Room): MappedRoom {
     return {

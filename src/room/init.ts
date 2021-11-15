@@ -1,4 +1,4 @@
-import matrix, { Room, TimelineWindow } from "matrix-js-sdk"
+import matrix, { Room, TimelineWindow, Direction } from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
 import {
@@ -56,7 +56,9 @@ import {
     DEFAULT_KICK_POWERLEVEL,
     DEFAULT_BAN_POWERLEVEL,
     DEFAULT_INVITE_POWERLEVEL,
-    DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL, DEFAULT_SET_DEFAULT_STATE_POWERLEVEL, DEFAULT_REDACT_POWERLEVEL,
+    DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL,
+    DEFAULT_SET_DEFAULT_STATE_POWERLEVEL,
+    DEFAULT_REDACT_POWERLEVEL,
 } from "./public"
 import { LoadRoomFxParams, Visibility } from "./types"
 import {
@@ -247,10 +249,9 @@ updatePowerLevelFx.use((roomId) => {
 updateRequiredPowerLevelForRoomFx.use((roomId) => {
     const cl = client()
     const room = cl.getRoom(roomId) as Room
-    const powerLevelsContent  = (
-        room.currentState
-            .getStateEvents("m.room.power_levels", "") as MatrixEvent[])[0]
-        .getContent() as any
+    const powerLevelsContent  = room
+        .currentState.getStateEvents("m.room.power_levels")[0].getContent()
+
     return {
         kick: powerLevelsContent.kick ?? DEFAULT_KICK_POWERLEVEL,
         ban: powerLevelsContent.ban ?? DEFAULT_BAN_POWERLEVEL,
@@ -295,8 +296,12 @@ loadRoomFx.use(async ({
     loadAdditionalDataDirection
 }) => {
     if (!timelineWindow) throw new TimelineWindowUndefined()
-    await timelineWindow.load(initialEventId, initialWindowSize)
-    const canPaginateForward = timelineWindow.canPaginate("f")
+    await timelineWindow.load(
+        // тут нужно кастить типы так как в matrix-sdk здесь некорректные типы
+        initialEventId as string,
+        initialWindowSize
+    )
+    const canPaginateForward = timelineWindow.canPaginate(Direction.Forward)
     let messages = getMessages(timelineWindow)
     // дозагрузка сообщений если пришло меньше чем ожидали
     if (initialWindowSize && messages.length < initialWindowSize) {
@@ -317,7 +322,7 @@ loadRoomFx.use(async ({
         messages,
         isLive: !canPaginateForward,
         canPaginateForward,
-        canPaginateBackward: timelineWindow.canPaginate("b")
+        canPaginateBackward: timelineWindow.canPaginate(Direction.Backward)
     }
 })
 

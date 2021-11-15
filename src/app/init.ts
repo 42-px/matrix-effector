@@ -1,5 +1,5 @@
 import { forward } from "effector"
-import { EventType, User } from "matrix-js-sdk"
+import { User } from "matrix-js-sdk"
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import { client, onClientEvent } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
@@ -61,7 +61,7 @@ onClientEvent([
 
         const isDirect = (room.currentState
             .getStateEvents(
-                "m.room.create" as EventType, 
+                "m.room.create" as string, 
                 undefined as any
             ) as any)[0]?.getContent()?.isDirect
 
@@ -138,7 +138,9 @@ initStoreFx.use(async () => {
 
 startClientFx.use((params) => client().startClient(params))
 
-logoutFx.use(() => client().logout())
+logoutFx.use(async () => {
+    await client().logout()
+})
 
 stopClientFx.use(() => client().stopClient())
 

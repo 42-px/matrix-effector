@@ -1,3 +1,4 @@
+import { PushRuleKind } from "matrix-js-sdk/src/@types/PushRules"
 /* notification pushrules types */
 export type NotificationOverrideRuleId = 
     ".m.rule.master" |
@@ -57,7 +58,7 @@ export type NotificationTweak = "sound" | "highlight"
 
 export type SetNotificationsRuleParams = {
     scope: NotificationScope
-    kind: NotificationKind
+    kind: PushRuleKind
     ruleId: 
         NotificationContentRuleId |
         NotificationUnderrideRuleId | 
@@ -71,7 +72,7 @@ export type SetNotificationsRuleParams = {
 
 export type SetNotificationsRuleEnabledParams = {
     scope: NotificationScope
-    kind: NotificationKind
+    kind: PushRuleKind
     ruleId: 
         NotificationContentRuleId | 
         NotificationUnderrideRuleId | 
@@ -83,7 +84,7 @@ export type SetNotificationsRuleEnabledParams = {
 
 export type DeleteNotificationsRuleEnabledParams = {
     scope: NotificationScope
-    kind: NotificationKind
+    kind: PushRuleKind
     ruleId: 
         NotificationContentRuleId | 
         NotificationUnderrideRuleId | 

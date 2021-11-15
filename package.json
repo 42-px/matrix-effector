@@ -37,7 +37,6 @@
     "@babel/preset-env": "^7.12.13",
     "@babel/preset-typescript": "^7.12.13",
     "@babel/runtime": "^7.12.13",
-    "@types/matrix-js-sdk": "^9.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "babel-plugin-module-resolver": "^4.1.0",
@@ -53,7 +52,7 @@
     "@42px/custom-errors": "^1.0.4",
     "@42px/effector-extra": "^1.1.1",
     "effector": "^21.7.5",
-    "matrix-js-sdk": "^9.6.0",
+    "matrix-js-sdk": "^15.0.0",
     "patronum": "^1.1.0"
   },
   "files": [
