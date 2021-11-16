@@ -4,10 +4,8 @@ import {
     MatrixEvent,
     Room,
     RoomMember,
+    EventType,
 } from "matrix-js-sdk"
-import {
-    EventType
-} from "matrix-js-sdk/lib/@types/event";
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import {
     client,

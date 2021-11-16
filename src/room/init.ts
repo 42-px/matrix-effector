@@ -3,9 +3,9 @@ import matrix, {
     MatrixEvent,
     Room,
     RoomMember,
+    SearchOrderBy,
     TimelineWindow
 } from "matrix-js-sdk"
-import { SearchOrderBy } from "matrix-js-sdk/lib/@types/search";
 import { debounce } from "patronum/debounce"
 import {
     attach,
@@ -360,7 +360,8 @@ getRoomsWithActivitiesFx.use((rooms) => {
     return rooms.map((room) => toRoomWithActivity(room))
 })
 
-searchRoomMessagesFx.use(async ({ term, roomId, orderBy = SearchOrderBy.Rank }) => {
+searchRoomMessagesFx
+    .use(async ({ term, roomId, orderBy = SearchOrderBy.Rank }) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     const membersCache: { [id: string]: RoomMember } = {}

@@ -3,10 +3,10 @@ import {
     MatrixEvent,
     Room,
     RoomMember,
+    RoomSummary,
+    SearchOrderBy,
     User,
 } from "matrix-js-sdk"
-import { RoomSummary } from "matrix-js-sdk/lib/models/room-summary";
-import { SearchOrderBy } from "matrix-js-sdk/lib/@types/search";
 import { MessageContent } from "./content"
 export * from "./content"
 
