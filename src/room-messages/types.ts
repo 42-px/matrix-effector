@@ -1,5 +1,7 @@
-import { TimelineWindow } from "matrix-js-sdk"
-import { MessageContent } from "@/types"
+import {
+    IContent,
+    TimelineWindow
+} from "matrix-js-sdk"
 
 export interface DeleteMessageResult {
     eventId: string
@@ -22,7 +24,7 @@ export interface EventPermissions {
 }
 export interface SendMessagePayload {
     roomId: string
-    content: MessageContent
+    content: IContent
     txnId?: string
 }
 export interface EditMessagePayload {

@@ -44,7 +44,6 @@
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",
-    "@types/matrix-js-sdk": "^9.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "dts-bundle-generator": "^6.0.0",
@@ -59,7 +58,7 @@
     "@42px/effector-extra": "^1.1.1",
     "@babel/runtime": "^7.12.13",
     "effector": "^21.7.5",
-    "matrix-js-sdk": "^9.6.0",
+    "matrix-js-sdk": "^15.0.0",
     "patronum": "^1.1.0"
   },
   "files": [

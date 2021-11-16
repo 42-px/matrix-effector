@@ -1,11 +1,32 @@
-import { attach, forward, guard, sample } from "effector"
-import { EventStatus, MatrixEvent, TimelineWindow } from "matrix-js-sdk"
-import { client, createRoomMessageBatch } from "@/matrix-client"
-import { $currentRoomId, $isLive, $timelineWindow } from "@/room"
+import {
+    attach,
+    forward,
+    guard,
+    sample
+} from "effector"
+import {
+    Direction,
+    EventStatus,
+    MatrixEvent,
+    TimelineWindow
+} from "matrix-js-sdk"
+import {
+    client,
+    createRoomMessageBatch
+} from "@/matrix-client"
+import {
+    $currentRoomId,
+    $isLive,
+    $timelineWindow
+} from "@/room"
 import { paginateForwardFx } from "@/room-pagination/private"
 import { Message } from "@/types"
 import { getMessages } from "@/utils"
-import { setMessages, updateMessages, updateMessagesFx } from "./private"
+import {
+    setMessages,
+    updateMessages,
+    updateMessagesFx
+} from "./private"
 import {
     $messages,
     checkEventPermissionsFx,
@@ -18,11 +39,14 @@ import {
     sendMessageFx,
     uploadContentFx
 } from "./public"
-import { DeleteMessageResult, UploadContentResult } from "./types"
 import {
-    RoomNotFound,
-    EventNotFound,
+    DeleteMessageResult,
+    UploadContentResult
+} from "./types"
+import {
     ClientNotInitialized,
+    EventNotFound,
+    RoomNotFound,
     UserNotLoggedIn
 } from "@/errors"
 
@@ -68,14 +92,15 @@ guard({
     target: updateMessagesFx,
 })
 
-sendMessageFx.use(({
+sendMessageFx.use( async ({
     roomId,
     content,
     txnId
-}) => client().sendMessage(roomId, content, txnId))
-editMessageFx.use(({
+}) => await client().sendMessage(roomId, content, txnId))
+
+editMessageFx.use( async ({
     roomId, eventId, body, txnId,
-}) => client().sendMessage(
+}) => await client().sendMessage(
     roomId,
     {
         "m.new_content": {
@@ -99,13 +124,15 @@ deleteMessageFx.use(async ({
         eventId: res.event_id,
     }
 })
-readAllMessagesFx.use(({ roomId, eventId }) => {
+readAllMessagesFx.use(async ({ roomId, eventId }) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     const rrEvent = room.findEventById(eventId)
     if (!rrEvent) throw new EventNotFound()
     // Kludge - typings fix
-    return client().setRoomReadMarkers(roomId, eventId, rrEvent as any)
+    // Добавился 4 параметр, надо решить, включать его или нет
+    // True to hide the receipt from other users and homeservers. This property is unstable and may change in the future.
+     await client().setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: true })
 })
 uploadContentFx.use(({
     file,
@@ -179,11 +206,11 @@ checkEventPermissionsFx.use(({ eventId, roomId }) => {
     }
 })
 updateMessagesFx.use(({ timelineWindow }) => {
-    const canPaginateForward = timelineWindow.canPaginate("f")
+    const canPaginateForward = timelineWindow.canPaginate(Direction.Forward)
     return {
         messages: getMessages(timelineWindow),
         isLive: !canPaginateForward,
         canPaginateForward: canPaginateForward,
-        canPaginateBackward: timelineWindow.canPaginate("b")
+        canPaginateBackward: timelineWindow.canPaginate(Direction.Backward)
     }
 })

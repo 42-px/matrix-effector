@@ -1,11 +1,18 @@
 import matrix, {
-    Room,
-    TimelineWindow,
+    Direction,
     MatrixEvent,
-    RoomMember
+    Room,
+    RoomMember,
+    TimelineWindow
 } from "matrix-js-sdk"
+import { SearchOrderBy } from "matrix-js-sdk/lib/@types/search";
 import { debounce } from "patronum/debounce"
-import { attach, forward, guard, sample } from "effector"
+import {
+    attach,
+    forward,
+    guard,
+    sample
+} from "effector"
 import {
     toMappedRoom,
     toMappedRoomMember,
@@ -15,7 +22,11 @@ import {
     toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
-import { getIsDirectRoomsIds, getMessages, setDirectRoom } from "@/utils"
+import {
+    getIsDirectRoomsIds,
+    getMessages,
+    setDirectRoom
+} from "@/utils"
 import {
     $loadFilter,
     getRoomByIdFx,
@@ -29,45 +40,48 @@ import {
     updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
+    $currentRoom,
     $currentRoomId,
     $currentRoomMembers,
     $loadRoomFxPending,
+    $myPowerLevel,
+    $requiredPowerLevelForBan,
+    $requiredPowerLevelForDefaultEvents,
+    $requiredPowerLevelForDefaultState,
+    $requiredPowerLevelForInvite,
+    $requiredPowerLevelForKick,
+    $requiredPowerLevelForRedact,
     $timelineWindow,
+    clearCurrentRoomState,
+    createDirectRoomFx,
+    createRoomFx,
+    DEFAULT_BAN_POWERLEVEL,
+    DEFAULT_INVITE_POWERLEVEL,
+    DEFAULT_KICK_POWERLEVEL,
+    DEFAULT_REDACT_POWERLEVEL,
+    DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL,
+    DEFAULT_SET_DEFAULT_STATE_POWERLEVEL,
+    getAllUsersFx,
     getRoomInfoFx,
     getRoomsWithActivitiesFx,
     initRoom,
+    inviteUserFx,
+    joinRoomFx,
+    kickUserRoomFx,
     liveTimelineLoaded,
     loadRoom,
     loadRoomMessage,
     loadRoomMessageDone,
     onRoomInitialized,
+    onRoomLoaded,
+    renameRoomFx,
     searchRoomMessagesFx,
     toLiveTimeline,
-    onRoomLoaded,
-    createRoomFx,
-    getAllUsersFx,
-    inviteUserFx,
-    kickUserRoomFx,
-    renameRoomFx,
-    joinRoomFx,
-    createDirectRoomFx,
-    clearCurrentRoomState,
-    $myPowerLevel,
-    $requiredPowerLevelForKick,
-    $requiredPowerLevelForBan,
-    $requiredPowerLevelForInvite,
-    $requiredPowerLevelForDefaultEvents,
-    $requiredPowerLevelForRedact,
-    $requiredPowerLevelForDefaultState,
-    $currentRoom,
-    DEFAULT_KICK_POWERLEVEL,
-    DEFAULT_BAN_POWERLEVEL,
-    DEFAULT_INVITE_POWERLEVEL,
-    DEFAULT_SEND_DEFAULT_EVENT_POWERLEVEL,
-    DEFAULT_SET_DEFAULT_STATE_POWERLEVEL,
-    DEFAULT_REDACT_POWERLEVEL,
 } from "./public"
-import { LoadRoomFxParams, Visibility } from "./types"
+import {
+    LoadRoomFxParams,
+    Visibility
+} from "./types"
 import {
     ClientNotInitialized,
     RoomNotFound,
@@ -265,10 +279,10 @@ updatePowerLevelFx.use((roomId) => {
 updateRequiredPowerLevelForRoomFx.use((roomId) => {
     const cl = client()
     const room = cl.getRoom(roomId) as Room
-    const powerLevelsContent  = (
-        room.currentState
-            .getStateEvents("m.room.power_levels", "") as MatrixEvent[])[0]
-        .getContent() as any
+    const powerLevelsContent  = room.currentState
+        .getStateEvents("m.room.power_levels", "")
+        .getContent()
+    console.log(powerLevelsContent);
     return {
         kick: powerLevelsContent.kick ?? DEFAULT_KICK_POWERLEVEL,
         ban: powerLevelsContent.ban ?? DEFAULT_BAN_POWERLEVEL,
@@ -313,8 +327,9 @@ loadRoomFx.use(async ({
     loadAdditionalDataDirection
 }) => {
     if (!timelineWindow) throw new TimelineWindowUndefined()
-    await timelineWindow.load(initialEventId, initialWindowSize)
-    const canPaginateForward = timelineWindow.canPaginate("f")
+    // @TODO fix optional type
+    await timelineWindow.load(initialEventId as string, initialWindowSize)
+    const canPaginateForward = timelineWindow.canPaginate(Direction.Forward)
     let messages = getMessages(timelineWindow)
     // дозагрузка сообщений если пришло меньше чем ожидали
     if (initialWindowSize && messages.length < initialWindowSize) {
@@ -335,7 +350,7 @@ loadRoomFx.use(async ({
         messages,
         isLive: !canPaginateForward,
         canPaginateForward,
-        canPaginateBackward: timelineWindow.canPaginate("b")
+        canPaginateBackward: timelineWindow.canPaginate(Direction.Backward)
     }
 })
 
@@ -345,7 +360,7 @@ getRoomsWithActivitiesFx.use((rooms) => {
     return rooms.map((room) => toRoomWithActivity(room))
 })
 
-searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
+searchRoomMessagesFx.use(async ({ term, roomId, orderBy = SearchOrderBy.Rank }) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
     const membersCache: { [id: string]: RoomMember } = {}
@@ -370,7 +385,7 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
             const event = new MatrixEvent(result as any)
             const senderId = event.getSender()
             if (membersCache[senderId] === undefined) {
-                membersCache[senderId] = room.getMember(senderId)
+                membersCache[senderId] = room.getMember(senderId) as RoomMember
             }
             event.sender = membersCache[senderId]
             return toMessage(event)

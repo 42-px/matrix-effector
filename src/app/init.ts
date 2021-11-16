@@ -1,12 +1,13 @@
 import { forward } from "effector"
 import {
-    EventType,
     User,
     MatrixEvent,
     Room,
     RoomMember,
-    LoginPayload,
 } from "matrix-js-sdk"
+import {
+    EventType
+} from "matrix-js-sdk/lib/@types/event";
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import {
     client,
@@ -15,6 +16,19 @@ import {
     onClientEvent,
 } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
+import {
+    LOGIN_BY_PASSWORD,
+    LOGIN_BY_TOKEN,
+    ROOM_MESSAGE_EVENT,
+    ROOM_REDACTION_EVENT
+} from "@/constants"
+import { updateMessages } from "@/room-messages/private"
+import { roomMessage } from "@/room-messages"
+import { directRoomCreated, roomCreated } from "@/room"
+import {
+    MatrixLoginPayload
+} from "@/types";
+import { AuthData } from "./types"
 import {
     getLoggedUserFx,
     initStoreFx,
@@ -29,16 +43,6 @@ import {
     createClientFx,
     destroyClientFx
 } from "./public"
-import { AuthData } from "./types"
-import {
-    LOGIN_BY_PASSWORD,
-    LOGIN_BY_TOKEN,
-    ROOM_MESSAGE_EVENT,
-    ROOM_REDACTION_EVENT
-} from "@/constants"
-import { updateMessages } from "@/room-messages/private"
-import { roomMessage } from "@/room-messages"
-import { directRoomCreated, roomCreated } from "@/room"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -141,7 +145,8 @@ onClientEvent([
     ],
 ])
 
-loginByPasswordFx.use((params) => client().login(LOGIN_BY_PASSWORD, params))
+loginByPasswordFx.use( async (params) =>
+    await client().login(LOGIN_BY_PASSWORD, params))
 
 loginByTokenFx.use(async (params): Promise<AuthData> => {
     const response = await fetch(
@@ -156,7 +161,7 @@ loginByTokenFx.use(async (params): Promise<AuthData> => {
         access_token,
         device_id,
         well_known
-    }: LoginPayload = await response.json()
+    }: MatrixLoginPayload = await response.json()
     return { 
         userId: user_id, 
         accessToken: access_token,
@@ -172,7 +177,9 @@ initStoreFx.use(async () => {
 
 startClientFx.use((params) => client().startClient(params))
 
-logoutFx.use(() => client().logout())
+logoutFx.use( async () => {
+    await client().logout()
+})
 
 stopClientFx.use(() => client().stopClient())
 

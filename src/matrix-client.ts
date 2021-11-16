@@ -1,14 +1,21 @@
-import { batchEvents } from "@42px/effector-extra"
+import {
+    batchEvents
+} from "@42px/effector-extra"
 import matrix, { MatrixClient } from "matrix-js-sdk"
-import { roomMessage } from "./room-messages"
-import { createClientOptions, EventListener } from "./types"
+import {
+    roomMessage
+} from "./room-messages"
+import {
+    CreateClientOptions,
+    EventListener
+} from "./types"
 
 let clientStore: MatrixClient
 let messageBatchInterval = 500
 const callbacksStore: EventListener[] = []
 
 export const createClient = (
-    {options, messageBatchInterval: ms}: createClientOptions
+    {options, messageBatchInterval: ms}: CreateClientOptions
 ): void => {
     destroyClient()
     if (ms !== undefined) messageBatchInterval = ms

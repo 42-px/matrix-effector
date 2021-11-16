@@ -1,6 +1,5 @@
 export {
     Room,
-    LoginPayload,
     MatrixEvent,
     RoomMember,
 } from "matrix-js-sdk"

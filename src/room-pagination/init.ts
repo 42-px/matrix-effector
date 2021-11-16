@@ -1,5 +1,5 @@
 import { combine, forward, guard } from "effector"
-import matrix from "matrix-js-sdk"
+import matrix, { Direction } from "matrix-js-sdk"
 import {
     $currentRoomId,
     $loadRoomFxPending,
@@ -19,9 +19,9 @@ import {
     $paginateBackwardPending,
     $paginateForwardPending,
     onPaginateBackwardDone,
+    onPaginateForwardDone,
     paginateBackward,
-    paginateForward,
-    onPaginateForwardDone
+    paginateForward
 } from "./public"
 import { TimelineWindowUndefined } from "@/errors"
 
@@ -88,12 +88,12 @@ paginateRoomFx.use(async ({
         matrix.EventTimeline.BACKWARDS
     await timelineWindow
         .paginate(dir, size, makeRequest, requestLimit)
-    const canPaginateForward = timelineWindow.canPaginate("f")
+    const canPaginateForward = timelineWindow.canPaginate(Direction.Forward)
     const messages = getMessages(timelineWindow)
     return {
         messages,
         isLive: !canPaginateForward,
         canPaginateForward: canPaginateForward,
-        canPaginateBackward: timelineWindow.canPaginate("b")
+        canPaginateBackward: timelineWindow.canPaginate(Direction.Backward)
     }
 })

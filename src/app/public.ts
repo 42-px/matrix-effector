@@ -1,6 +1,9 @@
 import { throttle } from "patronum/throttle"
-import { LoginPayload } from "matrix-js-sdk";
-import { MappedRoom, MappedUser } from "@/types"
+import {
+    MappedRoom,
+    MappedUser,
+    MatrixLoginPayload
+} from "@/types"
 import {
     LoginByPasswordParams,
     LoginByTokenParams,
@@ -16,7 +19,7 @@ export const createOnSyncThrottled = (ms: number) =>
     throttle({ source: onSync, timeout: ms})
 
 export const loginByPasswordFx = appDomain
-    .effect<LoginByPasswordParams, LoginPayload, Error>()
+    .effect<LoginByPasswordParams, MatrixLoginPayload, Error>()
 export const loginByTokenFx = appDomain
     .effect<LoginByTokenParams, AuthData, Error>()
 export const initStoreFx = appDomain.effect<void, void, Error>()

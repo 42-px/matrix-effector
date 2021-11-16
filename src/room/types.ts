@@ -1,5 +1,11 @@
-import { TimelineWindow, RoomMember } from "matrix-js-sdk"
-import { MappedUser, Message } from "@/types"
+import {
+    TimelineWindow,
+    RoomMember
+} from "matrix-js-sdk"
+import {
+    MappedUser,
+    Message
+} from "@/types"
 
 export type InitRoomParams = {
     roomId: string
@@ -54,8 +60,8 @@ export interface CreateDirectRoomParams {
 }
 
 export enum Visibility {
-    public = "public",
-    private = "private"
+    'public' = "public",
+    'private' = "private"
 }
 
 export enum Preset {

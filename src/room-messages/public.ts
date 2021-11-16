@@ -1,4 +1,7 @@
 import {
+    ISendEventResponse
+} from "matrix-js-sdk/lib/@types/requests";
+import {
     CheckEventPermissionsParams,
     DeleteMessagePayload,
     EditMessagePayload,
@@ -9,8 +12,13 @@ import {
     UploadProgress,
     UrlPreview
 } from "./types"
-import { messagesDomain } from "./domain"
-import { DeleteMessageResult, UploadContentResult } from "./types"
+import {
+    messagesDomain
+} from "./domain"
+import {
+    DeleteMessageResult,
+    UploadContentResult
+} from "./types"
 import { Message } from "@/types"
 
 export const $messages = messagesDomain.store<Message[]>([])
@@ -20,9 +28,9 @@ export const newMessagesLoaded = messagesDomain.event<Message[]>()
 export const onUploadProgress = messagesDomain.event<UploadProgress>()
 
 export const sendMessageFx = messagesDomain
-    .effect<SendMessagePayload, void, Error>()
+    .effect<SendMessagePayload, ISendEventResponse, Error>()
 export const editMessageFx = messagesDomain
-    .effect<EditMessagePayload, void, Error>()
+    .effect<EditMessagePayload, ISendEventResponse, Error>()
 export const deleteMessageFx = messagesDomain
     .effect<DeleteMessagePayload, DeleteMessageResult, Error>()
 export const readAllMessagesFx = messagesDomain

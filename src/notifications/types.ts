@@ -1,5 +1,7 @@
 /* notification pushrules types */
-export type NotificationOverrideRuleId = 
+import { PushRuleKind } from "matrix-js-sdk/lib/@types/PushRules";
+
+export type NotificationOverrideRuleId =
     ".m.rule.master" |
     ".m.rule.suppress_notices" | 
     ".m.rule.invite_for_me" | 
@@ -33,13 +35,6 @@ export type NotificationRule<RuleType> = {
     rule_id: RuleType
 }
 
-export type NotificationKind = 
-    "override" |
-    "underride" | 
-    "content" | 
-    "sender" | 
-    "room"
-
 export type NotificationScope = "global" | "device"
 
 export type NotificationRulesResult = {
@@ -57,7 +52,7 @@ export type NotificationTweak = "sound" | "highlight"
 
 export type SetNotificationsRuleParams = {
     scope: NotificationScope
-    kind: NotificationKind
+    kind: PushRuleKind
     ruleId: 
         NotificationContentRuleId |
         NotificationUnderrideRuleId | 
@@ -71,7 +66,7 @@ export type SetNotificationsRuleParams = {
 
 export type SetNotificationsRuleEnabledParams = {
     scope: NotificationScope
-    kind: NotificationKind
+    kind: PushRuleKind
     ruleId: 
         NotificationContentRuleId | 
         NotificationUnderrideRuleId | 
@@ -83,7 +78,7 @@ export type SetNotificationsRuleEnabledParams = {
 
 export type DeleteNotificationsRuleEnabledParams = {
     scope: NotificationScope
-    kind: NotificationKind
+    kind: PushRuleKind
     ruleId: 
         NotificationContentRuleId | 
         NotificationUnderrideRuleId | 

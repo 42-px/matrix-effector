@@ -1,6 +1,18 @@
-import { MatrixEvent, RoomMember, User, Room } from "matrix-js-sdk"
-import { checkIsDirect, client } from "@/index"
-import { ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT } from "./constants"
+import {
+    MatrixEvent,
+    RoomMember,
+    User,
+    Room
+} from "matrix-js-sdk"
+import {
+    checkIsDirect,
+    client,
+    MatrixMembershipType
+} from "@/index"
+import {
+    ROOM_MESSAGE_EVENT,
+    ROOM_REDACTION_EVENT
+} from "./constants"
 import { RoomNotFound } from "./errors"
 import { MappedRoomMember } from "./room"
 import {
@@ -14,8 +26,8 @@ import {
 } from "./types"
 
 function getMappedContent(event: MatrixEvent): MessageContent {
-    const matrixContent = event.getContent() as MessageContent
-    return {...matrixContent}
+    const matrixContent = event.getContent<MessageContent>()
+    return matrixContent
 }
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
@@ -59,7 +71,7 @@ export function toMappedRoom(room: Room): MappedRoom {
         roomId: room.roomId,
         name: room.name,
         summary: room.summary,
-        myMembership: room.getMyMembership()
+        myMembership: room.getMyMembership() as MatrixMembershipType
     }
 }
 
