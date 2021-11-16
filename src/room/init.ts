@@ -15,7 +15,6 @@ import {
     toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
-import {  } from "@/types"
 import { getIsDirectRoomsIds, getMessages, setDirectRoom } from "@/utils"
 import {
     $loadFilter,
