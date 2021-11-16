@@ -1,5 +1,5 @@
-import { TimelineWindow } from "matrix-js-sdk"
-import { RoomMember, MappedUser, Message } from "@/types"
+import { TimelineWindow, RoomMember } from "matrix-js-sdk"
+import { MappedUser, Message } from "@/types"
 
 export type InitRoomParams = {
     roomId: string

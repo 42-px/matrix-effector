@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "4.1.6",
+  "version": "4.1.7",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
@@ -8,8 +8,13 @@
   "umd:main": "./dist/matrix-effector.umd.js",
   "iife:main": "./dist/matrix-effector.iife.js",
   "browser": "./dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/matrix-effector.cjs.js"
+  },
   "scripts": {
-    "build": "rollup -c rollup.config.js",
+    "emit-dts": "dts-bundle-generator --project tsconfig.declarations.json --out-file ./dist/index.d.ts ./src/index.ts",
+    "build": "npm run emit-dts && rollup -c rollup.config.js",
     "lint": "eslint \"./**/*.{js,ts,tsx}\" --fix",
     "check-types": "tsc --noEmit"
   },
@@ -31,27 +36,28 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.12.13",
-    "@babel/plugin-proposal-optional-chaining": "^7.12.13",
     "@babel/plugin-transform-modules-commonjs": "^7.12.13",
     "@babel/plugin-transform-runtime": "^7.12.15",
     "@babel/preset-env": "^7.12.13",
-    "@babel/preset-typescript": "^7.12.13",
-    "@babel/runtime": "^7.12.13",
+    "@babel/preset-typescript": "^7.16.0",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-typescript": "^8.3.0",
     "@types/matrix-js-sdk": "^9.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
-    "babel-plugin-module-resolver": "^4.1.0",
+    "dts-bundle-generator": "^6.0.0",
     "eslint": "^7.19.0",
     "eslint-plugin-promise": "^4.2.1",
     "rollup": "^2.38.5",
-    "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.29.0",
     "typescript": "^4.1.3"
   },
   "peerDependencies": {
     "@42px/custom-errors": "^1.0.4",
     "@42px/effector-extra": "^1.1.1",
+    "@babel/runtime": "^7.12.13",
     "effector": "^21.7.5",
     "matrix-js-sdk": "^9.6.0",
     "patronum": "^1.1.0"
@@ -59,5 +65,5 @@
   "files": [
     "dist"
   ],
-  "typings": "./dist"
+  "types": "./dist/index.d.ts"
 }

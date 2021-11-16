@@ -1,5 +1,12 @@
 import { forward } from "effector"
-import { EventType, User } from "matrix-js-sdk"
+import {
+    EventType,
+    User,
+    MatrixEvent,
+    Room,
+    RoomMember,
+    LoginPayload,
+} from "matrix-js-sdk"
 import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
 import {
     client,
@@ -8,7 +15,6 @@ import {
     onClientEvent,
 } from "@/matrix-client"
 import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
-import { MatrixEvent, Room, RoomMember, LoginPayload } from "@/types"
 import {
     getLoggedUserFx,
     initStoreFx,

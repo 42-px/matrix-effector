@@ -8,15 +8,7 @@
         ]
     ],
     "plugins": [
-        "@babel/plugin-proposal-optional-chaining",
-        [
-            "module-resolver",
-            {
-                "alias": {
-                    "@": "./src"
-                }
-            }
-        ]
+        "@babel/plugin-transform-runtime"
     ],
     "env": {
         "test": {
@@ -24,18 +16,7 @@
                 "@babel/preset-typescript"
             ],
             "plugins": [
-                "@babel/plugin-transform-modules-commonjs",
-                [
-                    "@babel/plugin-transform-runtime",
-                    {
-                        "regenerator": true
-                    }
-                ]
-            ]
-        },
-        "development": {
-            "presets": [
-                "@babel/preset-typescript"
+                "@babel/plugin-transform-modules-commonjs"
             ]
         }
     }

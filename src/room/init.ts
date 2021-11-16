@@ -1,4 +1,9 @@
-import matrix, { Room, TimelineWindow } from "matrix-js-sdk"
+import matrix, {
+    Room,
+    TimelineWindow,
+    MatrixEvent,
+    RoomMember
+} from "matrix-js-sdk"
 import { debounce } from "patronum/debounce"
 import { attach, forward, guard, sample } from "effector"
 import {
@@ -10,7 +15,6 @@ import {
     toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
-import { MatrixEvent, RoomMember } from "@/types"
 import { getIsDirectRoomsIds, getMessages, setDirectRoom } from "@/utils"
 import {
     $loadFilter,
@@ -21,7 +25,8 @@ import {
     loadRoomFx,
     onRoomMemberUpdate,
     onRoomUserUpdate,
-    updatePowerLevelFx, updateRequiredPowerLevelForRoomFx,
+    updatePowerLevelFx,
+    updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
     $currentRoomId,
@@ -361,7 +366,8 @@ searchRoomMessagesFx.use(async ({ term, roomId, orderBy = "rank" }) => {
     return searchResponse
         .search_categories
         .room_events.results.map(({ result }) => {
-            const event = new MatrixEvent(result)
+            // TODO: fix me
+            const event = new MatrixEvent(result as any)
             const senderId = event.getSender()
             if (membersCache[senderId] === undefined) {
                 membersCache[senderId] = room.getMember(senderId)
@@ -392,7 +398,8 @@ createRoomFx.use(async ({
         preset,
     }
 
-    const { room_id } = await client().createRoom(options)
+    // TODO: fix me
+    const { room_id } = await client().createRoom(options as any)
 
     return { roomId: room_id } 
 })

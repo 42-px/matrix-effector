@@ -1,12 +1,17 @@
-import babel from "rollup-plugin-babel"
+import { babel } from "@rollup/plugin-babel"
 import { terser } from "rollup-plugin-terser"
-import typescript from "rollup-plugin-typescript2"
+import commonjs from "@rollup/plugin-commonjs"
+import typescript from "@rollup/plugin-typescript"
+import { nodeResolve } from "@rollup/plugin-node-resolve"
 import pkg from "./package.json"
+
+const extensions = [".js", ".ts"]
 
 export default {
     external: [
+        /@babel\/runtime/,
         "effector",
-        "patronum",
+        /patronum/,
         "matrix-js-sdk",
         "@42px/effector-extra",
         "@42px/custom-errors"
@@ -37,8 +42,15 @@ export default {
         }
     ],
     plugins: [
+        typescript({ tsconfig: "./tsconfig.json" }),
+        babel({
+            babelHelpers: "runtime",
+            exclude: "node_modules/**",
+            extensions,
+        }),
+        nodeResolve({ extensions }),
+        commonjs({ extensions }),
         terser(),
-        babel(),
-        typescript(),
     ]
 }
+
