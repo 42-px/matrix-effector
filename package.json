@@ -59,11 +59,12 @@
     "@42px/effector-extra": "^1.1.1",
     "@babel/runtime": "^7.12.13",
     "effector": "^21.7.5",
-    "matrix-js-sdk": "^15.0.0",
-    "patronum": "^1.1.0"
+    "patronum": "^1.1.0",
+    "matrix-js-sdk": "github:42-px/matrix-js-sdk#42px-export-types"
   },
   "files": [
     "dist"
   ],
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "dependencies": {}
 }
