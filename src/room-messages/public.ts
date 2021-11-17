@@ -1,4 +1,4 @@
-import { ISendEventResponse } from "matrix-js-sdk";
+import { ISendEventResponse } from "matrix-js-sdk"
 import {
     CheckEventPermissionsParams,
     DeleteMessagePayload,

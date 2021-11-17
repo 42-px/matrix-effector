@@ -53,11 +53,11 @@ export type Message = {
 }
 
 export enum MatrixMembershipType {
-    leave = 'leave',
-    invite = 'invite',
-    ban = 'ban',
-    join = 'join',
-    knock = 'knock',
+    leave = "leave",
+    invite = "invite",
+    ban = "ban",
+    join = "join",
+    knock = "knock",
 }
 
 export type MappedRoom = {

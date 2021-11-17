@@ -7,6 +7,7 @@ import {
 import {
     Direction,
     EventStatus,
+    IContent,
     MatrixEvent,
     TimelineWindow
 } from "matrix-js-sdk"
@@ -96,7 +97,7 @@ sendMessageFx.use( async ({
     roomId,
     content,
     txnId
-}) => await client().sendMessage(roomId, content, txnId))
+}) => await client().sendMessage(roomId, content as IContent, txnId))
 
 editMessageFx.use( async ({
     roomId, eventId, body, txnId,
@@ -132,7 +133,8 @@ readAllMessagesFx.use(async ({ roomId, eventId }) => {
     // Kludge - typings fix
     // Добавился 4 параметр, надо решить, включать его или нет
     // True to hide the receipt from other users and homeservers. This property is unstable and may change in the future.
-     await client().setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: true })
+     await client()
+        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: true })
 })
 uploadContentFx.use(({
     file,

@@ -77,6 +77,7 @@ import {
     renameRoomFx,
     searchRoomMessagesFx,
     toLiveTimeline,
+    leaveRoomFx
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -282,7 +283,7 @@ updateRequiredPowerLevelForRoomFx.use((roomId) => {
     const powerLevelsContent  = room.currentState
         .getStateEvents("m.room.power_levels", "")
         .getContent()
-    console.log(powerLevelsContent);
+
     return {
         kick: powerLevelsContent.kick ?? DEFAULT_KICK_POWERLEVEL,
         ban: powerLevelsContent.ban ?? DEFAULT_BAN_POWERLEVEL,
@@ -474,4 +475,8 @@ getRoomByIdFx.use((roomId) => {
     const matrixRoom = client().getRoom(roomId)
     if (!matrixRoom) return null
     return toRoomWithActivity(toMappedRoom(matrixRoom))
+})
+
+leaveRoomFx.use( async (roomId) => {
+    await client().leave(roomId)
 })

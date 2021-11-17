@@ -111,3 +111,5 @@ export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
 export const joinRoomFx = roomDomain
     .effect<{roomId: string; isDirect?: boolean}, RoomWithActivity, Error>()
+export const leaveRoomFx = roomDomain
+    .effect<string, void, Error>()

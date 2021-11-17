@@ -25,7 +25,7 @@ import { roomMessage } from "@/room-messages"
 import { directRoomCreated, roomCreated } from "@/room"
 import {
     MatrixLoginPayload
-} from "@/types";
+} from "@/types"
 import { AuthData } from "./types"
 import {
     getLoggedUserFx,
@@ -72,15 +72,15 @@ onClientEvent([
         }],
     ["Room", (room: Room) => {
         const cl = client()
-        const user = room.getMember(cl.getUserId() as string)
+        const user = room.getMember(cl.getUserId())
         if (user && user.membership !== "invite") return
 
         const isDirect = (room.currentState
             .getStateEvents(
-                "m.room.create" as EventType, 
+                "m.room.create", 
                 undefined as any
             ) as any)[0]?.getContent()?.isDirect
-
+               
         if (isDirect) {
             directRoomCreated(room)
         } else {
