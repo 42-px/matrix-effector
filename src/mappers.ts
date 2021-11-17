@@ -25,10 +25,10 @@ import {
     RoomWithActivity,
 } from "./types"
 
-function getMappedContent(event: MatrixEvent): MessageContent {
-    const matrixContent = event.getContent<MessageContent>()
-    return matrixContent
-}
+const getMappedContent = (event: MatrixEvent) => (
+    event.getContent<MessageContent>()
+)
+
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
     const payload: MessageEvent = {

@@ -1,5 +1,5 @@
 import { MatrixClient } from "matrix-js-sdk"
-import { CreateClientOptions } from "@/types";
+import { CreateClientOptions } from "@/types"
 
 export interface LoginByPasswordParams {
     user: string
