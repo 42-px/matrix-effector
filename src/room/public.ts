@@ -1,4 +1,9 @@
-import { TimelineWindow, Room } from "matrix-js-sdk"
+import {
+    TimelineWindow,
+    Room,
+    User,
+    RoomMember
+} from "matrix-js-sdk"
 import {combine} from "effector"
 import {
     MappedRoom,
@@ -83,6 +88,9 @@ export const $canSetDefaultState = combine(
     (m, r) => m >= r
 )
 
+export const onRoomUserUpdate = roomDomain.event<User>()
+export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
+export const getRoomMembers = roomDomain.event<void>()
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()
 export const onRoomInitialized = roomDomain.event<void>()

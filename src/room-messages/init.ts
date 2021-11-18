@@ -25,7 +25,6 @@ import { Message } from "@/types"
 import { getMessages } from "@/utils"
 import {
     setMessages,
-    updateMessages,
     updateMessagesFx
 } from "./private"
 import {
@@ -38,7 +37,8 @@ import {
     onUploadProgress,
     readAllMessagesFx,
     sendMessageFx,
-    uploadContentFx
+    uploadContentFx,
+    updateMessages,
 } from "./public"
 import {
     DeleteMessageResult,
@@ -131,10 +131,9 @@ readAllMessagesFx.use(async ({ roomId, eventId }) => {
     const rrEvent = room.findEventById(eventId)
     if (!rrEvent) throw new EventNotFound()
     // Kludge - typings fix
-    // Добавился 4 параметр, надо решить, включать его или нет
-    // True to hide the receipt from other users and homeservers. This property is unstable and may change in the future.
+
      await client()
-        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: true })
+        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: undefined })
 })
 uploadContentFx.use(({
     file,

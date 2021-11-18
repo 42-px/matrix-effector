@@ -5,8 +5,6 @@ import { loadRoomFx } from "@/room/private"
 import { UpdateMessagesFxParams } from "./types"
 import { messagesDomain } from "./domain"
 
-export const updateMessages = messagesDomain.event<void>()
-
 export const updateMessagesFx = messagesDomain
     .effect<UpdateMessagesFxParams, MessageResponse, Error>()
 

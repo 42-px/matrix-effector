@@ -5,14 +5,11 @@ import {
     Room
 } from "matrix-js-sdk"
 import {
-    checkIsDirect,
-    client,
-    MatrixMembershipType
-} from "@/index"
-import {
+    DIRECT_EVENT,
     ROOM_MESSAGE_EVENT,
     ROOM_REDACTION_EVENT
 } from "./constants"
+import { client } from "@/matrix-client"
 import { RoomNotFound } from "./errors"
 import { MappedRoomMember } from "./room"
 import {
@@ -23,12 +20,22 @@ import {
     MessageContent,
     MappedUser,
     RoomWithActivity,
+    MatrixMembershipType
 } from "./types"
+
 
 const getMappedContent = (event: MatrixEvent) => (
     event.getContent<MessageContent>()
 )
 
+export const getIsDirectRoomsIds = ():string[] => {
+    const cl = client()
+    const directRooms = cl.getAccountData(DIRECT_EVENT).getContent()
+    return directRooms && Object.values(directRooms).flatMap((room) => room)
+}
+
+export const checkIsDirect = (roomId: string): boolean => (
+    getIsDirectRoomsIds().includes(roomId))
 
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
     const payload: MessageEvent = {

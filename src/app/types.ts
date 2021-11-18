@@ -1,4 +1,4 @@
-import { MatrixClient } from "matrix-js-sdk"
+import { IContent, MatrixClient } from "matrix-js-sdk"
 import { CreateClientOptions } from "@/types"
 
 export interface LoginByPasswordParams {
@@ -21,4 +21,8 @@ export type AuthData = {
 export type CreateClientParams = {
     createClientParams: CreateClientOptions
     startClientParams: StartClientParams
+}
+
+export type StateEventsContent = IContent & {
+    isDirect?: boolean
 }

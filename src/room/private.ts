@@ -1,5 +1,5 @@
 import { combine } from "effector"
-import { RoomMember, TimelineWindow, User } from "matrix-js-sdk"
+import { TimelineWindow } from "matrix-js-sdk"
 import { RoomWithActivity } from "@/types"
 import {
     InitRoomParams,
@@ -15,10 +15,6 @@ export const $loadFilter = combine(
     $timelineWindow,
     (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
 )
-
-export const onRoomUserUpdate = roomDomain.event<User>()
-export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
-export const getRoomMembers = roomDomain.event<void>()
 
 export const getRoomByIdFx = roomDomain
     .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()

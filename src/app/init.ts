@@ -4,29 +4,41 @@ import {
     MatrixEvent,
     Room,
     RoomMember,
-    EventType,
 } from "matrix-js-sdk"
-import { toMappedRoom, toMappedUser, toMessage } from "@/mappers"
+import {
+    toMappedRoom,
+    toMappedUser,
+    toMessage
+} from "@/mappers"
 import {
     client,
     createClient,
     destroyClient,
     onClientEvent,
 } from "@/matrix-client"
-import { onRoomMemberUpdate, onRoomUserUpdate } from "@/room/private"
 import {
     LOGIN_BY_PASSWORD,
     LOGIN_BY_TOKEN,
     ROOM_MESSAGE_EVENT,
     ROOM_REDACTION_EVENT
 } from "@/constants"
-import { updateMessages } from "@/room-messages/private"
-import { roomMessage } from "@/room-messages"
-import { directRoomCreated, roomCreated } from "@/room"
+import {
+    roomMessage,
+    updateMessages
+} from "@/room-messages"
+import {
+    directRoomCreated,
+    roomCreated,
+    onRoomMemberUpdate,
+    onRoomUserUpdate
+} from "@/room"
 import {
     MatrixLoginPayload
 } from "@/types"
-import { AuthData } from "./types"
+import {
+    AuthData,
+    StateEventsContent
+} from "./types"
 import {
     getLoggedUserFx,
     initStoreFx,
@@ -75,11 +87,10 @@ onClientEvent([
         const user = room.getMember(cl.getUserId())
         if (user && user.membership !== "invite") return
 
-        const isDirect = (room.currentState
+        const isDirect = room.currentState
             .getStateEvents(
-                "m.room.create", 
-                undefined as any
-            ) as any)[0]?.getContent()?.isDirect
+                "m.room.create"
+            )[0]?.getContent<StateEventsContent>()?.isDirect
                
         if (isDirect) {
             directRoomCreated(room)

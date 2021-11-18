@@ -14,6 +14,7 @@ import {
     sample
 } from "effector"
 import {
+    getIsDirectRoomsIds,
     toMappedRoom,
     toMappedRoomMember,
     toMappedUser,
@@ -23,23 +24,28 @@ import {
 } from "@/mappers"
 import { client } from "@/matrix-client"
 import {
-    getIsDirectRoomsIds,
     getMessages,
     setDirectRoom
 } from "@/utils"
 import {
+    ClientNotInitialized,
+    RoomNotFound,
+    TimelineWindowUndefined,
+    UserNotFound
+} from "@/errors"
+import {
     $loadFilter,
     getRoomByIdFx,
-    getRoomMembers,
     getRoomMembersFx,
     initRoomFx,
     loadRoomFx,
-    onRoomMemberUpdate,
-    onRoomUserUpdate,
     updatePowerLevelFx,
     updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
+    onRoomMemberUpdate,
+    onRoomUserUpdate,
+    getRoomMembers,
     $currentRoom,
     $currentRoomId,
     $currentRoomMembers,
@@ -83,12 +89,7 @@ import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
-import {
-    ClientNotInitialized,
-    RoomNotFound,
-    TimelineWindowUndefined,
-    UserNotFound
-} from "@/errors"
+
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
@@ -384,7 +385,7 @@ searchRoomMessagesFx
         .search_categories
         .room_events.results.map(({ result }) => {
             // TODO: fix me
-            const event = new MatrixEvent(result as any)
+            const event = new MatrixEvent(result)
             const senderId = event.getSender()
             if (membersCache[senderId] === undefined) {
                 membersCache[senderId] = room.getMember(senderId) as RoomMember

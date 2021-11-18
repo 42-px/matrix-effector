@@ -11,7 +11,6 @@ export * from "./room-pagination"
 export * from "./types"
 export * from "./matrix-client"
 export {
-    checkIsDirect,
     getRoomMemberAvatarUrl,
     getSenderAvatarUrl,
     getUploadCredentials,
