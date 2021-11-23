@@ -233,8 +233,13 @@ export declare type MessageEvent = {
 export declare type Message = {
 	originalEventId: string;
 	content: MessageContent;
+<<<<<<< HEAD
 	sender: RoomMember;
 	originServerTs: Date | null;
+=======
+	sender: string;
+	originServerTs: Date;
+>>>>>>> baa0096 (fix toMessage sender type)
 	edited: boolean;
 	redacted: boolean;
 };

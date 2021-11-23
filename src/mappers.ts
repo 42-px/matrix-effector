@@ -66,7 +66,7 @@ export function toMessage(
             originalEventId :
             event.getId(),
         content: getMappedContent(event),
-        sender: event.sender,
+        sender: event.getSender(),
         originServerTs: event.getDate(),
         edited: (relation as any)?.["rel_type"] === "m.replace",
         redacted: event.isRedacted() || event.isRedaction(),
