@@ -334,6 +334,7 @@ export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
 export declare const createClientFx: import("effector").Effect<CreateClientParams, void, Error>;
 export declare const destroyClientFx: import("effector").Effect<void, void, Error>;
+export declare const getProfileInfoFx: import("effector").Effect<string, MappedUser, Error>;
 export declare type NotificationOverrideRuleId = ".m.rule.master" | ".m.rule.suppress_notices" | ".m.rule.invite_for_me" | ".m.rule.member_event" | ".m.rule.contains_display_name" | ".m.rule.tombstone" | ".m.rule.roomnotif";
 export declare type NotificationUnderrideRuleId = ".m.rule.call" | ".m.rule.encrypted_room_one_to_one" | ".m.rule.room_one_to_one" | ".m.rule.message" | ".m.rule.encrypted";
 export declare type NotificationContentRuleId = ".m.rule.contains_user_name";

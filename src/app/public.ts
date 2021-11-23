@@ -34,3 +34,5 @@ export const createClientFx = appDomain
     .effect<CreateClientParams, void, Error>()
 export const destroyClientFx = appDomain
     .effect<void, void, Error>()
+export const getProfileInfoFx = appDomain
+    .effect<string, MappedUser, Error>()

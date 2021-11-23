@@ -49,7 +49,8 @@ import {
     startClientFx,
     stopClientFx,
     createClientFx,
-    destroyClientFx
+    destroyClientFx,
+    getProfileInfoFx,
 } from "./public"
 
 forward({
@@ -227,4 +228,11 @@ destroyClientFx.use(async () => {
     await cl.store?.deleteAllData()
     cl.stopClient()
     destroyClient()
+})
+
+getProfileInfoFx.use( async (userId) => {
+    const cl = client()
+    const user = cl.getUser(userId)
+    if (!user) throw new UserNotFound()
+    return toMappedUser(user)
 })
