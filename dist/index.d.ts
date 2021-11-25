@@ -512,6 +512,7 @@ export declare const toLiveTimeline: import("effector").Event<void>;
 export declare const loadRoomMessage: import("effector").Event<GoToMessageParams>;
 export declare const directRoomCreated: import("effector").Event<Room>;
 export declare const roomCreated: import("effector").Event<Room>;
+export declare const findDirectRoomByUserIdFx: import("effector").Effect<string, MappedRoom, Error>;
 export declare const searchRoomMessagesFx: import("effector").Effect<SearchRoomMessagesPayload, Message[], Error>;
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
 export declare const getRoomInfoFx: import("effector").Effect<string, RoomInfo, Error>;

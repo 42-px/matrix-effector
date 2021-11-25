@@ -22,6 +22,7 @@ import {
     toRoomInfo,
     toRoomWithActivity
 } from "@/mappers"
+import { DIRECT_EVENT } from "@/constants"
 import { client } from "@/matrix-client"
 import {
     getMessages,
@@ -447,7 +448,7 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
         }
     }
     const { room_id } = await cl.createRoom(options as any)
-    await setDirectRoom(room_id)
+    await setDirectRoom(room_id, user.userId)
 
     return { roomId: room_id }
 })
@@ -479,6 +480,19 @@ getRoomByIdFx.use((roomId) => {
     return toRoomWithActivity(toMappedRoom(matrixRoom))
 })
 
+<<<<<<< HEAD
 leaveRoomFx.use( async (roomId) => {
     await client().leave(roomId)
+=======
+findDirectRoomByUserIdFx.use((userId) => {
+    const cl = client()
+    const directRooms = (cl.getAccountData(
+        DIRECT_EVENT) as any
+    )?.getContent()
+    const roomId = directRooms[userId] && directRooms[userId][0]
+    if(!roomId) throw new RoomNotFound()
+    const room = cl.getRoom(roomId)
+    if(!room) throw new RoomNotFound()
+    return toMappedRoom(room)
+>>>>>>> b139ee8 (add findDirectRoomByUserIdFx and fix setDirectRoom)
 })

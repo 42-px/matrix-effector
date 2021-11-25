@@ -110,6 +110,8 @@ export const loadRoomMessage = roomDomain.event<GoToMessageParams>()
 export const directRoomCreated = roomDomain.event<Room>()
 export const roomCreated = roomDomain.event<Room>()
 
+export const findDirectRoomByUserIdFx = roomDomain
+    .effect<string, MappedRoom, Error>()
 export const searchRoomMessagesFx = roomDomain
     .effect<SearchRoomMessagesPayload, Message[], Error>()
 export const getRoomsWithActivitiesFx = roomDomain

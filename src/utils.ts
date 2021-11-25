@@ -91,7 +91,10 @@ export const getUploadCredentials = () => {
     })
 }
 
-export const setDirectRoom = async (roomId: string): Promise<void> => {
+export const setDirectRoom = (
+    roomId: string,
+    interlocutor?: string
+): Promise<void> => {
     const cl = client()
     const { creator } = cl.getRoom(roomId).currentState
         .getStateEvents(
@@ -99,7 +102,14 @@ export const setDirectRoom = async (roomId: string): Promise<void> => {
         )[0].getContent()
     const prevData = cl.getAccountData(DIRECT_EVENT).getContent()
     const prevRoomsId = prevData[creator] ?? []
-    await cl.setAccountData(DIRECT_EVENT, {
+
+    if(interlocutor) {
+        return cl.setAccountData(DIRECT_EVENT as EventType, {
+            ...prevData,
+            [interlocutor]: [roomId]
+        })
+    }
+    return cl.setAccountData(DIRECT_EVENT as EventType, {
         ...prevData,
         [creator]: [...prevRoomsId, roomId]
     })
