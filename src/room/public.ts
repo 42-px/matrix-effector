@@ -133,3 +133,5 @@ export const leaveRoomFx = roomDomain
     .effect<string, void, Error>()
 export const loadRoomFx = roomDomain
     .effect<LoadRoomFxParams, MessageResponse, Error>()
+export const getRoomByIdFx = roomDomain
+    .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()

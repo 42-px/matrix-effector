@@ -530,6 +530,7 @@ export declare const joinRoomFx: import("effector").Effect<{
 	roomId: string;
 	isDirect?: boolean | undefined;
 }, RoomWithActivity, Error>;
+<<<<<<< HEAD
 export declare const leaveRoomFx: import("effector").Effect<string, void, Error>;
 export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
 export interface PaginateRoomFxParams {
@@ -545,6 +546,9 @@ export declare type PaginateParams = {
 	makeRequest?: boolean;
 	requestLimit?: number;
 };
+=======
+export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
+>>>>>>> ecb576c (refactoring checkIsdirect)
 export interface DeleteMessageResult {
 	eventId: string;
 }

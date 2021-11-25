@@ -136,6 +136,11 @@ export function toRoomWithActivity(
     const matrixRoom = cl.getRoom(room.roomId)
     if (!matrixRoom) throw new RoomNotFound()
     const events = matrixRoom.getLiveTimeline().getEvents()
+    const isDirect = (matrixRoom.currentState
+        .getStateEvents(
+            "m.room.create" as EventType, 
+            undefined as any
+        ) as any)[0]?.getContent()?.isDirect
     let unreadCount = 0
     for (let i = events.length - 1; i >= 0; i--) {
         if (i === events.length - maxHistory) break
@@ -153,7 +158,6 @@ export function toRoomWithActivity(
         .reduce(mergeMessageEvents, [])
     const lastMessage = mergedMessageEvents.length ?
         mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
-    const isDirect = checkIsDirect(room.roomId)
     const DMUser = isDirect
         ? matrixRoom.getMember(matrixRoom.guessDMUserId())
         : null

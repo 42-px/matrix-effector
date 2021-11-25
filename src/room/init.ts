@@ -22,7 +22,6 @@ import {
     toRoomInfo,
     toRoomWithActivity
 } from "@/mappers"
-import { DIRECT_EVENT } from "@/constants"
 import { client } from "@/matrix-client"
 import {
     getMessages,
@@ -35,7 +34,6 @@ import {
     UserNotFound
 } from "@/errors"
 import {
-    getRoomByIdFx,
     getRoomMembersFx,
     initRoomFx,
     updatePowerLevelFx,
@@ -85,12 +83,12 @@ import {
     leaveRoomFx,
     $loadFilter,
     loadRoomFx,
+    getRoomByIdFx
 } from "./public"
 import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
-
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
@@ -101,11 +99,15 @@ const getRoomMembersDebounced = debounce({
     timeout: 500
 })
 
+const setRoomByIdFx = attach({
+    effect: getRoomByIdFx
+})
+
 $currentRoomId
     .on(initRoom, (_, { roomId }) => roomId)
     .reset(clearCurrentRoomState)
 $currentRoom
-    .on(getRoomByIdFx.doneData, (_, room) => room)
+    .on(setRoomByIdFx.doneData, (_, room) => room)
     .reset(clearCurrentRoomState)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
@@ -174,7 +176,7 @@ forward({
 guard({
     clock: $currentRoomId,
     filter: Boolean,
-    target: getRoomByIdFx,
+    target: setRoomByIdFx,
 })    
 
 guard({
