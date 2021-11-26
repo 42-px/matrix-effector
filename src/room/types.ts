@@ -60,8 +60,8 @@ export interface CreateDirectRoomParams {
 }
 
 export enum Visibility {
-    'public' = "public",
-    'private' = "private"
+    "public" = "public",
+    "private" = "private"
 }
 
 export enum Preset {

@@ -10,6 +10,13 @@ let clientStore: MatrixClient
 let messageBatchInterval = 500
 const callbacksStore: EventListener[] = []
 
+export const destroyClient = () => {
+    if (clientStore) {
+        clientStore.removeAllListeners()
+        clientStore = null as any
+    }
+}
+
 export const createClient = (
     {options, messageBatchInterval: ms}: CreateClientOptions
 ): void => {
@@ -28,11 +35,4 @@ export const onClientEvent = (callbacks: EventListener[]): void => {
 
 export const createRoomMessageBatch = () => {
     return batchEvents(roomMessage, messageBatchInterval)
-}
-
-export const destroyClient = () => {
-    if (clientStore) {
-        clientStore.removeAllListeners()
-        clientStore = null as any
-    }
 }
