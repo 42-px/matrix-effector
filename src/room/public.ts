@@ -88,6 +88,12 @@ export const $canSetDefaultState = combine(
     (m, r) => m >= r
 )
 
+export const $loadFilter = combine(
+    $currentRoomId,
+    $timelineWindow,
+    (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
+)
+
 export const onRoomUserUpdate = roomDomain.event<User>()
 export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
 export const getRoomMembers = roomDomain.event<void>()

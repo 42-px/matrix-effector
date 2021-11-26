@@ -1,4 +1,3 @@
-import { combine } from "effector"
 import { TimelineWindow } from "matrix-js-sdk"
 import { RoomWithActivity } from "@/types"
 import {
@@ -8,13 +7,6 @@ import {
     MessageResponse, RoomPowerLevels
 } from "./types"
 import { roomDomain } from "./domain"
-import { $currentRoomId, $timelineWindow } from "./public"
-
-export const $loadFilter = combine(
-    $currentRoomId,
-    $timelineWindow,
-    (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
-)
 
 export const getRoomByIdFx = roomDomain
     .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()

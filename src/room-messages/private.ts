@@ -1,9 +1,43 @@
+import { TimelineWindow } from "matrix-js-sdk"
+import { attach } from "effector"
 import { guard, sample } from "effector"
-import { $currentRoomId, MessageResponse } from "@/room"
-import { paginateRoomFx } from "@/room-pagination/private"
 import { loadRoomFx } from "@/room/private"
-import { UpdateMessagesFxParams } from "./types"
+import {
+    $currentRoomId,
+    $timelineWindow,
+    MessageResponse
+} from "@/room"
+import {
+    UpdateMessagesFxParams,
+    PaginateParams,
+    PaginateRoomFxParams
+} from "./types"
 import { messagesDomain } from "./domain"
+
+export const paginateRoomFx = messagesDomain
+    .effect<PaginateRoomFxParams, MessageResponse, Error>()
+
+export const paginateBackwardFx = attach({
+    source: [$currentRoomId, $timelineWindow],
+    effect: paginateRoomFx,
+    mapParams: (params: PaginateParams, [roomId, timelineWindow]) => ({
+        roomId: roomId as string,
+        timelineWindow: timelineWindow as TimelineWindow,
+        direction: "backward" as const,
+        ...params,
+    })
+})
+    
+export const paginateForwardFx = attach({
+    source: [$currentRoomId, $timelineWindow],
+    effect: paginateRoomFx,
+    mapParams: (params: PaginateParams, [roomId, timelineWindow]) => ({
+        roomId: roomId as string,
+        timelineWindow: timelineWindow as TimelineWindow,
+        direction: "forward" as const,
+        ...params,
+    })
+})
 
 export const updateMessagesFx = messagesDomain
     .effect<UpdateMessagesFxParams, MessageResponse, Error>()

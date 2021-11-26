@@ -8,7 +8,8 @@ import {
     SendMessagePayload,
     UploadContentParams,
     UploadProgress,
-    UrlPreview
+    UrlPreview,
+    PaginateParams
 } from "./types"
 import {
     messagesDomain
@@ -25,6 +26,15 @@ export const updateMessages = messagesDomain.event<void>()
 export const roomMessage = messagesDomain.event<Message>()
 export const newMessagesLoaded = messagesDomain.event<Message[]>()
 export const onUploadProgress = messagesDomain.event<UploadProgress>()
+export const onPaginateBackwardDone = messagesDomain.event<void>()
+export const onPaginateForwardDone = messagesDomain.event<void>()
+export const paginateForward = messagesDomain.event<PaginateParams>()
+export const paginateBackward = messagesDomain.event<PaginateParams>()
+
+export const $paginateForwardPending = messagesDomain.store(false)
+export const $paginateBackwardPending = messagesDomain.store(false)
+export const $canPaginateBackward = messagesDomain.store(true)
+export const $canPaginateForward = messagesDomain.store(true)
 
 export const sendMessageFx = messagesDomain
     .effect<SendMessagePayload, ISendEventResponse, Error>()

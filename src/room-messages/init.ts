@@ -1,10 +1,11 @@
 import {
     attach,
+    combine,
     forward,
     guard,
     sample
 } from "effector"
-import {
+import matrix, {
     Direction,
     EventStatus,
     IContent,
@@ -18,14 +19,19 @@ import {
 import {
     $currentRoomId,
     $isLive,
-    $timelineWindow
+    $loadFilter,
+    $loadRoomFxPending,
+    $timelineWindow,
+    loadRoom
 } from "@/room"
-import { paginateForwardFx } from "@/room-pagination/private"
 import { Message } from "@/types"
 import { getMessages } from "@/utils"
 import {
     setMessages,
-    updateMessagesFx
+    updateMessagesFx,
+    paginateBackwardFx,
+    paginateForwardFx,
+    paginateRoomFx
 } from "./private"
 import {
     $messages,
@@ -39,6 +45,14 @@ import {
     sendMessageFx,
     uploadContentFx,
     updateMessages,
+    $canPaginateBackward,
+    $canPaginateForward,
+    $paginateBackwardPending,
+    $paginateForwardPending,
+    onPaginateBackwardDone,
+    onPaginateForwardDone,
+    paginateBackward,
+    paginateForward
 } from "./public"
 import {
     DeleteMessageResult,
@@ -48,6 +62,7 @@ import {
     ClientNotInitialized,
     EventNotFound,
     RoomNotFound,
+    TimelineWindowUndefined,
     UserNotLoggedIn
 } from "@/errors"
 
@@ -66,6 +81,57 @@ $messages
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
     .reset($currentRoomId)
+
+
+const $paginateFilter = combine(
+    $loadFilter,
+    $paginateBackwardPending,
+    $paginateForwardPending,
+    $loadRoomFxPending,
+    (
+        canLoad,
+        backwardPaginationPending,
+        forwardPaginationPending,
+        roomLoading,
+    ) => canLoad
+          && !backwardPaginationPending
+          && !forwardPaginationPending
+          && !roomLoading
+)
+    
+$paginateBackwardPending
+    .on(paginateBackwardFx.pending, (_, value) => value)
+    .reset($currentRoomId)
+$paginateForwardPending
+    .on(paginateForwardFx.pending, (_, value) => value)
+    .reset($currentRoomId)
+$canPaginateBackward
+    .on(setMessages, (_, { canPaginateBackward }) => canPaginateBackward)
+    .reset([loadRoom, $currentRoomId])
+$canPaginateForward
+    .on(setMessages, (_, { canPaginateForward }) => canPaginateForward)
+    .reset([loadRoom, $currentRoomId])
+    
+forward({
+    from: paginateBackwardFx.done,
+    to: onPaginateBackwardDone,
+})
+    
+forward({
+    from: paginateForwardFx.done,
+    to: onPaginateForwardDone,
+})
+    
+guard({
+    source: paginateBackward,
+    filter: $paginateFilter,
+    target: paginateBackwardFx
+})
+guard({
+    source: paginateForward,
+    filter: $paginateFilter,
+    target: paginateForwardFx
+})
 
 forward({
     from: sample(
@@ -132,7 +198,7 @@ readAllMessagesFx.use(async ({ roomId, eventId }) => {
     if (!rrEvent) throw new EventNotFound()
     // Kludge - typings fix
 
-     await client()
+    await client()
         .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: undefined })
 })
 uploadContentFx.use(({
@@ -215,3 +281,27 @@ updateMessagesFx.use(({ timelineWindow }) => {
         canPaginateBackward: timelineWindow.canPaginate(Direction.Backward)
     }
 })
+    
+paginateRoomFx.use(async ({
+    timelineWindow,
+    direction,
+    size,
+    makeRequest,
+    requestLimit,
+}) => {
+    if (!timelineWindow) throw new TimelineWindowUndefined()
+    const dir = direction === "forward" ?
+        matrix.EventTimeline.FORWARDS :
+        matrix.EventTimeline.BACKWARDS
+    await timelineWindow
+        .paginate(dir, size, makeRequest, requestLimit)
+    const canPaginateForward = timelineWindow.canPaginate(Direction.Forward)
+    const messages = getMessages(timelineWindow)
+    return {
+        messages,
+        isLive: !canPaginateForward,
+        canPaginateForward: canPaginateForward,
+        canPaginateBackward: timelineWindow.canPaginate(Direction.Backward)
+    }
+})
+

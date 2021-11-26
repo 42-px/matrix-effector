@@ -3,6 +3,20 @@ import {
 } from "matrix-js-sdk"
 import { MessageContent } from "@/types"
 
+export interface PaginateRoomFxParams {
+  roomId: string
+  timelineWindow: TimelineWindow
+  direction: "forward" | "backward"
+  size: number
+  makeRequest?: boolean
+  requestLimit?: number
+}
+
+export type PaginateParams = {
+  size: number
+  makeRequest?: boolean
+  requestLimit?: number
+}
 
 export interface DeleteMessageResult {
     eventId: string
