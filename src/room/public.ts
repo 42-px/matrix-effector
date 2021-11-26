@@ -4,7 +4,7 @@ import {
     User,
     RoomMember
 } from "matrix-js-sdk"
-import {combine} from "effector"
+import { combine } from "effector"
 import {
     MappedRoom,
     MappedUser,
@@ -23,7 +23,9 @@ import {
     InviteUserParams, 
     KickUserParams, 
     RenameRoomParams,
-    CreateDirectRoomParams
+    CreateDirectRoomParams,
+    LoadRoomFxParams,
+    MessageResponse
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -127,3 +129,5 @@ export const joinRoomFx = roomDomain
     .effect<{roomId: string; isDirect?: boolean}, RoomWithActivity, Error>()
 export const leaveRoomFx = roomDomain
     .effect<string, void, Error>()
+export const loadRoomFx = roomDomain
+    .effect<LoadRoomFxParams, MessageResponse, Error>()

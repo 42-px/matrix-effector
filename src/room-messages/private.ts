@@ -1,10 +1,10 @@
 import { TimelineWindow } from "matrix-js-sdk"
 import { attach } from "effector"
 import { guard, sample } from "effector"
-import { loadRoomFx } from "@/room/private"
 import {
     $currentRoomId,
     $timelineWindow,
+    loadRoomFx,
     MessageResponse
 } from "@/room"
 import {

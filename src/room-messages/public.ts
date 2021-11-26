@@ -9,15 +9,11 @@ import {
     UploadContentParams,
     UploadProgress,
     UrlPreview,
-    PaginateParams
-} from "./types"
-import {
-    messagesDomain
-} from "./domain"
-import {
+    PaginateParams,
     DeleteMessageResult,
     UploadContentResult
 } from "./types"
+import { messagesDomain } from "./domain"
 import { Message } from "@/types"
 
 export const $messages = messagesDomain.store<Message[]>([])

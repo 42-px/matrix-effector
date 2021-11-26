@@ -32,9 +32,7 @@ import {
     onRoomMemberUpdate,
     onRoomUserUpdate
 } from "@/room"
-import {
-    MatrixLoginPayload
-} from "@/types"
+import { MatrixLoginPayload} from "@/types"
 import {
     AuthData,
     StateEventsContent

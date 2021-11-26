@@ -1,6 +1,4 @@
-import {
-    TimelineWindow
-} from "matrix-js-sdk"
+import { TimelineWindow } from "matrix-js-sdk"
 import { MessageContent } from "@/types"
 
 export interface PaginateRoomFxParams {

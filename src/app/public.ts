@@ -7,10 +7,11 @@ import {
 import {
     LoginByPasswordParams,
     LoginByTokenParams,
-    StartClientParams
+    StartClientParams,
+    CreateClientParams, 
+    AuthData 
 } from "./types"
 import { appDomain } from "./domain"
-import { CreateClientParams, AuthData } from "./types"
 
 export const onInitialSync = appDomain.event<MappedRoom[]>()
 export const onCachedState = appDomain.event<MappedRoom[]>()

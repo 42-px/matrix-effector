@@ -34,11 +34,9 @@ import {
     UserNotFound
 } from "@/errors"
 import {
-    $loadFilter,
     getRoomByIdFx,
     getRoomMembersFx,
     initRoomFx,
-    loadRoomFx,
     updatePowerLevelFx,
     updateRequiredPowerLevelForRoomFx,
 } from "./private"
@@ -83,7 +81,9 @@ import {
     renameRoomFx,
     searchRoomMessagesFx,
     toLiveTimeline,
-    leaveRoomFx
+    leaveRoomFx,
+    $loadFilter,
+    loadRoomFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -364,36 +364,37 @@ getRoomsWithActivitiesFx.use((rooms) => {
 
 searchRoomMessagesFx
     .use(async ({ term, roomId, orderBy = SearchOrderBy.Rank }) => {
-    const room = client().getRoom(roomId)
-    if (!room) throw new RoomNotFound()
-    const membersCache: { [id: string]: RoomMember } = {}
-    const searchResponse = await client().search({
-        body: {
-            search_categories: {
-                room_events: {
-                    search_term: term,
-                    keys: ["content.body"],
-                    filter: {
-                        rooms: [roomId],
+        const room = client().getRoom(roomId)
+        if (!room) throw new RoomNotFound()
+        const membersCache: { [id: string]: RoomMember } = {}
+        const searchResponse = await client().search({
+            body: {
+                search_categories: {
+                    room_events: {
+                        search_term: term,
+                        keys: ["content.body"],
+                        filter: {
+                            rooms: [roomId],
+                        },
+                        order_by: orderBy,
                     },
-                    order_by: orderBy,
                 },
             },
-        },
-    })
-    return searchResponse
-        .search_categories
-        .room_events.results.map(({ result }) => {
-            // TODO: fix me
-            const event = new MatrixEvent(result)
-            const senderId = event.getSender()
-            if (membersCache[senderId] === undefined) {
-                membersCache[senderId] = room.getMember(senderId) as RoomMember
-            }
-            event.sender = membersCache[senderId]
-            return toMessage(event)
         })
-})
+        return searchResponse
+            .search_categories
+            .room_events.results.map(({ result }) => {
+            // TODO: fix me
+                const event = new MatrixEvent(result)
+                const senderId = event.getSender()
+                if (membersCache[senderId] === undefined) {
+                    membersCache[senderId] = room
+                        .getMember(senderId) as RoomMember
+                }
+                event.sender = membersCache[senderId]
+                return toMessage(event)
+            })
+    })
 
 getAllUsersFx.use(() => client().getUsers().map(toMappedUser))
 
