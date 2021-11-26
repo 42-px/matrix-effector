@@ -33,6 +33,7 @@ import {
     onRoomUserUpdate
 } from "@/room"
 import { MatrixLoginPayload} from "@/types"
+import { UserNotFound } from "@/errors"
 import {
     AuthData,
     StateEventsContent

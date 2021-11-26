@@ -233,17 +233,8 @@ export declare type MessageEvent = {
 export declare type Message = {
 	originalEventId: string;
 	content: MessageContent;
-<<<<<<< HEAD
-<<<<<<< HEAD
 	sender: RoomMember;
 	originServerTs: Date | null;
-=======
-	sender: string;
-=======
-	sender: RoomMember;
->>>>>>> d0011ae (fix sender)
-	originServerTs: Date;
->>>>>>> baa0096 (fix toMessage sender type)
 	edited: boolean;
 	redacted: boolean;
 };
@@ -530,9 +521,9 @@ export declare const joinRoomFx: import("effector").Effect<{
 	roomId: string;
 	isDirect?: boolean | undefined;
 }, RoomWithActivity, Error>;
-<<<<<<< HEAD
 export declare const leaveRoomFx: import("effector").Effect<string, void, Error>;
 export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
+export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
@@ -546,9 +537,6 @@ export declare type PaginateParams = {
 	makeRequest?: boolean;
 	requestLimit?: number;
 };
-=======
-export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
->>>>>>> ecb576c (refactoring checkIsdirect)
 export interface DeleteMessageResult {
 	eventId: string;
 }

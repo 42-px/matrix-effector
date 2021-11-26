@@ -83,12 +83,14 @@ import {
     leaveRoomFx,
     $loadFilter,
     loadRoomFx,
-    getRoomByIdFx
+    getRoomByIdFx,
+    findDirectRoomByUserIdFx
 } from "./public"
 import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
+import { DIRECT_EVENT } from "@/constants"
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
@@ -482,19 +484,16 @@ getRoomByIdFx.use((roomId) => {
     return toRoomWithActivity(toMappedRoom(matrixRoom))
 })
 
-<<<<<<< HEAD
 leaveRoomFx.use( async (roomId) => {
     await client().leave(roomId)
-=======
+})
+
 findDirectRoomByUserIdFx.use((userId) => {
     const cl = client()
-    const directRooms = (cl.getAccountData(
-        DIRECT_EVENT) as any
-    )?.getContent()
+    const directRooms = cl.getAccountData(DIRECT_EVENT)?.getContent()
     const roomId = directRooms[userId] && directRooms[userId][0]
     if(!roomId) throw new RoomNotFound()
     const room = cl.getRoom(roomId)
     if(!room) throw new RoomNotFound()
     return toMappedRoom(room)
->>>>>>> b139ee8 (add findDirectRoomByUserIdFx and fix setDirectRoom)
 })
