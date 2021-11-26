@@ -1,3 +1,4 @@
+import { ISendEventResponse } from "matrix-js-sdk"
 import {
     CheckEventPermissionsParams,
     DeleteMessagePayload,
@@ -7,22 +8,34 @@ import {
     SendMessagePayload,
     UploadContentParams,
     UploadProgress,
-    UrlPreview
+    UrlPreview,
+    PaginateParams,
+    DeleteMessageResult,
+    UploadContentResult
 } from "./types"
 import { messagesDomain } from "./domain"
-import { DeleteMessageResult, UploadContentResult } from "./types"
 import { Message } from "@/types"
 
 export const $messages = messagesDomain.store<Message[]>([])
 
+export const updateMessages = messagesDomain.event<void>()
 export const roomMessage = messagesDomain.event<Message>()
 export const newMessagesLoaded = messagesDomain.event<Message[]>()
 export const onUploadProgress = messagesDomain.event<UploadProgress>()
+export const onPaginateBackwardDone = messagesDomain.event<void>()
+export const onPaginateForwardDone = messagesDomain.event<void>()
+export const paginateForward = messagesDomain.event<PaginateParams>()
+export const paginateBackward = messagesDomain.event<PaginateParams>()
+
+export const $paginateForwardPending = messagesDomain.store(false)
+export const $paginateBackwardPending = messagesDomain.store(false)
+export const $canPaginateBackward = messagesDomain.store(true)
+export const $canPaginateForward = messagesDomain.store(true)
 
 export const sendMessageFx = messagesDomain
-    .effect<SendMessagePayload, void, Error>()
+    .effect<SendMessagePayload, ISendEventResponse, Error>()
 export const editMessageFx = messagesDomain
-    .effect<EditMessagePayload, void, Error>()
+    .effect<EditMessagePayload, ISendEventResponse, Error>()
 export const deleteMessageFx = messagesDomain
     .effect<DeleteMessagePayload, DeleteMessageResult, Error>()
 export const readAllMessagesFx = messagesDomain

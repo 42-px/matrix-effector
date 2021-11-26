@@ -1,14 +1,13 @@
 import {
-    CreateClientOption,
+    ICreateClientOpts,
     MatrixEvent,
-    MembershipType,
     Room,
     RoomMember,
     RoomSummary,
+    SearchOrderBy,
     User,
 } from "matrix-js-sdk"
 import { MessageContent } from "./content"
-
 export * from "./content"
 
 export type MappedUser = Pick<User,
@@ -29,13 +28,13 @@ export interface EventPayload {
 export interface SearchRoomMessagesPayload {
     roomId: string
     term: string
-    orderBy?: "recent" | "rank"
+    orderBy?: SearchOrderBy
 }
 
 export type MessageEvent = {
     eventId: string
     content: MessageContent
-    originServerTs: Date
+    originServerTs: Date | null
     roomId: string
     sender: RoomMember
     type: string
@@ -48,17 +47,26 @@ export type Message = {
     originalEventId: string
     content: MessageContent
     sender: RoomMember
-    originServerTs: Date
+    originServerTs: Date | null
     edited: boolean
     redacted: boolean
+}
+
+export enum MatrixMembershipType {
+    leave = "leave",
+    invite = "invite",
+    ban = "ban",
+    join = "join",
+    knock = "knock",
 }
 
 export type MappedRoom = {
     roomId: string
     name: string
     summary: RoomSummary
-    myMembership: MembershipType | null
+    myMembership: MatrixMembershipType | null
 }
+
 export interface RoomWithActivity extends MappedRoom {
     unreadCount: number
     lastMessage?: Message
@@ -100,7 +108,14 @@ export type MxcUrlToHttpParams = {
     allowDirectLinks?: boolean
 }
 
-export type createClientOptions = {
-    options: CreateClientOption
+export type CreateClientOptions = {
+    options: ICreateClientOpts
     messageBatchInterval?: number
+}
+
+export type MatrixLoginPayload = {
+    user_id: string
+    device_id: string
+    access_token: string
+    well_known?: string
 }

@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "strict": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "module": "es2015",
@@ -11,9 +12,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "matrix-js-sdk": [
-        "node_modules/@types/matrix-js-sdk/index.d.ts"
       ]
     }
   },
@@ -21,6 +19,6 @@
     "src/**/*"
   ],
   "exclude": [
-    "node_modules"
-  ],
+    "node_modules/**/*"
+  ]
 }

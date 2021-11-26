@@ -1,5 +1,10 @@
-import { TimelineWindow, Room } from "matrix-js-sdk"
-import {combine} from "effector"
+import {
+    TimelineWindow,
+    Room,
+    User,
+    RoomMember
+} from "matrix-js-sdk"
+import { combine } from "effector"
 import {
     MappedRoom,
     MappedUser,
@@ -18,7 +23,9 @@ import {
     InviteUserParams, 
     KickUserParams, 
     RenameRoomParams,
-    CreateDirectRoomParams
+    CreateDirectRoomParams,
+    LoadRoomFxParams,
+    MessageResponse
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -83,6 +90,15 @@ export const $canSetDefaultState = combine(
     (m, r) => m >= r
 )
 
+export const $loadFilter = combine(
+    $currentRoomId,
+    $timelineWindow,
+    (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
+)
+
+export const onRoomUserUpdate = roomDomain.event<User>()
+export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
+export const getRoomMembers = roomDomain.event<void>()
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()
 export const onRoomInitialized = roomDomain.event<void>()
@@ -111,3 +127,7 @@ export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
 export const joinRoomFx = roomDomain
     .effect<{roomId: string; isDirect?: boolean}, RoomWithActivity, Error>()
+export const leaveRoomFx = roomDomain
+    .effect<string, void, Error>()
+export const loadRoomFx = roomDomain
+    .effect<LoadRoomFxParams, MessageResponse, Error>()
