@@ -1,6 +1,4 @@
-import {
-    TimelineWindow
-} from "matrix-js-sdk"
+import { TimelineWindow } from "matrix-js-sdk"
 import { 
     DIRECT_EVENT, 
     ROOM_MESSAGE_EVENT, 
@@ -32,12 +30,12 @@ export const getSenderAvatarUrl = ({
 }: GetSenderAvatarParams): string | null => (
     sender && sender.getAvatarUrl
         ? sender.getAvatarUrl(
-        client().getHomeserverUrl(),
-        width,
-        height,
-        resizeMethod,
-        allowDefault,
-        allowDirectLinks
+            client().getHomeserverUrl(),
+            width,
+            height,
+            resizeMethod,
+            allowDefault,
+            allowDirectLinks
         )
         : null
 )

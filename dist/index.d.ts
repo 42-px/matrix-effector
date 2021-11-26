@@ -488,6 +488,7 @@ export declare const $canBan: import("effector").Store<boolean>;
 export declare const $canSendDefaultEvent: import("effector").Store<boolean>;
 export declare const $canRedact: import("effector").Store<boolean>;
 export declare const $canSetDefaultState: import("effector").Store<boolean>;
+export declare const $loadFilter: import("effector").Store<boolean>;
 export declare const onRoomUserUpdate: import("effector").Event<User>;
 export declare const onRoomMemberUpdate: import("effector").Event<RoomMember>;
 export declare const getRoomMembers: import("effector").Event<void>;
@@ -519,6 +520,20 @@ export declare const joinRoomFx: import("effector").Effect<{
 	isDirect?: boolean | undefined;
 }, RoomWithActivity, Error>;
 export declare const leaveRoomFx: import("effector").Effect<string, void, Error>;
+export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
+export interface PaginateRoomFxParams {
+	roomId: string;
+	timelineWindow: TimelineWindow;
+	direction: "forward" | "backward";
+	size: number;
+	makeRequest?: boolean;
+	requestLimit?: number;
+}
+export declare type PaginateParams = {
+	size: number;
+	makeRequest?: boolean;
+	requestLimit?: number;
+};
 export interface DeleteMessageResult {
 	eventId: string;
 }
@@ -586,6 +601,14 @@ export declare const updateMessages: import("effector").Event<void>;
 export declare const roomMessage: import("effector").Event<Message>;
 export declare const newMessagesLoaded: import("effector").Event<Message[]>;
 export declare const onUploadProgress: import("effector").Event<UploadProgress>;
+export declare const onPaginateBackwardDone: import("effector").Event<void>;
+export declare const onPaginateForwardDone: import("effector").Event<void>;
+export declare const paginateForward: import("effector").Event<PaginateParams>;
+export declare const paginateBackward: import("effector").Event<PaginateParams>;
+export declare const $paginateForwardPending: import("effector").Store<boolean>;
+export declare const $paginateBackwardPending: import("effector").Store<boolean>;
+export declare const $canPaginateBackward: import("effector").Store<boolean>;
+export declare const $canPaginateForward: import("effector").Store<boolean>;
 export declare const sendMessageFx: import("effector").Effect<SendMessagePayload, ISendEventResponse, Error>;
 export declare const editMessageFx: import("effector").Effect<EditMessagePayload, ISendEventResponse, Error>;
 export declare const deleteMessageFx: import("effector").Effect<DeleteMessagePayload, DeleteMessageResult, Error>;
@@ -597,27 +620,6 @@ export declare const getUrlPreviewFx: import("effector").Effect<{
 	ts: number;
 	timeout?: number | undefined;
 }, UrlPreview, Error>;
-export interface PaginateRoomFxParams {
-	roomId: string;
-	timelineWindow: TimelineWindow;
-	direction: "forward" | "backward";
-	size: number;
-	makeRequest?: boolean;
-	requestLimit?: number;
-}
-export declare type PaginateParams = {
-	size: number;
-	makeRequest?: boolean;
-	requestLimit?: number;
-};
-export declare const $paginateForwardPending: import("effector").Store<boolean>;
-export declare const $paginateBackwardPending: import("effector").Store<boolean>;
-export declare const $canPaginateBackward: import("effector").Store<boolean>;
-export declare const $canPaginateForward: import("effector").Store<boolean>;
-export declare const onPaginateBackwardDone: import("effector").Event<void>;
-export declare const onPaginateForwardDone: import("effector").Event<void>;
-export declare const paginateForward: import("effector").Event<PaginateParams>;
-export declare const paginateBackward: import("effector").Event<PaginateParams>;
 export declare const createClient: ({ options, messageBatchInterval: ms }: CreateClientOptions) => void;
 export declare const client: () => MatrixClient;
 export declare const onClientEvent: (callbacks: EventListener[]) => void;

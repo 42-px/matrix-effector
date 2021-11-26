@@ -1,6 +1,6 @@
 /* notification pushrules types */
 
-import { PushRuleKind } from "matrix-js-sdk";
+import { PushRuleKind } from "matrix-js-sdk"
 
 export type NotificationOverrideRuleId =
     ".m.rule.master" |

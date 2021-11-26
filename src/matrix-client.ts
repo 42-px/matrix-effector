@@ -1,10 +1,6 @@
-import {
-    batchEvents
-} from "@42px/effector-extra"
+import { batchEvents } from "@42px/effector-extra"
 import matrix, { MatrixClient } from "matrix-js-sdk"
-import {
-    roomMessage
-} from "./room-messages"
+import { roomMessage } from "./room-messages"
 import {
     CreateClientOptions,
     EventListener
