@@ -620,11 +620,11 @@ export declare const getUrlPreviewFx: import("effector").Effect<{
 	ts: number;
 	timeout?: number | undefined;
 }, UrlPreview, Error>;
+export declare const destroyClient: () => void;
 export declare const createClient: ({ options, messageBatchInterval: ms }: CreateClientOptions) => void;
 export declare const client: () => MatrixClient;
 export declare const onClientEvent: (callbacks: EventListener[]) => void;
 export declare const createRoomMessageBatch: () => import("effector").Event<Message[]>;
-export declare const destroyClient: () => void;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;
