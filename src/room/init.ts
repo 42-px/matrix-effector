@@ -24,16 +24,8 @@ import {
 } from "@/mappers"
 import { client } from "@/matrix-client"
 import {
-    getMessages,
-    setDirectRoom
-} from "@/utils"
-import {
-    ClientNotInitialized,
-    RoomNotFound,
-    TimelineWindowUndefined,
-    UserNotFound
-} from "@/errors"
-import {
+    getRoomByIdFx,
+    getRoomMembers,
     getRoomMembersFx,
     initRoomFx,
     updatePowerLevelFx,
@@ -84,7 +76,10 @@ import {
     $loadFilter,
     loadRoomFx,
     getRoomByIdFx,
-    findDirectRoomByUserIdFx
+    findDirectRoomByUserIdFx,
+    $typingMembers,
+    clearTypingMember,
+    toggleTypingUser
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -104,6 +99,38 @@ const getRoomMembersDebounced = debounce({
 const getCurrentRoomFx = attach({
     effect: getRoomByIdFx
 })
+$typingMembers
+    .on(toggleTypingUser, (members, member) => {
+        if(member.typing) {
+            if (members[member.roomId]) {
+                return {
+                    ...members,
+                    [member.roomId]: [...members[member.roomId], member] 
+                }
+            } 
+            return {
+                ...members,
+                [member.roomId]: [member] 
+            }
+        } 
+        else if (members[member.roomId]) {
+            if (members[member.roomId].length > 1) {
+                return {
+                    ...members,
+                    [member.roomId]: [
+                        ...members[member.roomId]
+                            .filter(
+                                ({userId}) => userId !== member.userId),
+                        member] 
+                }
+            }
+            delete members[member.roomId]
+            return {
+                ...members, 
+            }
+        }
+    })
+    .reset(clearTypingMember)
 
 $currentRoomId
     .on(initRoom, (_, { roomId }) => roomId)

@@ -30,9 +30,10 @@ import {
     directRoomCreated,
     roomCreated,
     onRoomMemberUpdate,
-    onRoomUserUpdate
+    onRoomUserUpdate,
+    toggleTypingUser
 } from "@/room"
-import { MatrixLoginPayload} from "@/types"
+import { MatrixLoginPayload } from "@/types"
 import { UserNotFound } from "@/errors"
 import {
     AuthData,
@@ -138,7 +139,7 @@ onClientEvent([
     ],
     [
         "RoomMember.typing",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => toggleTypingUser(member)
     ],
     [
         "User.avatarUrl",

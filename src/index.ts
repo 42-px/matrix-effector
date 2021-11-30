@@ -15,5 +15,4 @@ export {
     getUploadCredentials,
     mxcUrlToHttp,
 } from "./utils"
-
 import "./init"
