@@ -101,7 +101,7 @@ const getRoomMembersDebounced = debounce({
     timeout: 500
 })
 
-const setRoomByIdFx = attach({
+const getCurrentRoomFx = attach({
     effect: getRoomByIdFx
 })
 
@@ -109,7 +109,7 @@ $currentRoomId
     .on(initRoom, (_, { roomId }) => roomId)
     .reset(clearCurrentRoomState)
 $currentRoom
-    .on(setRoomByIdFx.doneData, (_, room) => room)
+    .on(getCurrentRoomFx.doneData, (_, room) => room)
     .reset(clearCurrentRoomState)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
@@ -178,7 +178,7 @@ forward({
 guard({
     clock: $currentRoomId,
     filter: Boolean,
-    target: setRoomByIdFx,
+    target: getCurrentRoomFx,
 })    
 
 guard({
