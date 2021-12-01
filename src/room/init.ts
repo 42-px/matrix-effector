@@ -34,7 +34,6 @@ import {
     UserNotFound
 } from "@/errors"
 import {
-    getRoomByIdFx,
     getRoomMembersFx,
     initRoomFx,
     updatePowerLevelFx,
@@ -84,12 +83,14 @@ import {
     leaveRoomFx,
     $loadFilter,
     loadRoomFx,
+    getRoomByIdFx,
+    findDirectRoomByUserIdFx
 } from "./public"
 import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
-
+import { DIRECT_EVENT } from "@/constants"
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
@@ -100,11 +101,15 @@ const getRoomMembersDebounced = debounce({
     timeout: 500
 })
 
+const getCurrentRoomFx = attach({
+    effect: getRoomByIdFx
+})
+
 $currentRoomId
     .on(initRoom, (_, { roomId }) => roomId)
     .reset(clearCurrentRoomState)
 $currentRoom
-    .on(getRoomByIdFx.doneData, (_, room) => room)
+    .on(getCurrentRoomFx.doneData, (_, room) => room)
     .reset(clearCurrentRoomState)
 $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
@@ -173,7 +178,7 @@ forward({
 guard({
     clock: $currentRoomId,
     filter: Boolean,
-    target: getRoomByIdFx,
+    target: getCurrentRoomFx,
 })    
 
 guard({
@@ -447,7 +452,7 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
         }
     }
     const { room_id } = await cl.createRoom(options as any)
-    await setDirectRoom(room_id)
+    await setDirectRoom(room_id, user.userId)
 
     return { roomId: room_id }
 })
@@ -481,4 +486,14 @@ getRoomByIdFx.use((roomId) => {
 
 leaveRoomFx.use( async (roomId) => {
     await client().leave(roomId)
+})
+
+findDirectRoomByUserIdFx.use((userId) => {
+    const cl = client()
+    const directRooms = cl.getAccountData(DIRECT_EVENT)?.getContent()
+    const roomId = directRooms[userId] && directRooms[userId][0]
+    if(!roomId) throw new RoomNotFound()
+    const room = cl.getRoom(roomId)
+    if(!room) throw new RoomNotFound()
+    return toMappedRoom(room)
 })
