@@ -86,12 +86,14 @@ import {
     toggleTypingUser,
     getRoomByIdFx,
     getRoomMembers,
+    sendTypingFx
 } from "./public"
 import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
 
+const TYPING_SERVER_TIMEOUT = 5000
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
@@ -126,8 +128,7 @@ $typingMembers
                     [member.roomId]: [
                         ...members[member.roomId]
                             .filter(
-                                ({userId}) => userId !== member.userId),
-                        member] 
+                                ({userId}) => userId !== member.userId)] 
                 }
             }
             delete members[member.roomId]
@@ -529,4 +530,8 @@ findDirectRoomByUserIdFx.use((userId) => {
     const room = cl.getRoom(roomId)
     if(!room) throw new RoomNotFound()
     return toMappedRoom(room)
+})
+
+sendTypingFx.use(async ({ roomId, isTyping }) => {
+    await client().sendTyping(roomId, isTyping, TYPING_SERVER_TIMEOUT)
 })

@@ -462,6 +462,10 @@ export declare type RoomPowerLevels = {
 	redact: number;
 	stateDefault: number;
 };
+export declare type SendTypingParams = {
+	roomId: string;
+	isTyping: boolean;
+};
 export declare const DEFAULT_INVITE_POWERLEVEL = 50;
 export declare const DEFAULT_BAN_POWERLEVEL = 50;
 export declare const DEFAULT_KICK_POWERLEVEL = 50;
@@ -529,6 +533,7 @@ export declare const joinRoomFx: import("effector").Effect<{
 export declare const leaveRoomFx: import("effector").Effect<string, void, Error>;
 export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
 export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
+export declare const sendTypingFx: import("effector").Effect<SendTypingParams, void, Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
