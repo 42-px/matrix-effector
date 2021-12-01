@@ -23,9 +23,15 @@ import {
     toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
+import { DIRECT_EVENT } from "@/constants"
+import { 
+    ClientNotInitialized,
+    RoomNotFound, 
+    TimelineWindowUndefined,
+    UserNotFound 
+} from "@/errors"
+import { getMessages, setDirectRoom } from "@/utils"
 import {
-    getRoomByIdFx,
-    getRoomMembers,
     getRoomMembersFx,
     initRoomFx,
     updatePowerLevelFx,
@@ -34,7 +40,6 @@ import {
 import {
     onRoomMemberUpdate,
     onRoomUserUpdate,
-    getRoomMembers,
     $currentRoom,
     $currentRoomId,
     $currentRoomMembers,
@@ -75,17 +80,18 @@ import {
     leaveRoomFx,
     $loadFilter,
     loadRoomFx,
-    getRoomByIdFx,
     findDirectRoomByUserIdFx,
     $typingMembers,
     clearTypingMember,
-    toggleTypingUser
+    toggleTypingUser,
+    getRoomByIdFx,
+    getRoomMembers,
 } from "./public"
 import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
-import { DIRECT_EVENT } from "@/constants"
+
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })

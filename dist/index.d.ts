@@ -493,11 +493,8 @@ export declare const $canSendDefaultEvent: import("effector").Store<boolean>;
 export declare const $canRedact: import("effector").Store<boolean>;
 export declare const $canSetDefaultState: import("effector").Store<boolean>;
 export declare const $loadFilter: import("effector").Store<boolean>;
-<<<<<<< HEAD
-=======
 export declare const clearTypingMember: import("effector").Event<void>;
 export declare const toggleTypingUser: import("effector").Event<RoomMember>;
->>>>>>> 467cf52 (add typing store)
 export declare const onRoomUserUpdate: import("effector").Event<User>;
 export declare const onRoomMemberUpdate: import("effector").Event<RoomMember>;
 export declare const getRoomMembers: import("effector").Event<void>;
@@ -636,11 +633,6 @@ export declare const createClient: ({ options, messageBatchInterval: ms }: Creat
 export declare const client: () => MatrixClient;
 export declare const onClientEvent: (callbacks: EventListener[]) => void;
 export declare const createRoomMessageBatch: () => import("effector").Event<Message[]>;
-<<<<<<< HEAD
-=======
-export declare const destroyClient: () => void;
-export declare const root: import("effector").Domain;
->>>>>>> 467cf52 (add typing store)
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;
