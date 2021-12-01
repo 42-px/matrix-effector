@@ -121,14 +121,13 @@ $typingMembers
                 [member.roomId]: [member] 
             }
         } 
-        else if (members[member.roomId]) {
+        if (members[member.roomId]) {
             if (members[member.roomId].length > 1) {
+                const filteredUsers = members[member.roomId]
+                    .filter(({userId}) => userId !== member.userId)
                 return {
                     ...members,
-                    [member.roomId]: [
-                        ...members[member.roomId]
-                            .filter(
-                                ({userId}) => userId !== member.userId)] 
+                    [member.roomId]: [...filteredUsers] 
                 }
             }
             delete members[member.roomId]
