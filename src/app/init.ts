@@ -30,9 +30,9 @@ import {
     directRoomCreated,
     roomCreated,
     onRoomMemberUpdate,
-    onRoomUserUpdate
+    onRoomUserUpdate,
+    toggleTypingUser
 } from "@/room"
-import { MatrixLoginPayload} from "@/types"
 import { UserNotFound } from "@/errors"
 import {
     AuthData,
@@ -138,7 +138,7 @@ onClientEvent([
     ],
     [
         "RoomMember.typing",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => toggleTypingUser(member)
     ],
     [
         "User.avatarUrl",
@@ -170,7 +170,7 @@ loginByTokenFx.use(async (params): Promise<AuthData> => {
         access_token,
         device_id,
         well_known
-    }: MatrixLoginPayload = await response.json()
+    } = await response.json()
     return { 
         userId: user_id, 
         accessToken: access_token,

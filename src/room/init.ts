@@ -23,16 +23,14 @@ import {
     toRoomWithActivity
 } from "@/mappers"
 import { client } from "@/matrix-client"
-import {
-    getMessages,
-    setDirectRoom
-} from "@/utils"
-import {
+import { DIRECT_EVENT } from "@/constants"
+import { 
     ClientNotInitialized,
-    RoomNotFound,
+    RoomNotFound, 
     TimelineWindowUndefined,
-    UserNotFound
+    UserNotFound 
 } from "@/errors"
+import { getMessages, setDirectRoom } from "@/utils"
 import {
     getRoomMembersFx,
     initRoomFx,
@@ -42,7 +40,6 @@ import {
 import {
     onRoomMemberUpdate,
     onRoomUserUpdate,
-    getRoomMembers,
     $currentRoom,
     $currentRoomId,
     $currentRoomMembers,
@@ -83,14 +80,20 @@ import {
     leaveRoomFx,
     $loadFilter,
     loadRoomFx,
+    findDirectRoomByUserIdFx,
+    $typingMembers,
+    clearTypingMember,
+    toggleTypingUser,
     getRoomByIdFx,
-    findDirectRoomByUserIdFx
+    getRoomMembers,
+    sendTypingFx
 } from "./public"
 import {
     LoadRoomFxParams,
     Visibility
 } from "./types"
-import { DIRECT_EVENT } from "@/constants"
+
+const TYPING_SERVER_TIMEOUT = 5000
 
 const toLiveTimelineFx = attach({ effect: loadRoomFx })
 const loadRoomMessageFx = attach({ effect: loadRoomFx })
@@ -104,6 +107,36 @@ const getRoomMembersDebounced = debounce({
 const getCurrentRoomFx = attach({
     effect: getRoomByIdFx
 })
+$typingMembers
+    .on(toggleTypingUser, (members, member) => {
+        if(member.typing) {
+            if (members[member.roomId]) {
+                return {
+                    ...members,
+                    [member.roomId]: [...members[member.roomId], member] 
+                }
+            } 
+            return {
+                ...members,
+                [member.roomId]: [member] 
+            }
+        } 
+        if (members[member.roomId]) {
+            if (members[member.roomId].length > 1) {
+                const filteredUsers = members[member.roomId]
+                    .filter(({userId}) => userId !== member.userId)
+                return {
+                    ...members,
+                    [member.roomId]: [...filteredUsers] 
+                }
+            }
+            delete members[member.roomId]
+            return {
+                ...members, 
+            }
+        }
+    })
+    .reset(clearTypingMember)
 
 $currentRoomId
     .on(initRoom, (_, { roomId }) => roomId)
@@ -496,4 +529,8 @@ findDirectRoomByUserIdFx.use((userId) => {
     const room = cl.getRoom(roomId)
     if(!room) throw new RoomNotFound()
     return toMappedRoom(room)
+})
+
+sendTypingFx.use(async ({ roomId, isTyping }) => {
+    await client().sendTyping(roomId, isTyping, TYPING_SERVER_TIMEOUT)
 })

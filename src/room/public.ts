@@ -1,10 +1,10 @@
 import {
     TimelineWindow,
     Room,
-    User,
-    RoomMember
+    RoomMember,
+    User
 } from "matrix-js-sdk"
-import { combine } from "effector"
+import {combine} from "effector"
 import {
     MappedRoom,
     MappedUser,
@@ -25,7 +25,8 @@ import {
     RenameRoomParams,
     CreateDirectRoomParams,
     LoadRoomFxParams,
-    MessageResponse
+    MessageResponse,
+    SendTypingParams
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -45,6 +46,9 @@ export const $currentRoom = roomDomain.store<RoomWithActivity | null>(null)
 export const clearCurrentRoomState = roomDomain.event()
 export const $timelineWindow = roomDomain.store<TimelineWindow | null>(null)
 export const $myPowerLevel = roomDomain.store<number>(0)
+
+export const $typingMembers = roomDomain
+    .store<{[key in string]: RoomMember[]}>({})
 
 export const $requiredPowerLevelForKick = roomDomain
     .store<number>(DEFAULT_KICK_POWERLEVEL)
@@ -96,6 +100,8 @@ export const $loadFilter = combine(
     (roomId, timelineWindow) => Boolean(roomId) && Boolean(timelineWindow)
 )
 
+export const clearTypingMember = roomDomain.event<void>()
+export const toggleTypingUser = roomDomain.event<RoomMember>()
 export const onRoomUserUpdate = roomDomain.event<User>()
 export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
 export const getRoomMembers = roomDomain.event<void>()
@@ -135,3 +141,5 @@ export const loadRoomFx = roomDomain
     .effect<LoadRoomFxParams, MessageResponse, Error>()
 export const getRoomByIdFx = roomDomain
     .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()
+export const sendTypingFx = roomDomain
+    .effect<SendTypingParams, void, Error>()

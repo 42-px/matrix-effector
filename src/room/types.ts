@@ -100,3 +100,8 @@ export type RoomPowerLevels = {
     redact: number
     stateDefault: number
 }
+
+export type SendTypingParams = {
+    roomId: string
+    isTyping: boolean
+  }

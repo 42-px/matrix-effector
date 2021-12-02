@@ -462,6 +462,10 @@ export declare type RoomPowerLevels = {
 	redact: number;
 	stateDefault: number;
 };
+export declare type SendTypingParams = {
+	roomId: string;
+	isTyping: boolean;
+};
 export declare const DEFAULT_INVITE_POWERLEVEL = 50;
 export declare const DEFAULT_BAN_POWERLEVEL = 50;
 export declare const DEFAULT_KICK_POWERLEVEL = 50;
@@ -476,6 +480,9 @@ export declare const $currentRoom: import("effector").Store<RoomWithActivity | n
 export declare const clearCurrentRoomState: import("effector").Event<void>;
 export declare const $timelineWindow: import("effector").Store<TimelineWindow | null>;
 export declare const $myPowerLevel: import("effector").Store<number>;
+export declare const $typingMembers: import("effector").Store<{
+	[x: string]: RoomMember[];
+}>;
 export declare const $requiredPowerLevelForKick: import("effector").Store<number>;
 export declare const $requiredPowerLevelForInvite: import("effector").Store<number>;
 export declare const $requiredPowerLevelForBan: import("effector").Store<number>;
@@ -490,6 +497,8 @@ export declare const $canSendDefaultEvent: import("effector").Store<boolean>;
 export declare const $canRedact: import("effector").Store<boolean>;
 export declare const $canSetDefaultState: import("effector").Store<boolean>;
 export declare const $loadFilter: import("effector").Store<boolean>;
+export declare const clearTypingMember: import("effector").Event<void>;
+export declare const toggleTypingUser: import("effector").Event<RoomMember>;
 export declare const onRoomUserUpdate: import("effector").Event<User>;
 export declare const onRoomMemberUpdate: import("effector").Event<RoomMember>;
 export declare const getRoomMembers: import("effector").Event<void>;
@@ -524,6 +533,7 @@ export declare const joinRoomFx: import("effector").Effect<{
 export declare const leaveRoomFx: import("effector").Effect<string, void, Error>;
 export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
 export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
+export declare const sendTypingFx: import("effector").Effect<SendTypingParams, void, Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
