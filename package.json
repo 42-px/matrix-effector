@@ -1,6 +1,6 @@
 {
   "name": "@42px/matrix-effector",
-  "version": "4.2.9",
+  "version": "4.2.10",
   "description": "",
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
@@ -59,12 +59,11 @@
     "@42px/effector-extra": "^1.1.1",
     "@babel/runtime": "^7.12.13",
     "effector": "^21.7.5",
-    "patronum": "^1.1.0",
-    "matrix-js-sdk": "github:42-px/matrix-js-sdk#42px-export-types"
+    "matrix-js-sdk": "github:42-px/matrix-js-sdk#fix-package-json-with-build",
+    "patronum": "^1.1.0"
   },
   "files": [
     "dist"
   ],
-  "types": "./dist/index.d.ts",
-  "dependencies": {}
+  "types": "./dist/index.d.ts"
 }
