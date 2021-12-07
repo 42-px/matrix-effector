@@ -12,6 +12,7 @@ import matrix, {
     MatrixEvent,
     TimelineWindow
 } from "matrix-js-sdk"
+import { debounce } from "patronum"
 import {
     client,
     createRoomMessageBatch
@@ -65,6 +66,11 @@ import {
     TimelineWindowUndefined,
     UserNotLoggedIn
 } from "@/errors"
+
+export const debounceReadSelfMessage = debounce({
+    source: sendMessageFx.done,
+    timeout: 500,
+})
 
 const roomMessageBatch = createRoomMessageBatch()
 
@@ -157,6 +163,15 @@ guard({
     ),
     filter: $timelineWindow.map(timelineWindow => Boolean(timelineWindow)),
     target: updateMessagesFx,
+})
+
+sample({
+    clock: debounceReadSelfMessage,
+    fn: ({ params, result }) => ({
+        roomId: params.roomId,
+        eventId: result.event_id
+    }),
+    target: readAllMessagesFx
 })
 
 sendMessageFx.use( async ({
