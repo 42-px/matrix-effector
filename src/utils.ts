@@ -1,23 +1,59 @@
 import { TimelineWindow } from "matrix-js-sdk"
+import { client } from "./matrix-client"
+import { RoomNotFound } from "./errors"
 import { 
     DIRECT_EVENT, 
     ROOM_MESSAGE_EVENT, 
     ROOM_REDACTION_EVENT 
 } from "./constants"
-import { mergeMessageEvents } from "./mappers"
-import { client } from "./matrix-client"
+import {
+    checkIsReadMyMessage,
+    mergeMessageEvents
+} from "./mappers"
 import {
     GetRoomMemberAvatarParams,
     GetSenderAvatarParams,
-    MxcUrlToHttpParams
+    MxcUrlToHttpParams,
+    Message,
 } from "./types"
 
-export function getMessages(timelineWindow: TimelineWindow) {
-    return timelineWindow
-        .getEvents()
-        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-            .includes(event.getType()))
+export function getMessages(timelineWindow: TimelineWindow): Message[] {
+    const messages = timelineWindow.getEvents()
+        .filter((event) => (
+            [
+                ROOM_MESSAGE_EVENT,
+                ROOM_REDACTION_EVENT
+            ].includes(event.getType())))
         .reduce(mergeMessageEvents, [])
+    const cl = client()
+    const roomId = timelineWindow.getEvents()[0].getRoomId()
+    const room = cl.getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const lastReadEvent = room.getAccountData("m.fully.read")?.getContent()
+    const myMessages = []
+    const otherMessages = []
+    const myUserId = cl.getUserId()
+    let findFirstReadOtherMessage = false
+
+    for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].sender.userId === myUserId) {
+            myMessages.push(messages[i])
+        } else {
+            otherMessages.push(messages[i])
+        }
+    }
+    myMessages.forEach((message) => {
+        if (findFirstReadOtherMessage) {
+            message.isRead = true
+        } else {
+            message.isRead = checkIsReadMyMessage(message, myUserId, room)
+            findFirstReadOtherMessage = message.isRead
+        }
+    })
+    otherMessages.forEach((message) => {
+        message.isRead = message.originalEventId === lastReadEvent?.event_id
+    })
+    return messages
 }
 
 export const getSenderAvatarUrl = ({

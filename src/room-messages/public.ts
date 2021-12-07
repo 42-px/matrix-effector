@@ -1,4 +1,5 @@
 import { ISendEventResponse } from "matrix-js-sdk"
+import { throttle } from "patronum"
 import {
     CheckEventPermissionsParams,
     DeleteMessagePayload,
@@ -26,6 +27,10 @@ export const onPaginateBackwardDone = messagesDomain.event<void>()
 export const onPaginateForwardDone = messagesDomain.event<void>()
 export const paginateForward = messagesDomain.event<PaginateParams>()
 export const paginateBackward = messagesDomain.event<PaginateParams>()
+export const throttleUpdateMessage = throttle({
+    source: updateMessages,
+    timeout: 800
+})
 
 export const $paginateForwardPending = messagesDomain.store(false)
 export const $paginateBackwardPending = messagesDomain.store(false)

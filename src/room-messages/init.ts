@@ -44,7 +44,7 @@ import {
     readAllMessagesFx,
     sendMessageFx,
     uploadContentFx,
-    updateMessages,
+    throttleUpdateMessage,
     $canPaginateBackward,
     $canPaginateForward,
     $paginateBackwardPending,
@@ -149,7 +149,7 @@ forward({
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
-        updateMessages,
+        throttleUpdateMessage,
         ([roomId, timelineWindow]) => ({
             timelineWindow: timelineWindow as TimelineWindow,
             roomId: roomId as string
@@ -199,7 +199,7 @@ readAllMessagesFx.use(async ({ roomId, eventId }) => {
     // Kludge - typings fix
 
     await client()
-        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: undefined })
+        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: false })
 })
 uploadContentFx.use(({
     file,

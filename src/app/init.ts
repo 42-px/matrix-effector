@@ -112,6 +112,7 @@ onClientEvent([
         }
         if (state === "SYNCING" && prevState === "SYNCING") {
             const rooms = getMappedRooms()
+            updateMessages()
             onSync(rooms)
             return
         }

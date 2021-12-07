@@ -23,6 +23,16 @@ import {
     MatrixMembershipType
 } from "./types"
 
+export const checkIsReadMyMessage = (
+    message: Message,
+    myUserId: string,
+    room: Room
+): boolean  => room.getJoinedMembers().some((member) => {
+    if (member.userId === myUserId) return false
+    return room
+        .hasUserReadEvent(member.userId, message.originalEventId)
+})
+
 
 const getMappedContent = (event: MatrixEvent) => (
     event.getContent<MessageContent>()
@@ -155,9 +165,23 @@ export function toRoomWithActivity(
     const mergedMessageEvents = events
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
-        .reduce(mergeMessageEvents, [])
-    const lastMessage = mergedMessageEvents.length ?
-        mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
+
+    const lastEvent = mergedMessageEvents[mergedMessageEvents.length - 1]
+    const lastMessage = lastEvent ? toMessage(lastEvent) : undefined
+
+    if (lastMessage) {
+        const myUserId = cl.getUserId()
+        if (lastMessage.sender.userId !== myUserId) {
+            lastMessage.isRead = matrixRoom
+                .hasUserReadEvent(myUserId, lastMessage.originalEventId) 
+        } else {
+            lastMessage.isRead = checkIsReadMyMessage(
+                lastMessage,
+                myUserId,
+                matrixRoom
+            )
+        }
+    }
     const DMUser = isDirect
         ? matrixRoom.getMember(matrixRoom.guessDMUserId())
         : null
