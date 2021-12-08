@@ -328,7 +328,7 @@ export declare const createOnSyncThrottled: (ms: number) => import("effector").E
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, MatrixLoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, AuthData, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
-export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk/lib").IStartClientOpts, void, Error>;
+export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk").IStartClientOpts, void, Error>;
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
@@ -443,7 +443,7 @@ export interface InitialState {
 }
 export declare type InviteUserParams = {
 	roomId: string;
-	userId: string;
+	usersIds: string[];
 };
 export declare type KickUserParams = {
 	roomId: string;
@@ -490,6 +490,7 @@ export declare const $requiredPowerLevelForDefaultEvents: import("effector").Sto
 export declare const $requiredPowerLevelForRedact: import("effector").Store<number>;
 export declare const $requiredPowerLevelForDefaultState: import("effector").Store<number>;
 export declare const $currentJoinedRoomMembers: import("effector").Store<MappedRoomMember[]>;
+export declare const $currentRoomInvitedMembers: import("effector").Store<MappedRoomMember[]>;
 export declare const $canKick: import("effector").Store<boolean>;
 export declare const $canInvite: import("effector").Store<boolean>;
 export declare const $canBan: import("effector").Store<boolean>;
@@ -523,7 +524,7 @@ export declare const createRoomFx: import("effector").Effect<CreateRoomParams, {
 export declare const createDirectRoomFx: import("effector").Effect<CreateDirectRoomParams, {
 	roomId: string;
 }, Error>;
-export declare const inviteUserFx: import("effector").Effect<InviteUserParams, void, Error>;
+export declare const inviteUsersFx: import("effector").Effect<InviteUserParams, void, Error>;
 export declare const kickUserRoomFx: import("effector").Effect<KickUserParams, void, Error>;
 export declare const renameRoomFx: import("effector").Effect<RenameRoomParams, void, Error>;
 export declare const joinRoomFx: import("effector").Effect<{
@@ -534,6 +535,7 @@ export declare const leaveRoomFx: import("effector").Effect<string, void, Error>
 export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, MessageResponse, Error>;
 export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
 export declare const sendTypingFx: import("effector").Effect<SendTypingParams, void, Error>;
+export declare const getMembersByRoomIdFx: import("effector").Effect<string, MappedRoomMember[], Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
