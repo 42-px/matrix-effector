@@ -50,7 +50,7 @@ export type Message = {
     originServerTs: Date | null
     edited: boolean
     redacted: boolean
-    isRead?: boolean
+    seen?: boolean
 }
 
 export enum MatrixMembershipType {

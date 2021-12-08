@@ -237,7 +237,7 @@ export declare type Message = {
 	originServerTs: Date | null;
 	edited: boolean;
 	redacted: boolean;
-	isRead?: boolean;
+	seen?: boolean;
 };
 export declare enum MatrixMembershipType {
 	leave = "leave",
@@ -619,7 +619,6 @@ export declare const onPaginateBackwardDone: import("effector").Event<void>;
 export declare const onPaginateForwardDone: import("effector").Event<void>;
 export declare const paginateForward: import("effector").Event<PaginateParams>;
 export declare const paginateBackward: import("effector").Event<PaginateParams>;
-export declare const throttleUpdateMessage: import("effector").Event<void>;
 export declare const $paginateForwardPending: import("effector").Store<boolean>;
 export declare const $paginateBackwardPending: import("effector").Store<boolean>;
 export declare const $canPaginateBackward: import("effector").Store<boolean>;

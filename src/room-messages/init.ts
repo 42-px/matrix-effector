@@ -12,7 +12,10 @@ import matrix, {
     MatrixEvent,
     TimelineWindow
 } from "matrix-js-sdk"
-import { debounce } from "patronum"
+import {
+    debounce,
+    throttle
+} from "patronum"
 import {
     client,
     createRoomMessageBatch
@@ -45,7 +48,6 @@ import {
     readAllMessagesFx,
     sendMessageFx,
     uploadContentFx,
-    throttleUpdateMessage,
     $canPaginateBackward,
     $canPaginateForward,
     $paginateBackwardPending,
@@ -53,7 +55,8 @@ import {
     onPaginateBackwardDone,
     onPaginateForwardDone,
     paginateBackward,
-    paginateForward
+    paginateForward,
+    updateMessages
 } from "./public"
 import {
     DeleteMessageResult,
@@ -67,10 +70,8 @@ import {
     UserNotLoggedIn
 } from "@/errors"
 
-export const debounceReadSelfMessage = debounce({
-    source: sendMessageFx.done,
-    timeout: 500,
-})
+const THROTTLE_MESSAGE_TIMEOUT = 800
+const DEBOUNCE_READ_MESSAGE_TIMEOUT = 500
 
 const roomMessageBatch = createRoomMessageBatch()
 
@@ -152,10 +153,14 @@ forward({
     from: roomMessageBatch.map((messages) => ({ messages })),
     to: loadNewMessagesFx,
 })
+
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
-        throttleUpdateMessage,
+        throttle({
+            source: updateMessages,
+            timeout: THROTTLE_MESSAGE_TIMEOUT
+        }),
         ([roomId, timelineWindow]) => ({
             timelineWindow: timelineWindow as TimelineWindow,
             roomId: roomId as string
@@ -166,7 +171,10 @@ guard({
 })
 
 sample({
-    clock: debounceReadSelfMessage,
+    clock: debounce({
+        source: sendMessageFx.done,
+        timeout: DEBOUNCE_READ_MESSAGE_TIMEOUT,
+    }),
     fn: ({ params, result }) => ({
         roomId: params.roomId,
         eventId: result.event_id

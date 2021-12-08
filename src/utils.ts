@@ -7,8 +7,8 @@ import {
     ROOM_REDACTION_EVENT 
 } from "./constants"
 import {
-    checkIsReadMyMessage,
-    mergeMessageEvents
+    mergeMessageEvents,
+    toMessageSeen
 } from "./mappers"
 import {
     GetRoomMemberAvatarParams,
@@ -29,12 +29,11 @@ export function getMessages(timelineWindow: TimelineWindow): Message[] {
     const roomId = timelineWindow.getEvents()[0].getRoomId()
     const room = cl.getRoom(roomId)
     if (!room) throw new RoomNotFound()
-    const lastReadEvent = room.getAccountData("m.fully.read")?.getContent()
     const myMessages = []
     const otherMessages = []
     const myUserId = cl.getUserId()
-    let findFirstReadOtherMessage = false
-
+    let findFirstSeenOtherMessage = false
+    let findFirstSeenMyMessage = false
     for (let i = messages.length - 1; i >= 0; i--) {
         if (messages[i].sender.userId === myUserId) {
             myMessages.push(messages[i])
@@ -43,15 +42,21 @@ export function getMessages(timelineWindow: TimelineWindow): Message[] {
         }
     }
     myMessages.forEach((message) => {
-        if (findFirstReadOtherMessage) {
-            message.isRead = true
+        if (findFirstSeenMyMessage) {
+            message.seen = true
         } else {
-            message.isRead = checkIsReadMyMessage(message, myUserId, room)
-            findFirstReadOtherMessage = message.isRead
+            message = toMessageSeen(message, myUserId, room)
+            findFirstSeenMyMessage = Boolean(message.seen)
         }
     })
     otherMessages.forEach((message) => {
-        message.isRead = message.originalEventId === lastReadEvent?.event_id
+        if (findFirstSeenOtherMessage) {
+            message.seen = true
+        } else {
+            message.seen = room
+                .hasUserReadEvent(myUserId, message.originalEventId)
+            findFirstSeenOtherMessage = message.seen
+        }
     })
     return messages
 }
