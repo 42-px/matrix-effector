@@ -68,6 +68,12 @@ export const $currentJoinedRoomMembers = $currentRoomMembers
         (members) => members?.filter(
             (member) => member.membership === "join") ?? []
     )
+export const $currentRoomInvitedMembers = $currentRoomMembers
+    .map(
+        (members) => members?.filter(
+            (member) => member.membership === "invite"
+        ) ?? []
+    )
 
 export const $canKick = combine(
     $myPowerLevel, $requiredPowerLevelForKick,
@@ -130,7 +136,7 @@ export const createRoomFx = roomDomain
     .effect<CreateRoomParams, { roomId: string }, Error>()
 export const createDirectRoomFx = roomDomain
     .effect<CreateDirectRoomParams, { roomId: string }, Error>()
-export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
+export const inviteUsersFx = roomDomain.effect<InviteUserParams, void, Error>()
 export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
 export const joinRoomFx = roomDomain
@@ -143,3 +149,5 @@ export const getRoomByIdFx = roomDomain
     .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()
 export const sendTypingFx = roomDomain
     .effect<SendTypingParams, void, Error>()
+export const getMembersByRoomIdFx = roomDomain
+    .effect<string, MappedRoomMember[], Error>()

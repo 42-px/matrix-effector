@@ -25,6 +25,7 @@ import {
 import { client } from "@/matrix-client"
 import { DIRECT_EVENT } from "@/constants"
 import { 
+    CantInviteUsers,
     ClientNotInitialized,
     RoomNotFound, 
     TimelineWindowUndefined,
@@ -32,7 +33,6 @@ import {
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
 import {
-    getRoomMembersFx,
     initRoomFx,
     updatePowerLevelFx,
     updateRequiredPowerLevelForRoomFx,
@@ -65,7 +65,7 @@ import {
     getRoomInfoFx,
     getRoomsWithActivitiesFx,
     initRoom,
-    inviteUserFx,
+    inviteUsersFx,
     joinRoomFx,
     kickUserRoomFx,
     liveTimelineLoaded,
@@ -86,7 +86,8 @@ import {
     toggleTypingUser,
     getRoomByIdFx,
     getRoomMembers,
-    sendTypingFx
+    sendTypingFx,
+    getMembersByRoomIdFx
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -102,6 +103,10 @@ const loadInitialRoomFx = attach({ effect: loadRoomFx })
 const getRoomMembersDebounced = debounce({
     source: getRoomMembers,
     timeout: 500
+})
+
+const getCurrentRoomMembersFx = attach({
+    effect: getMembersByRoomIdFx
 })
 
 const getCurrentRoomFx = attach({
@@ -148,7 +153,7 @@ $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
     .reset($currentRoomId)
 $currentRoomMembers
-    .on(getRoomMembersFx.doneData, (_, value) => value)
+    .on(getCurrentRoomMembersFx.doneData, (_, value) => value)
     .reset($currentRoomId)
 $myPowerLevel
     .on(updatePowerLevelFx.doneData, (_, powerLevel) => powerLevel)
@@ -238,7 +243,7 @@ guard({
     source: $currentRoomId,
     clock: getRoomMembersDebounced,
     filter: Boolean,
-    target: getRoomMembersFx
+    target: getCurrentRoomMembersFx
 })
 guard({
     source: sample(
@@ -335,10 +340,10 @@ updateRequiredPowerLevelForRoomFx.use((roomId) => {
     }
 })
 
-getRoomMembersFx.use((roomId) => {
+getMembersByRoomIdFx.use((roomId) => {
     const room = client().getRoom(roomId)
     if (!room) throw new RoomNotFound()
-    return Object.values(room.currentState.members)
+    return room.getMembers()
         .map((member) => {
             const user = client().getUser(member.userId)
             if (!user) throw new UserNotFound()
@@ -490,8 +495,16 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
     return { roomId: room_id }
 })
 
-inviteUserFx.use( async ({userId, roomId}) => {
-    await client().invite(roomId, userId)
+inviteUsersFx.use( async ({usersIds, roomId}) => {
+    const isDirect = client().getRoom(roomId).currentState
+        .getStateEvents(
+            "m.room.create",
+            ""
+        )?.getContent()?.isDirect
+    if (isDirect) throw new CantInviteUsers()
+    for (const id of usersIds) {
+        await client().invite(roomId, id)
+    }
 })
 
 kickUserRoomFx.use( async ({ roomId, userId, reason }) => {

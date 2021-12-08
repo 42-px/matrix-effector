@@ -78,7 +78,7 @@ export interface InitialState {
 
 export type InviteUserParams = {
     roomId: string
-    userId: string
+    usersIds: string[]
 }
 
 export type KickUserParams = {
