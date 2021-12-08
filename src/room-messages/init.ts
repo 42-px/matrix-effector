@@ -13,6 +13,10 @@ import matrix, {
     TimelineWindow
 } from "matrix-js-sdk"
 import {
+    debounce,
+    throttle
+} from "patronum"
+import {
     client,
     createRoomMessageBatch
 } from "@/matrix-client"
@@ -44,7 +48,6 @@ import {
     readAllMessagesFx,
     sendMessageFx,
     uploadContentFx,
-    updateMessages,
     $canPaginateBackward,
     $canPaginateForward,
     $paginateBackwardPending,
@@ -52,7 +55,8 @@ import {
     onPaginateBackwardDone,
     onPaginateForwardDone,
     paginateBackward,
-    paginateForward
+    paginateForward,
+    updateMessages
 } from "./public"
 import {
     DeleteMessageResult,
@@ -65,6 +69,9 @@ import {
     TimelineWindowUndefined,
     UserNotLoggedIn
 } from "@/errors"
+
+const THROTTLE_MESSAGE_TIME = 800
+const DEBOUNCE_READ_MESSAGE_TIME = 500
 
 const roomMessageBatch = createRoomMessageBatch()
 
@@ -146,10 +153,14 @@ forward({
     from: roomMessageBatch.map((messages) => ({ messages })),
     to: loadNewMessagesFx,
 })
+
 guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
-        updateMessages,
+        throttle({
+            source: updateMessages,
+            timeout: THROTTLE_MESSAGE_TIME
+        }),
         ([roomId, timelineWindow]) => ({
             timelineWindow: timelineWindow as TimelineWindow,
             roomId: roomId as string
@@ -157,6 +168,18 @@ guard({
     ),
     filter: $timelineWindow.map(timelineWindow => Boolean(timelineWindow)),
     target: updateMessagesFx,
+})
+
+sample({
+    clock: debounce({
+        source: sendMessageFx.done,
+        timeout: DEBOUNCE_READ_MESSAGE_TIME,
+    }),
+    fn: ({ params, result }) => ({
+        roomId: params.roomId,
+        eventId: result.event_id
+    }),
+    target: readAllMessagesFx
 })
 
 sendMessageFx.use( async ({
@@ -199,7 +222,7 @@ readAllMessagesFx.use(async ({ roomId, eventId }) => {
     // Kludge - typings fix
 
     await client()
-        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: undefined })
+        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: false })
 })
 uploadContentFx.use(({
     file,

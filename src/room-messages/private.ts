@@ -1,6 +1,5 @@
 import { TimelineWindow } from "matrix-js-sdk"
-import { attach } from "effector"
-import { guard, sample } from "effector"
+import { attach, guard, sample} from "effector"
 import {
     $currentRoomId,
     $timelineWindow,

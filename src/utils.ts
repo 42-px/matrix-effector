@@ -1,23 +1,64 @@
 import { TimelineWindow } from "matrix-js-sdk"
+import { client } from "./matrix-client"
+import { RoomNotFound } from "./errors"
 import { 
     DIRECT_EVENT, 
     ROOM_MESSAGE_EVENT, 
     ROOM_REDACTION_EVENT 
 } from "./constants"
-import { mergeMessageEvents } from "./mappers"
-import { client } from "./matrix-client"
+import {
+    mergeMessageEvents,
+    toMessageSeen
+} from "./mappers"
 import {
     GetRoomMemberAvatarParams,
     GetSenderAvatarParams,
-    MxcUrlToHttpParams
+    MxcUrlToHttpParams,
+    Message,
 } from "./types"
 
-export function getMessages(timelineWindow: TimelineWindow) {
-    return timelineWindow
-        .getEvents()
-        .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
-            .includes(event.getType()))
+export function getMessages(timelineWindow: TimelineWindow): Message[] {
+    const messages = timelineWindow.getEvents()
+        .filter((event) => (
+            [
+                ROOM_MESSAGE_EVENT,
+                ROOM_REDACTION_EVENT
+            ].includes(event.getType())))
         .reduce(mergeMessageEvents, [])
+    const cl = client()
+    const roomId = timelineWindow.getEvents()[0].getRoomId()
+    const room = cl.getRoom(roomId)
+    if (!room) throw new RoomNotFound()
+    const myMessages = []
+    const otherMessages = []
+    const myUserId = cl.getUserId()
+    let findFirstSeenOtherMessage = false
+    let findFirstSeenMyMessage = false
+    for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].sender.userId === myUserId) {
+            myMessages.push(messages[i])
+        } else {
+            otherMessages.push(messages[i])
+        }
+    }
+    myMessages.forEach((message) => {
+        if (findFirstSeenMyMessage) {
+            message.seen = true
+        } else {
+            message = toMessageSeen(message, myUserId, room)
+            findFirstSeenMyMessage = Boolean(message.seen)
+        }
+    })
+    otherMessages.forEach((message) => {
+        if (findFirstSeenOtherMessage) {
+            message.seen = true
+        } else {
+            message.seen = room
+                .hasUserReadEvent(myUserId, message.originalEventId)
+            findFirstSeenOtherMessage = message.seen
+        }
+    })
+    return messages
 }
 
 export const getSenderAvatarUrl = ({

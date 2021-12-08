@@ -23,12 +23,24 @@ import {
     MatrixMembershipType
 } from "./types"
 
+export const toMessageSeen = (
+    message: Message,
+    myUserId: string,
+    room: Room
+): Message => {
+    message.seen = room.getJoinedMembers().some((member) => {
+        if (member.userId === myUserId) return false
+        return room
+            .hasUserReadEvent(member.userId, message.originalEventId)
+    })
+    return message
+}
 
 const getMappedContent = (event: MatrixEvent) => (
     event.getContent<MessageContent>()
 )
 
-export const getIsDirectRoomsIds = ():string[] => {
+export const getIsDirectRoomsIds = (): string[] => {
     const cl = client()
     const directRooms = cl.getAccountData(DIRECT_EVENT).getContent()
     return directRooms && Object.values(directRooms).flatMap((room) => room)
@@ -155,9 +167,23 @@ export function toRoomWithActivity(
     const mergedMessageEvents = events
         .filter((event) => [ROOM_MESSAGE_EVENT, ROOM_REDACTION_EVENT]
             .includes(event.getType()))
-        .reduce(mergeMessageEvents, [])
-    const lastMessage = mergedMessageEvents.length ?
-        mergedMessageEvents[mergedMessageEvents.length - 1] : undefined
+
+    const lastEvent = mergedMessageEvents[mergedMessageEvents.length - 1]
+    let lastMessage = lastEvent ? toMessage(lastEvent) : undefined
+
+    if (lastMessage) {
+        const myUserId = cl.getUserId()
+        if (lastMessage.sender.userId !== myUserId) {
+            lastMessage.seen = matrixRoom
+                .hasUserReadEvent(myUserId, lastMessage.originalEventId) 
+        } else {
+            lastMessage = toMessageSeen(
+                lastMessage,
+                myUserId,
+                matrixRoom
+            )
+        }
+    }
     const DMUser = isDirect
         ? matrixRoom.getMember(matrixRoom.guessDMUserId())
         : null
