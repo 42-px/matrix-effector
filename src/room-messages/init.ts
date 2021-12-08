@@ -70,8 +70,8 @@ import {
     UserNotLoggedIn
 } from "@/errors"
 
-const THROTTLE_MESSAGE_TIMEOUT = 800
-const DEBOUNCE_READ_MESSAGE_TIMEOUT = 500
+const THROTTLE_MESSAGE_TIME = 800
+const DEBOUNCE_READ_MESSAGE_TIME = 500
 
 const roomMessageBatch = createRoomMessageBatch()
 
@@ -159,7 +159,7 @@ guard({
         [$currentRoomId, $timelineWindow],
         throttle({
             source: updateMessages,
-            timeout: THROTTLE_MESSAGE_TIMEOUT
+            timeout: THROTTLE_MESSAGE_TIME
         }),
         ([roomId, timelineWindow]) => ({
             timelineWindow: timelineWindow as TimelineWindow,
@@ -173,7 +173,7 @@ guard({
 sample({
     clock: debounce({
         source: sendMessageFx.done,
-        timeout: DEBOUNCE_READ_MESSAGE_TIMEOUT,
+        timeout: DEBOUNCE_READ_MESSAGE_TIME,
     }),
     fn: ({ params, result }) => ({
         roomId: params.roomId,

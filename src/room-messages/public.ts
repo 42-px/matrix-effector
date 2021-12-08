@@ -1,5 +1,4 @@
 import { ISendEventResponse } from "matrix-js-sdk"
-import { throttle } from "patronum"
 import {
     CheckEventPermissionsParams,
     DeleteMessagePayload,
