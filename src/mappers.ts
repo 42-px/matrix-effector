@@ -11,6 +11,7 @@ import {
 } from "./constants"
 import { client } from "@/matrix-client"
 import { RoomNotFound } from "./errors"
+import { StateEventsContent } from "./app/types"
 import { MappedRoomMember } from "./room"
 import {
     Message,
@@ -148,11 +149,11 @@ export function toRoomWithActivity(
     const matrixRoom = cl.getRoom(room.roomId)
     if (!matrixRoom) throw new RoomNotFound()
     const events = matrixRoom.getLiveTimeline().getEvents()
-    const isDirect = matrixRoom.currentState
+    const isDirect = Boolean(matrixRoom.currentState
         .getStateEvents(
             "m.room.create",
             ""
-        )?.getContent()?.isDirect
+        )?.getContent<StateEventsContent>()?.isDirect)
     let unreadCount = 0
     for (let i = events.length - 1; i >= 0; i--) {
         if (i === events.length - maxHistory) break
