@@ -237,6 +237,7 @@ export declare type Message = {
 	originServerTs: Date | null;
 	edited: boolean;
 	redacted: boolean;
+	seen?: boolean;
 };
 export declare enum MatrixMembershipType {
 	leave = "leave",

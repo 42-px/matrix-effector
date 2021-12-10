@@ -87,10 +87,11 @@ onClientEvent([
         const user = room.getMember(cl.getUserId())
         if (user && user.membership !== "invite") return
 
-        const isDirect = room.currentState
+        const isDirect = Boolean(room.currentState
             .getStateEvents(
-                "m.room.create"
-            )[0]?.getContent<StateEventsContent>()?.isDirect
+                "m.room.create",
+                ""
+            )?.getContent<StateEventsContent>()?.isDirect)
                
         if (isDirect) {
             directRoomCreated(room)
@@ -112,6 +113,7 @@ onClientEvent([
         }
         if (state === "SYNCING" && prevState === "SYNCING") {
             const rooms = getMappedRooms()
+            updateMessages()
             onSync(rooms)
             return
         }
