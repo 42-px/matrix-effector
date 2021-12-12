@@ -233,4 +233,8 @@ const directRoomCreated = event<Room>()
 
 ### **createDirectRoomFx**
 
+```ts
+const createDirectRoomFx = effect<CreateDirectRoomParams, { roomId: string }, Error>()
+```
+
 > Creates a direct room with private visibility and set yur m.direct account data
