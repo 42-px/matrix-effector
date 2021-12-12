@@ -212,3 +212,25 @@ const onRoomLoaded = event<void>()
 
 > Event emmits when room initialized and messages loaded in $messages.
 
+### **roomCreated**
+
+```ts
+const roomCreated = event<Room>()
+```
+
+> Event emmits when you are invited to a new room.
+
+### **roomCreated**
+
+```ts
+const directRoomCreated = event<Room>()
+```
+
+> Event emmits when you are invited to a new direct room.
+
+
+## Effects 
+
+### **createDirectRoomFx**
+
+> Creates a direct room with private visibility and set yur m.direct account data
