@@ -330,6 +330,10 @@ export declare type RoomPowerLevelsContent = {
 	users_default: number;
 	events_default: number;
 };
+export declare enum UserRole {
+	admin = "Admin",
+	moderator = "Moderator"
+}
 export interface LoginByPasswordParams {
 	user: string;
 	password: string;
@@ -359,7 +363,7 @@ export declare const createOnSyncThrottled: (ms: number) => import("effector").E
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, MatrixLoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, AuthData, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
-export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk").IStartClientOpts, void, Error>;
+export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk/lib").IStartClientOpts, void, Error>;
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
@@ -430,6 +434,7 @@ export declare type LoadRoomFxParams = {
 };
 export declare type MappedRoomMember = Pick<RoomMember, "membership" | "name" | "powerLevel" | "powerLevelNorm" | "rawDisplayName" | "roomId" | "typing" | "userId"> & {
 	user: MappedUser;
+	role?: UserRole;
 };
 export declare type MessageResponse = {
 	messages: Message[];
@@ -680,8 +685,6 @@ export declare const getUploadCredentials: () => {
 		Authorization: string;
 	};
 };
-export declare const getRoleName: (user: MappedRoomMember) => string | void;
-export declare const getPresence: (presence: Presence) => string;
 export { Room, MatrixEvent, RoomMember, } from "matrix-js-sdk";
 
 export {};

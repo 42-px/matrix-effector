@@ -154,3 +154,8 @@ export type RoomPowerLevelsContent = {
     users_default: number
     events_default: number
 }
+
+export enum UserRole {
+    admin = "Admin",
+    moderator = "Moderator"
+}

@@ -160,16 +160,3 @@ export const setDirectRoom = async (
         [creator]: [...prevRoomsId, roomId]
     })
 }
-
-export const getRoleName = (user: MappedRoomMember): string | void => {
-    if (user.powerLevel === 100) return "Админ"
-    if (user.powerLevel === 50) return "Модератор"
-    if (user.membership === MatrixMembershipType.invite) return "Приглашен"
-}
-export  const getPresence = (presence: Presence): string => {
-    switch (presence) {
-        case Presence.online: return "в сети"
-        case Presence.offline: return "не в сети"
-        case Presence.unavailable: return "отошел"
-    }
-}

@@ -23,7 +23,8 @@ import {
     MappedUser,
     RoomWithActivity,
     MatrixMembershipType,
-    RoomPowerLevelsContent
+    RoomPowerLevelsContent,
+    UserRole
 } from "./types"
 
 export const toMessageSeen = (
@@ -130,6 +131,12 @@ export function toMappedRoomMember(
     roomMember: RoomMember,
     user: User
 ): MappedRoomMember {
+    let role = undefined
+    if (roomMember.powerLevel === 100) {
+        role = UserRole.admin
+    } else if (roomMember.powerLevel === 50) {
+        role = UserRole.moderator
+    }
     return {
         membership: roomMember.membership,
         name: roomMember.name,
@@ -140,6 +147,7 @@ export function toMappedRoomMember(
         typing: roomMember.typing,
         user: toMappedUser(user),
         userId: roomMember.userId,
+        role,
     }
 }
 

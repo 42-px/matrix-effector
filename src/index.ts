@@ -10,8 +10,6 @@ export * from "./room-messages"
 export * from "./types"
 export * from "./matrix-client"
 export {
-    getPresence,
-    getRoleName,
     getRoomMemberAvatarUrl,
     getSenderAvatarUrl,
     getUploadCredentials,

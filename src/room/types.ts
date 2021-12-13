@@ -4,7 +4,8 @@ import {
 } from "matrix-js-sdk"
 import {
     MappedUser,
-    Message
+    Message,
+    UserRole
 } from "@/types"
 
 export type InitRoomParams = {
@@ -28,6 +29,7 @@ export type MappedRoomMember = Pick<RoomMember,
   "userId"
 > & {
   user: MappedUser
+  role?: UserRole
 }
 export type MessageResponse = {
     messages: Message[]
