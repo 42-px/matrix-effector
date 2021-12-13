@@ -220,5 +220,8 @@ export function toRoomWithActivity(
         lastActivityTS: (matrixRoom as any).getLastActiveTimestamp(),
         powerlevels: powerLevelsContent,
         myPowerLevel,
+        canBan: myPowerLevel >= powerLevelsContent.ban,
+        canKick: myPowerLevel >= powerLevelsContent.kick,
+        canInvite: myPowerLevel >= powerLevelsContent.invite,
     }
 }

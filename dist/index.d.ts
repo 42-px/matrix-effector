@@ -266,6 +266,9 @@ export interface RoomWithActivity extends MappedRoom {
 	lastActivityTS: number;
 	powerlevels: RoomPowerLevelsContent;
 	myPowerLevel: number;
+	canKick: boolean;
+	canBan: boolean;
+	canInvite: boolean;
 }
 export declare type EventListener = [
 	string,
