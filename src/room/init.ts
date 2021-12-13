@@ -1,5 +1,6 @@
 import matrix, {
     Direction,
+    EventType,
     MatrixEvent,
     Room,
     RoomMember,
@@ -498,7 +499,7 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
 inviteUsersFx.use( async ({usersIds, roomId}) => {
     const isDirect = client().getRoom(roomId).currentState
         .getStateEvents(
-            "m.room.create",
+            EventType.RoomCreate,
             ""
         )?.getContent()?.isDirect
     if (isDirect) throw new CantInviteUsers()

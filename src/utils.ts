@@ -1,5 +1,6 @@
-import { TimelineWindow } from "matrix-js-sdk"
+import { EventType, TimelineWindow } from "matrix-js-sdk"
 import { client } from "./matrix-client"
+import { MappedRoomMember } from "./room/types"
 import { RoomNotFound } from "./errors"
 import { 
     DIRECT_EVENT, 
@@ -15,6 +16,8 @@ import {
     GetSenderAvatarParams,
     MxcUrlToHttpParams,
     Message,
+    MatrixMembershipType,
+    Presence,
 } from "./types"
 
 export function getMessages(timelineWindow: TimelineWindow): Message[] {
@@ -139,8 +142,9 @@ export const setDirectRoom = async (
     const cl = client()
     const { creator } = cl.getRoom(roomId).currentState
         .getStateEvents(
-            "m.room.create",
-        )[0].getContent()
+            EventType.RoomCreate,
+            ""
+        ).getContent()
     const prevData = cl.getAccountData(DIRECT_EVENT).getContent()
     const prevRoomsId = prevData[creator] ?? []
 
@@ -155,4 +159,17 @@ export const setDirectRoom = async (
         ...prevData,
         [creator]: [...prevRoomsId, roomId]
     })
+}
+
+export const getRoleName = (user: MappedRoomMember): string | void => {
+    if (user.powerLevel === 100) return "Админ"
+    if (user.powerLevel === 50) return "Модератор"
+    if (user.membership === MatrixMembershipType.invite) return "Приглашен"
+}
+export  const getPresence = (presence: Presence): string => {
+    switch (presence) {
+        case Presence.online: return "в сети"
+        case Presence.offline: return "не в сети"
+        case Presence.unavailable: return "отошел"
+    }
 }

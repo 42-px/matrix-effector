@@ -4,6 +4,7 @@ import {
     MatrixEvent,
     Room,
     RoomMember,
+    EventType,
 } from "matrix-js-sdk"
 import {
     toMappedRoom,
@@ -89,7 +90,7 @@ onClientEvent([
 
         const isDirect = Boolean(room.currentState
             .getStateEvents(
-                "m.room.create",
+                EventType.RoomCreate,
                 ""
             )?.getContent<StateEventsContent>()?.isDirect)
                
@@ -140,7 +141,10 @@ onClientEvent([
     ],
     [
         "RoomMember.typing",
-        (e, member: RoomMember) => toggleTypingUser(member)
+        (e, member: RoomMember) => {
+            onRoomMemberUpdate(member)
+            toggleTypingUser(member)
+        }
     ],
     [
         "User.avatarUrl",

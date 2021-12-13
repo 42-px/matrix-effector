@@ -8,6 +8,7 @@ import {combine} from "effector"
 import {
     MappedRoom,
     MappedUser,
+    MatrixMembershipType,
     Message,
     RoomInfo,
     RoomWithActivity,
@@ -66,12 +67,12 @@ export const $requiredPowerLevelForDefaultState = roomDomain
 export const $currentJoinedRoomMembers = $currentRoomMembers
     .map(
         (members) => members?.filter(
-            (member) => member.membership === "join") ?? []
+            (member) => member.membership === MatrixMembershipType.join) ?? []
     )
 export const $currentRoomInvitedMembers = $currentRoomMembers
     .map(
         (members) => members?.filter(
-            (member) => member.membership === "invite"
+            (member) => member.membership === MatrixMembershipType.invite
         ) ?? []
     )
 

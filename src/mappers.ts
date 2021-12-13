@@ -2,7 +2,8 @@ import {
     MatrixEvent,
     RoomMember,
     User,
-    Room
+    Room,
+    EventType
 } from "matrix-js-sdk"
 import {
     DIRECT_EVENT,
@@ -21,7 +22,8 @@ import {
     MessageContent,
     MappedUser,
     RoomWithActivity,
-    MatrixMembershipType
+    MatrixMembershipType,
+    RoomPowerLevelsContent
 } from "./types"
 
 export const toMessageSeen = (
@@ -149,11 +151,16 @@ export function toRoomWithActivity(
     const matrixRoom = cl.getRoom(room.roomId)
     if (!matrixRoom) throw new RoomNotFound()
     const events = matrixRoom.getLiveTimeline().getEvents()
+    const powerLevelsContent = matrixRoom.currentState
+        .getStateEvents(EventType.RoomPowerLevels, "")
+        .getContent<RoomPowerLevelsContent>()
+
     const isDirect = Boolean(matrixRoom.currentState
         .getStateEvents(
-            "m.room.create",
+            EventType.RoomCreate, 
             ""
         )?.getContent<StateEventsContent>()?.isDirect)
+
     let unreadCount = 0
     for (let i = events.length - 1; i >= 0; i--) {
         if (i === events.length - maxHistory) break
@@ -171,9 +178,9 @@ export function toRoomWithActivity(
 
     const lastEvent = mergedMessageEvents[mergedMessageEvents.length - 1]
     let lastMessage = lastEvent ? toMessage(lastEvent) : undefined
+    const myUserId = cl.getUserId()
 
     if (lastMessage) {
-        const myUserId = cl.getUserId()
         if (lastMessage.sender.userId !== myUserId) {
             lastMessage.seen = matrixRoom
                 .hasUserReadEvent(myUserId, lastMessage.originalEventId) 
@@ -189,6 +196,8 @@ export function toRoomWithActivity(
         ? matrixRoom.getMember(matrixRoom.guessDMUserId())
         : null
 
+    // Если у тебя нет прав в комнате, то тебя не будет в списке юзеров. 
+    const myPowerLevel = powerLevelsContent.users[myUserId] ?? 0
     return {
         ...room,
         unreadCount,
@@ -200,6 +209,8 @@ export function toRoomWithActivity(
         isOnline: DMUser
             ? Boolean(DMUser.user?.currentlyActive)
             : undefined,
-        lastActivityTS: (matrixRoom as any).getLastActiveTimestamp()
+        lastActivityTS: (matrixRoom as any).getLastActiveTimestamp(),
+        powerlevels: powerLevelsContent,
+        myPowerLevel,
     }
 }
