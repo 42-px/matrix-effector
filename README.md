@@ -201,8 +201,37 @@ const $messages = store<Message>()
 
 > Store provides access to messages in opened room
 
+### $currentRoomId 
+
+```ts
+const $currentRoomId = store<RoomWithActivity["roomId"] | null>(null)
+```
+> Store provides access to roomId in opened room
+
+### $currentRoom
+
+```ts
+const $currentRoom = store<RoomWithActivity | null>(null)
+```
+> Store provides access to opened room
+
+### $currentRoomMembers
+
+```ts
+const $currentRoomMembers = store<MappedRoomMember[] | null>(null)
+```
+
+> Store contains members of the selected room
 
 ## Events 
+
+### **onRoomMemberUpdate**
+
+```ts
+const onRoomMemberUpdate = event<RoomMember>()
+```
+
+> The event occurs when a new member is invited, the member enters the room, starts typing, changes his name, the member's power level changes.
 
 ### **onRoomLoaded**
 
@@ -220,7 +249,6 @@ const roomCreated = event<Room>()
 
 > Event emmits when you are invited to a new room.
 
-### **roomCreated**
 
 ```ts
 const directRoomCreated = event<Room>()
@@ -228,6 +256,7 @@ const directRoomCreated = event<Room>()
 
 > Event emmits when you are invited to a new direct room.
 
+> New rooms come in the matrix "Room" event.
 
 ## Effects 
 
