@@ -28,6 +28,7 @@ import { DIRECT_EVENT } from "@/constants"
 import { 
     CantInviteUsers,
     ClientNotInitialized,
+    NotEnoughPermissions,
     RoomNotFound, 
     TimelineWindowUndefined,
     UserNotFound 
@@ -504,7 +505,13 @@ inviteUsersFx.use( async ({usersIds, roomId}) => {
         )?.getContent()?.isDirect
     if (isDirect) throw new CantInviteUsers()
     for (const id of usersIds) {
-        await client().invite(roomId, id)
+        try {
+            await client().invite(roomId, id)
+        } catch (e: any) {
+            if (e.httpStatus === 403) {
+                throw new NotEnoughPermissions()
+            }
+        }
     }
 })
 
