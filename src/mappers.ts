@@ -223,5 +223,38 @@ export function toRoomWithActivity(
         canBan: myPowerLevel >= powerLevelsContent.ban,
         canKick: myPowerLevel >= powerLevelsContent.kick,
         canInvite: myPowerLevel >= powerLevelsContent.invite,
+        canRedact: myPowerLevel >= powerLevelsContent.redact,
+        canSendEvents: {
+            canChangeHistoryVisivility: (
+                myPowerLevel >= powerLevelsContent
+                    .events[EventType.RoomHistoryVisibility]
+            ),
+            canChangeRoomAvatar: (
+                myPowerLevel >= powerLevelsContent.events[EventType.RoomAvatar]
+            ),
+            canChangeRoomName: (
+                myPowerLevel >= powerLevelsContent.events[EventType.RoomName]
+            ),
+            canChangeRoomPowerLevels: (
+                myPowerLevel >= powerLevelsContent
+                    .events[EventType.RoomPowerLevels]
+            ),
+            canChangeCanonicalAlias: (
+                myPowerLevel >= powerLevelsContent
+                    .events[EventType.RoomCanonicalAlias]
+            ),
+            canChangeRoomEncryption: (
+                myPowerLevel >= powerLevelsContent
+                    .events[EventType.RoomEncryption]
+            ),
+            canChangeRoomServerAcl: (
+                myPowerLevel >= powerLevelsContent
+                    .events[EventType.RoomServerAcl]
+            ),
+            canChangeRoomTobstone: (
+                myPowerLevel >= powerLevelsContent
+                    .events[EventType.RoomTombstone]
+            )
+        }
     }
 }

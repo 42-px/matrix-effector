@@ -16,8 +16,6 @@ import {
     GetSenderAvatarParams,
     MxcUrlToHttpParams,
     Message,
-    MatrixMembershipType,
-    Presence,
 } from "./types"
 
 export function getMessages(timelineWindow: TimelineWindow): Message[] {

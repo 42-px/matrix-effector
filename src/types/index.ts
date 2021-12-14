@@ -87,6 +87,17 @@ export interface RoomWithActivity extends MappedRoom {
     canKick: boolean
     canBan: boolean
     canInvite: boolean
+    canSendEvents: {
+        canChangeRoomAvatar: boolean
+        canChangeHistoryVisivility: boolean
+        canChangeRoomName: boolean
+        canChangeRoomPowerLevels: boolean
+        canChangeCanonicalAlias: boolean
+        canChangeRoomEncryption: boolean
+        canChangeRoomTobstone: boolean
+        canChangeRoomServerAcl: boolean
+    }
+    canRedact: boolean
 }
 
 export type EventListener = [string, (...args: any[]) => void]
