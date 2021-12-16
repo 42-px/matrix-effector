@@ -7,6 +7,7 @@ export * from "./app"
 export * from "./notifications"
 export * from "./room"
 export * from "./room-messages"
+export * from "./profile"
 export * from "./types"
 export * from "./matrix-client"
 export {
