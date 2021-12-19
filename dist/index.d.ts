@@ -493,7 +493,7 @@ export interface InitialState {
 }
 export declare type InviteUserParams = {
 	roomId: string;
-	usersId: string;
+	userId: string;
 };
 export declare type InviteUsersParams = {
 	roomId: string;

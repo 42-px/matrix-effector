@@ -80,7 +80,7 @@ export interface InitialState {
 
 export type InviteUserParams = {
     roomId: string
-    usersId: string
+    userId: string
 }
 
 export type InviteUsersParams = {
