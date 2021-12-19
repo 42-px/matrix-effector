@@ -8,6 +8,6 @@ export const TimelineWindowUndefined =
 export const UserNotFound = createCustomError("UserNotFound")
 export const UserNotLoggedIn = createCustomError("UserNotLoggedIn")
 export const CantInviteUsers = 
-  createCustomError("Can't invite users into a direct room")
+  createCustomError("CantInviteUsers")
 export const NotEnoughPermissions = 
-  createCustomError("Not enough permissions to invite users")
+  createCustomError("NotEnoughPermissions")

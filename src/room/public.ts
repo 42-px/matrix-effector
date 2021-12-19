@@ -27,7 +27,8 @@ import {
     CreateDirectRoomParams,
     LoadRoomFxParams,
     MessageResponse,
-    SendTypingParams
+    SendTypingParams,
+    InviteUsersParams
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -137,7 +138,8 @@ export const createRoomFx = roomDomain
     .effect<CreateRoomParams, { roomId: string }, Error>()
 export const createDirectRoomFx = roomDomain
     .effect<CreateDirectRoomParams, { roomId: string }, Error>()
-export const inviteUsersFx = roomDomain.effect<InviteUserParams, void, Error>()
+export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
+export const inviteUsersFx = roomDomain.effect<InviteUsersParams, void, Error>()
 export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
 export const joinRoomFx = roomDomain

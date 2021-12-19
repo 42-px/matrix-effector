@@ -67,7 +67,7 @@ import {
     getRoomInfoFx,
     getRoomsWithActivitiesFx,
     initRoom,
-    inviteUsersFx,
+    inviteUserFx,
     joinRoomFx,
     kickUserRoomFx,
     liveTimelineLoaded,
@@ -89,7 +89,8 @@ import {
     getRoomByIdFx,
     getRoomMembers,
     sendTypingFx,
-    getMembersByRoomIdFx
+    getMembersByRoomIdFx,
+    inviteUsersFx
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -107,7 +108,7 @@ const getRoomMembersDebounced = debounce({
     timeout: 500
 })
 
-const getCurrentRoomMembersFx = attach({
+const getRoomMembersFx = attach({
     effect: getMembersByRoomIdFx
 })
 
@@ -155,7 +156,7 @@ $timelineWindow
     .on(initRoomFx.doneData, (_, timelineWindow) => timelineWindow)
     .reset($currentRoomId)
 $currentRoomMembers
-    .on(getCurrentRoomMembersFx.doneData, (_, value) => value)
+    .on(getRoomMembersFx.doneData, (_, value) => value)
     .reset($currentRoomId)
 $myPowerLevel
     .on(updatePowerLevelFx.doneData, (_, powerLevel) => powerLevel)
@@ -245,7 +246,7 @@ guard({
     source: $currentRoomId,
     clock: getRoomMembersDebounced,
     filter: Boolean,
-    target: getCurrentRoomMembersFx
+    target: getRoomMembersFx
 })
 guard({
     source: sample(
@@ -497,13 +498,35 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
     return { roomId: room_id }
 })
 
+inviteUserFx.use( async ({usersId, roomId}) => {
+    const isDirect = client().getRoom(roomId).currentState
+        .getStateEvents(
+            EventType.RoomCreate,
+            ""
+        )?.getContent()?.isDirect
+    if (isDirect) {
+        throw new CantInviteUsers("Can't invite users into a direct room")
+    }
+    try {
+        await client().invite(roomId, usersId)
+    } catch (e: any) {
+        if (e.httpStatus === 403) {
+            throw new NotEnoughPermissions(
+                "Not enough permissions to invite users"
+            )
+        }
+    }
+})
+
 inviteUsersFx.use( async ({usersIds, roomId}) => {
     const isDirect = client().getRoom(roomId).currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""
         )?.getContent()?.isDirect
-    if (isDirect) throw new CantInviteUsers()
+    if (isDirect) {
+        throw new CantInviteUsers("Can't invite users into a direct room")
+    }
     for (const id of usersIds) {
         try {
             await client().invite(roomId, id)
