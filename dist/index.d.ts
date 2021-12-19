@@ -377,7 +377,7 @@ export declare const createOnSyncThrottled: (ms: number) => import("effector").E
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, MatrixLoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, AuthData, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
-export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk").IStartClientOpts, void, Error>;
+export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk/lib").IStartClientOpts, void, Error>;
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
@@ -493,6 +493,10 @@ export interface InitialState {
 }
 export declare type InviteUserParams = {
 	roomId: string;
+	usersId: string;
+};
+export declare type InviteUsersParams = {
+	roomId: string;
 	usersIds: string[];
 };
 export declare type KickUserParams = {
@@ -574,7 +578,8 @@ export declare const createRoomFx: import("effector").Effect<CreateRoomParams, {
 export declare const createDirectRoomFx: import("effector").Effect<CreateDirectRoomParams, {
 	roomId: string;
 }, Error>;
-export declare const inviteUsersFx: import("effector").Effect<InviteUserParams, void, Error>;
+export declare const inviteUserFx: import("effector").Effect<InviteUserParams, void, Error>;
+export declare const inviteUsersFx: import("effector").Effect<InviteUsersParams, void, Error>;
 export declare const kickUserRoomFx: import("effector").Effect<KickUserParams, void, Error>;
 export declare const renameRoomFx: import("effector").Effect<RenameRoomParams, void, Error>;
 export declare const joinRoomFx: import("effector").Effect<{
