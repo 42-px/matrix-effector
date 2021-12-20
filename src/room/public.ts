@@ -8,6 +8,7 @@ import {combine} from "effector"
 import {
     MappedRoom,
     MappedUser,
+    MatrixMembershipType,
     Message,
     RoomInfo,
     RoomWithActivity,
@@ -26,7 +27,8 @@ import {
     CreateDirectRoomParams,
     LoadRoomFxParams,
     MessageResponse,
-    SendTypingParams
+    SendTypingParams,
+    InviteUsersParams
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -66,7 +68,13 @@ export const $requiredPowerLevelForDefaultState = roomDomain
 export const $currentJoinedRoomMembers = $currentRoomMembers
     .map(
         (members) => members?.filter(
-            (member) => member.membership === "join") ?? []
+            (member) => member.membership === MatrixMembershipType.join) ?? []
+    )
+export const $currentRoomInvitedMembers = $currentRoomMembers
+    .map(
+        (members) => members?.filter(
+            (member) => member.membership === MatrixMembershipType.invite
+        ) ?? []
     )
 
 export const $canKick = combine(
@@ -131,6 +139,7 @@ export const createRoomFx = roomDomain
 export const createDirectRoomFx = roomDomain
     .effect<CreateDirectRoomParams, { roomId: string }, Error>()
 export const inviteUserFx = roomDomain.effect<InviteUserParams, void, Error>()
+export const inviteUsersFx = roomDomain.effect<InviteUsersParams, void, Error>()
 export const kickUserRoomFx = roomDomain.effect<KickUserParams, void, Error>()
 export const renameRoomFx = roomDomain.effect<RenameRoomParams, void, Error>()
 export const joinRoomFx = roomDomain
@@ -143,3 +152,5 @@ export const getRoomByIdFx = roomDomain
     .effect<RoomWithActivity["roomId"], RoomWithActivity | null, Error>()
 export const sendTypingFx = roomDomain
     .effect<SendTypingParams, void, Error>()
+export const getMembersByRoomIdFx = roomDomain
+    .effect<string, MappedRoomMember[], Error>()

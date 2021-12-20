@@ -7,3 +7,7 @@ export const TimelineWindowUndefined =
   createCustomError("TimelineWindowUndefined")
 export const UserNotFound = createCustomError("UserNotFound")
 export const UserNotLoggedIn = createCustomError("UserNotLoggedIn")
+export const CantInviteUsers = 
+  createCustomError("CantInviteUsers")
+export const NotEnoughPermissions = 
+  createCustomError("NotEnoughPermissions")
