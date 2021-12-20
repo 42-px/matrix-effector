@@ -690,6 +690,8 @@ export declare const getUrlPreviewFx: import("effector").Effect<{
 	ts: number;
 	timeout?: number | undefined;
 }, UrlPreview, Error>;
+export declare const updateDisplayNameFx: import("effector").Effect<string, void, Error>;
+export declare const updateAvatarUrlFx: import("effector").Effect<string, void, Error>;
 export declare const destroyClient: () => void;
 export declare const createClient: ({ options, messageBatchInterval: ms }: CreateClientOptions) => void;
 export declare const client: () => MatrixClient;
