@@ -1,5 +1,6 @@
-import { TimelineWindow } from "matrix-js-sdk"
+import { EventType, TimelineWindow } from "matrix-js-sdk"
 import { client } from "./matrix-client"
+import { MappedRoomMember } from "./room/types"
 import { RoomNotFound } from "./errors"
 import { 
     DIRECT_EVENT, 
@@ -139,8 +140,9 @@ export const setDirectRoom = async (
     const cl = client()
     const { creator } = cl.getRoom(roomId).currentState
         .getStateEvents(
-            "m.room.create",
-        )[0].getContent()
+            EventType.RoomCreate,
+            ""
+        ).getContent()
     const prevData = cl.getAccountData(DIRECT_EVENT).getContent()
     const prevRoomsId = prevData[creator] ?? []
 
