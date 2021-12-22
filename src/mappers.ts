@@ -3,7 +3,7 @@ import {
     RoomMember,
     User,
     Room,
-    EventType
+    EventType,
 } from "matrix-js-sdk"
 import {
     DIRECT_EVENT,
@@ -24,7 +24,10 @@ import {
     RoomWithActivity,
     MatrixMembershipType,
     RoomPowerLevelsContent,
-    UserRole
+    UserRole,
+    MsgType,
+    ParsedMessageBodyTypes,
+    ParsedMessageBody
 } from "./types"
 
 export const toMessageSeen = (
@@ -77,15 +80,60 @@ export function toMessage(
     originalEventId?: MatrixEvent["event"]["event_id"]
 ): Message {
     const relation = event.getRelation()
+    const content = getMappedContent(event)
+    const message = content.body
+    const parsedBody: ParsedMessageBody[] = []
+    if (content.msgtype === MsgType.Text) {
+        const mentionsRegExp = /@\S+/g
+        
+        // eslint-disable-next-line max-len
+        const linkRegExp = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
+        const findContent = [
+            ...content.body.matchAll(mentionsRegExp),
+            ...content.body.matchAll(linkRegExp)
+        ].sort((a, b) => {
+            if (a.index && b.index) {
+                return a.index - b.index
+            }
+            return 0
+        })
+        let prevIndex = 0
+        findContent.forEach((element) => {
+            if (!element.index) return
+            const content = element[0]
+            const prevText = message.substring(prevIndex, element.index)
+            if (prevText.trim()) {
+                parsedBody.push({
+                    type: ParsedMessageBodyTypes.String,
+                    content: prevText
+                })
+            }
+            if (content[0] === "@") {
+                parsedBody.push({
+                    type: ParsedMessageBodyTypes.Mention,
+                    content: content
+                })
+            } else {
+                parsedBody.push({
+                    type: ParsedMessageBodyTypes.Link,
+                    content: content
+                })
+            }
+            
+            prevIndex = element.index + content.length
+        })
+    }
+
     return {
         originalEventId: originalEventId !== undefined ?
             originalEventId :
             event.getId(),
-        content: getMappedContent(event),
+        content,
         sender: event.sender,
         originServerTs: event.getDate(),
         edited: (relation as any)?.["rel_type"] === "m.replace",
         redacted: event.isRedacted() || event.isRedaction(),
+        parsedBody: parsedBody,
     }
 }
 

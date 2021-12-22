@@ -15,6 +15,17 @@ export type Relation = {
   }
 }
 
+export enum ParsedMessageBodyTypes {
+  String = "string",
+  Link = "link",
+  Mention = "mention",
+}
+
+export type ParsedMessageBody = {
+  type: ParsedMessageBodyTypes
+  content: string
+}
+
 export type TextContent = {
   body:	string
   msgtype: MsgType.Text

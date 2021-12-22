@@ -8,7 +8,7 @@ import {
     SearchOrderBy,
     User,
 } from "matrix-js-sdk"
-import { MessageContent } from "./content"
+import { MessageContent, ParsedMessageBody } from "./content"
 export * from "./content"
 
 export enum Presence {
@@ -58,6 +58,7 @@ export type Message = {
     edited: boolean
     redacted: boolean
     seen?: boolean
+    parsedBody?: ParsedMessageBody[]
 }
 
 export enum MatrixMembershipType {

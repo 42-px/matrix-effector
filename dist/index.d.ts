@@ -18,6 +18,15 @@ export declare type Relation = {
 		event_id: string;
 	};
 };
+export declare enum ParsedMessageBodyTypes {
+	String = "string",
+	Link = "link",
+	Mention = "mention"
+}
+export declare type ParsedMessageBody = {
+	type: ParsedMessageBodyTypes;
+	content: string;
+};
 export declare type TextContent = {
 	body: string;
 	msgtype: MsgType.Text;
@@ -243,6 +252,7 @@ export declare type Message = {
 	edited: boolean;
 	redacted: boolean;
 	seen?: boolean;
+	parsedBody?: ParsedMessageBody[];
 };
 export declare enum MatrixMembershipType {
 	leave = "leave",
