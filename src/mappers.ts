@@ -26,9 +26,13 @@ import {
     RoomPowerLevelsContent,
     UserRole,
     MsgType,
-    ParsedMessageBodyTypes,
-    ParsedMessageBody
+    ParsedMessageNodeTypes,
+    ParsedMessageNode
 } from "./types"
+
+// eslint-disable-next-line max-len
+const LINK_REG_EXP = /(^| )(?:[a-zA-Z][a-zA-Z0-9+-\.]*:(?:(?:\/\/(?:[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:]*@)?(?:\[(?:(?:(?:[0-9A-Fa-f]{1,4}:){6}(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|::(?:[0-9A-Fa-f]{1,4}:){5}(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|(?:[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){4}(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|(?:(?:[0-9A-Fa-f]{1,4}:){0,1}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){3}(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|(?:(?:[0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){2}(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|(?:(?:[0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}:(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|(?:(?:[0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|(?:(?:[0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}|(?:(?:[0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})?::)|v[0-9A-Fa-f]+\.[a-zA-Z0-9-\._~!\$&'\(\)\*\+,;=:]+)\]|(?:(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}(?:0?0?[0-9]|0?[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])|[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=]{0,255})(?::[0-9]*)?(?:\/[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@]*)*)|\/(?:[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@]*)*)?|[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@]+(?:\/[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@]*)*))(?:\?[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*(?=#|$))?(?:#[a-zA-Z0-9-\._~%0-9A-Fa-f!\$&'\(\)\*\+,;=:@\/\?]*)?|(^| )[\w]{0,}\.[\w]{0,}\.(ru|com)|(^| )[\w]{0,}\.(ru|com)/gm
+const MENTION_REG_EXP = /( |^)@\S{0,}/gm
 
 export const toMessageSeen = (
     message: Message,
@@ -75,6 +79,20 @@ export function toMessageEvent(event: MatrixEvent): MessageEvent {
     return payload
 }
 
+const parseRegExpMatchAll = (
+    regExp: RegExp, type: ParsedMessageNodeTypes, message: string
+): {
+    index: number
+    content: string
+    type: ParsedMessageNodeTypes
+}[] =>  [...message.matchAll(regExp)].map((el) => {
+    return {
+        index: el.index ?? 0,
+        type: type,
+        content: el[0]
+    }
+})
+
 export function toMessage(
     event: MatrixEvent,
     originalEventId?: MatrixEvent["event"]["event_id"]
@@ -82,48 +100,40 @@ export function toMessage(
     const relation = event.getRelation()
     const content = getMappedContent(event)
     const message = content.body
-    const parsedBody: ParsedMessageBody[] = []
+    const parsedBody: ParsedMessageNode[] = []
     if (content.msgtype === MsgType.Text) {
-        const mentionsRegExp = /@\S+/g
-        
-        // eslint-disable-next-line max-len
-        const linkRegExp = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
         const findContent = [
-            ...content.body.matchAll(mentionsRegExp),
-            ...content.body.matchAll(linkRegExp)
-        ].sort((a, b) => {
-            if (a.index && b.index) {
-                return a.index - b.index
-            }
-            return 0
-        })
+            ...parseRegExpMatchAll(
+                MENTION_REG_EXP, ParsedMessageNodeTypes.Mention, message
+            ),
+            ...parseRegExpMatchAll(
+                LINK_REG_EXP, ParsedMessageNodeTypes.Link, message
+            ),
+        ].sort((a, b) => a.index - b.index)
         let prevIndex = 0
-        findContent.forEach((element) => {
-            if (!element.index) return
-            const content = element[0]
-            const prevText = message.substring(prevIndex, element.index)
-            if (prevText.trim()) {
+        if (!findContent.length) {
+            parsedBody.push({
+                type: ParsedMessageNodeTypes.String,
+                content: message
+            })
+        } else {
+            findContent.forEach((element) => {
+                const prevText = message.substring(prevIndex, element.index)
+                if (prevText.trim()) {
+                    parsedBody.push({
+                        type: ParsedMessageNodeTypes.String,
+                        content: prevText
+                    })
+                }
                 parsedBody.push({
-                    type: ParsedMessageBodyTypes.String,
-                    content: prevText
+                    type: element.type,
+                    content: element.content.trim()
                 })
-            }
-            if (content[0] === "@") {
-                parsedBody.push({
-                    type: ParsedMessageBodyTypes.Mention,
-                    content: content
-                })
-            } else {
-                parsedBody.push({
-                    type: ParsedMessageBodyTypes.Link,
-                    content: content
-                })
-            }
-            
-            prevIndex = element.index + content.length
-        })
+                
+                prevIndex = element.index + element.content.length
+            })
+        }
     }
-
     return {
         originalEventId: originalEventId !== undefined ?
             originalEventId :

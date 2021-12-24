@@ -15,14 +15,14 @@ export type Relation = {
   }
 }
 
-export enum ParsedMessageBodyTypes {
+export enum ParsedMessageNodeTypes {
   String = "string",
   Link = "link",
   Mention = "mention",
 }
 
-export type ParsedMessageBody = {
-  type: ParsedMessageBodyTypes
+export type ParsedMessageNode= {
+  type: ParsedMessageNodeTypes
   content: string
 }
 
