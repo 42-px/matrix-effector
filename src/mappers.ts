@@ -79,7 +79,7 @@ export function toMessageEvent(event: MatrixEvent): MessageEvent {
     return payload
 }
 
-const parseRegExpMatchAll = (
+const mapRegExpMatchAll = (
     regExp: RegExp, type: ParsedMessageNodeTypes, message: string
 ): {
     index: number
@@ -103,10 +103,10 @@ export function toMessage(
     const parsedBody: ParsedMessageNode[] = []
     if (content.msgtype === MsgType.Text) {
         const findContent = [
-            ...parseRegExpMatchAll(
+            ...mapRegExpMatchAll(
                 MENTION_REG_EXP, ParsedMessageNodeTypes.Mention, message
             ),
-            ...parseRegExpMatchAll(
+            ...mapRegExpMatchAll(
                 LINK_REG_EXP, ParsedMessageNodeTypes.Link, message
             ),
         ].sort((a, b) => a.index - b.index)
