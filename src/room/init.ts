@@ -15,7 +15,6 @@ import {
     sample
 } from "effector"
 import {
-    getIsDirectRoomsIds,
     toMappedRoom,
     toMappedRoomMember,
     toMappedUser,
@@ -471,10 +470,9 @@ createRoomFx.use(async ({
 
 createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
     const cl = client()
-    const roomsIds = getIsDirectRoomsIds()
-    const findRoomId = roomsIds.find(
-        (roomId) => cl.getRoom(roomId)?.currentState.members[user.userId]
-    )
+    const directRooms = cl.getAccountData(DIRECT_EVENT)?.getContent()
+    const findRoomId = directRooms[user.userId]?.[0]
+
     if (findRoomId) return { roomId: findRoomId }
     
     const options = {
@@ -568,7 +566,7 @@ leaveRoomFx.use( async (roomId) => {
 findDirectRoomByUserIdFx.use((userId) => {
     const cl = client()
     const directRooms = cl.getAccountData(DIRECT_EVENT)?.getContent()
-    const roomId = directRooms[userId] && directRooms[userId][0]
+    const roomId = directRooms[userId]?.[0]
     if(!roomId) throw new RoomNotFound()
     const room = cl.getRoom(roomId)
     if(!room) throw new RoomNotFound()

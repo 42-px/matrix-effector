@@ -44,15 +44,6 @@ const getMappedContent = (event: MatrixEvent) => (
     event.getContent<MessageContent>()
 )
 
-export const getIsDirectRoomsIds = (): string[] => {
-    const cl = client()
-    const directRooms = cl.getAccountData(DIRECT_EVENT).getContent()
-    return directRooms && Object.values(directRooms).flatMap((room) => room)
-}
-
-export const checkIsDirect = (roomId: string): boolean => (
-    getIsDirectRoomsIds().includes(roomId))
-
 export function toMessageEvent(event: MatrixEvent): MessageEvent {
     const payload: MessageEvent = {
         eventId: event.getId(),
