@@ -59,7 +59,7 @@ export function toMessageEvent(event: MatrixEvent): MessageEvent {
         // если есть клиентская агрегация, то этот метод отдает последний контент
         content: getMappedContent(event),
         originServerTs: event.getDate(),
-        roomId: event.getRoomId(),
+        roomId: event.getRoomId() as string,
         sender: event.sender,
         type: event.getType(),
         redaction: event.isRedaction(),
