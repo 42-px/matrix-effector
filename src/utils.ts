@@ -28,7 +28,7 @@ export function getMessages(timelineWindow: TimelineWindow): Message[] {
         .reduce(mergeMessageEvents, [])
     const cl = client()
     const roomId = timelineWindow.getEvents()[0].getRoomId()
-    const room = cl.getRoom(roomId)
+    const room = cl.getRoom(roomId as string)
     if (!room) throw new RoomNotFound()
     const myMessages = []
     const otherMessages = []

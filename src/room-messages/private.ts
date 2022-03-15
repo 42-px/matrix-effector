@@ -59,3 +59,6 @@ export const setMessages = guard({
     ),
     filter: ({ currentRoomId, roomId }) => currentRoomId === roomId
 })
+
+export const updateCurrentRoomUnreadMessageCountFx = messagesDomain
+    .effect<string, number, Error>()

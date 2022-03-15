@@ -35,7 +35,8 @@ import {
     updateMessagesFx,
     paginateBackwardFx,
     paginateForwardFx,
-    paginateRoomFx
+    paginateRoomFx,
+    updateCurrentRoomUnreadMessageCountFx
 } from "./private"
 import {
     $messages,
@@ -56,7 +57,8 @@ import {
     onPaginateForwardDone,
     paginateBackward,
     paginateForward,
-    updateMessages
+    updateMessages,
+    $currentRoomUnreadMessageCount,
 } from "./public"
 import {
     DeleteMessageResult,
@@ -85,6 +87,11 @@ const loadNewMessagesFx = attach({
 $messages
     .on(setMessages, (_, { messages }) => messages)
     .reset($currentRoomId)
+
+$currentRoomUnreadMessageCount
+    .on(updateCurrentRoomUnreadMessageCountFx.doneData, (_, count) => count)
+    .reset($currentRoomId)
+
 $isLive
     .on(setMessages, (_, { isLive }) => isLive)
     .reset($currentRoomId)
@@ -168,6 +175,13 @@ guard({
     ),
     filter: $timelineWindow.map(timelineWindow => Boolean(timelineWindow)),
     target: updateMessagesFx,
+})
+
+guard({
+    clock: $messages.updates,
+    source: $currentRoomId,
+    filter: (currentRoomId): currentRoomId is string => Boolean(currentRoomId),
+    target: updateCurrentRoomUnreadMessageCountFx
 })
 
 sample({
@@ -328,3 +342,10 @@ paginateRoomFx.use(async ({
     }
 })
 
+
+updateCurrentRoomUnreadMessageCountFx.use((roomId) => {
+    const matrixRoom = client().getRoom(roomId)
+    if (!matrixRoom) throw new RoomNotFound()
+    const count = matrixRoom.getUnreadNotificationCount()
+    return count ?? 0
+})
