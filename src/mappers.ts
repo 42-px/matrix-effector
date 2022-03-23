@@ -110,15 +110,16 @@ export function toMessage(
                 LINK_REG_EXP, ParsedMessageNodeTypes.Link, message
             ),
         ].sort((a, b) => a.index - b.index)
-        let prevIndex = 0
         if (!findContent.length) {
             parsedBody.push({
                 type: ParsedMessageNodeTypes.String,
                 content: message
             })
         } else {
+            let prevIndex = 0
             findContent.forEach((element) => {
                 const prevText = message.substring(prevIndex, element.index)
+                // Добавляем текст который находится между предыдущим и текущим элементом, если он есть
                 if (prevText.trim()) {
                     parsedBody.push({
                         type: ParsedMessageNodeTypes.String,
@@ -143,7 +144,7 @@ export function toMessage(
         originServerTs: event.getDate(),
         edited: (relation as any)?.["rel_type"] === "m.replace",
         redacted: event.isRedacted() || event.isRedaction(),
-        parsedBody: parsedBody,
+        parsedBody,
     }
 }
 
