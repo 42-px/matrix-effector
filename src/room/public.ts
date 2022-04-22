@@ -154,3 +154,5 @@ export const sendTypingFx = roomDomain
     .effect<SendTypingParams, void, Error>()
 export const getMembersByRoomIdFx = roomDomain
     .effect<string, MappedRoomMember[], Error>()
+export const getRoomMemberFx = roomDomain
+    .effect<{roomId: string; userId: string}, RoomMember, Error>()

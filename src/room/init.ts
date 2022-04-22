@@ -90,7 +90,8 @@ import {
     getRoomMembers,
     sendTypingFx,
     getMembersByRoomIdFx,
-    inviteUsersFx
+    inviteUsersFx,
+    getRoomMemberFx
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -577,4 +578,12 @@ findDirectRoomByUserIdFx.use((userId) => {
 
 sendTypingFx.use(async ({ roomId, isTyping }) => {
     await client().sendTyping(roomId, isTyping, TYPING_SERVER_TIMEOUT)
+})
+
+getRoomMemberFx.use(({ roomId, userId }) => {
+    const matrixRoom = client().getRoom(roomId)
+    if (!matrixRoom) throw new RoomNotFound(`${roomId} room not found`)
+    const roomMember = matrixRoom?.getMember(userId)
+    if (!roomMember) throw new UserNotFound(`${userId} room member not found`)
+    return roomMember
 })
