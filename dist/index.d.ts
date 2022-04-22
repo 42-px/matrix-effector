@@ -377,7 +377,7 @@ export declare const createOnSyncThrottled: (ms: number) => import("effector").E
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, MatrixLoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, AuthData, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
-export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk").IStartClientOpts | undefined, void, Error>;
+export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk").IStartClientOpts, void, Error>;
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
@@ -591,6 +591,10 @@ export declare const loadRoomFx: import("effector").Effect<LoadRoomFxParams, Mes
 export declare const getRoomByIdFx: import("effector").Effect<string, RoomWithActivity | null, Error>;
 export declare const sendTypingFx: import("effector").Effect<SendTypingParams, void, Error>;
 export declare const getMembersByRoomIdFx: import("effector").Effect<string, MappedRoomMember[], Error>;
+export declare const getRoomMemberFx: import("effector").Effect<{
+	roomId: string;
+	userId: string;
+}, RoomMember, Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
