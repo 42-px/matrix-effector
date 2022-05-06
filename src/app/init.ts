@@ -34,6 +34,7 @@ import {
     onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
+import { initCryptoFx, onVerificationRequestFx } from "@/crypto"
 import { UserNotFound } from "@/errors"
 import {
     AuthData,
@@ -73,7 +74,7 @@ onClientEvent([
             toStartOfTimeline: boolean,
             removed,
             data
-        ) => {
+        ) => {            
             const eventType = event.getType()
             if (eventType === ROOM_MESSAGE_EVENT
                 || eventType === ROOM_REDACTION_EVENT
@@ -101,10 +102,11 @@ onClientEvent([
         }
     }],
     ["Room.localEchoUpdated", () => updateMessages()],
-    ["sync", (state, prevState) => {
+    ["sync", async (state, prevState) => {
         if (state === "PREPARED") {
             const rooms = getMappedRooms()
             onCachedState(rooms)
+            await client().uploadKeys()
             return
         }
         if (state === "SYNCING" && prevState === "PREPARED") {
@@ -158,6 +160,63 @@ onClientEvent([
         "User.displayName",
         (e, user: User) => onRoomUserUpdate(user)
     ],
+    [
+        "crossSigning.keysChanged",
+        (...args) => console.log("crossSigning.keysChanged", args)
+    ],
+    [
+        "crypto.roomKeyRequest",
+        (...args) => console.log("crypto.roomKeyRequest", args)
+    ],
+    [
+        "crypto.roomKeyRequestCancellation",
+        (...args) => console.log("crypto.roomKeyRequestCancellation", args)
+    ],
+    [
+        "crypto.secrets.requestCancelled",
+        (...args) => console.log("crypto.secrets.requestCancelled", args)
+    ],
+    [
+        "crypto.suggestKeyRestore",
+        (...args) => console.log("crypto.suggestKeyRestore", args)
+    ],
+    [
+        "crypto.verification.request.unknown",
+        (...args) => console.log("crypto.verification.request.unknown", args)
+    ],
+    [
+        "crypto.verification.request",
+        onVerificationRequestFx
+    ],
+    [
+        "crypto.warning",
+        (...args) => console.log("crypto.warning", args)
+    ],
+    [
+        "crypto.willUpdateDevices",
+        (userIds: string[], initialFetch?: boolean) => {
+            // If we didn't know about *any* devices before (ie. it's fresh login),
+            // then they are all pre-existing devices, so ignore this and set the
+            // devicesAtStart list to the devices that we see after the fetch.
+            if (initialFetch) return
+            console.log(userIds)
+            const cl = client()
+            const myUserId = cl.getUserId()
+            if (userIds.includes(myUserId)) {
+                console.log(
+                    cl.getStoredDevicesForUser(myUserId).map(d => d.deviceId)
+                )
+            }
+        }
+    ],
+    [
+        "crypto.devicesUpdated",
+        (userIds: string[]) => {
+            const cl = client()
+            console.log(userIds)
+            if (!userIds.includes(cl.getUserId())) return
+        }
+    ]
 ])
 
 loginByPasswordFx.use( async (params) =>
@@ -223,9 +282,11 @@ createClientFx.use(async (
     }
 ) => {
     createClient(createClientParams)
-    const { store } = client()
+    const cl = client()
+    const { store } = cl
     if (store) await store.startup()
-    await client().startClient(startClientParams)
+    await initCryptoFx()
+    await cl.startClient(startClientParams)
 })
 
 destroyClientFx.use(async () => {
