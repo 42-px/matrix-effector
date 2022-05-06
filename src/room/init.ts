@@ -510,6 +510,7 @@ inviteUserFx.use( async ({userId, roomId}) => {
     }
     try {
         await client().invite(roomId, userId)
+        await client().sendSharedHistoryKeys(roomId, [userId])
     } catch (e: any) {
         if (e.httpStatus === 403) {
             throw new NotEnoughPermissions(
@@ -531,6 +532,7 @@ inviteUsersFx.use( async ({usersIds, roomId}) => {
     for (const id of usersIds) {
         try {
             await client().invite(roomId, id)
+            await client().sendSharedHistoryKeys(roomId, [id])
         } catch (e: any) {
             if (e.httpStatus === 403) {
                 throw new NotEnoughPermissions()

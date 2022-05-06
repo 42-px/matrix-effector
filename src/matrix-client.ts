@@ -13,6 +13,7 @@ const callbacksStore: EventListener[] = []
 export const destroyClient = () => {
     if (clientStore) {
         clientStore.removeAllListeners()
+        // clientStore.clearStores()
         clientStore = null as any
     }
 }
