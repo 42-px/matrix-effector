@@ -10,6 +10,7 @@ export * from "./room-messages"
 export * from "./profile"
 export * from "./types"
 export * from "./matrix-client"
+export * from "./verification"
 export {
     getRoomMemberAvatarUrl,
     getSenderAvatarUrl,
