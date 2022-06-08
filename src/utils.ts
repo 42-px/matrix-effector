@@ -158,3 +158,7 @@ export const setDirectRoom = async (
         [creator]: [...prevRoomsId, roomId]
     })
 }
+
+export const uid = (): string => ( 
+    `id${Date.now().toString(36)}${Math.random().toString(36).substring(2)}`
+)

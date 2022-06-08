@@ -34,7 +34,14 @@ import {
     onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
-import { initCryptoFx, onVerificationRequestFx } from "@/crypto"
+import { 
+    initCryptoFx, 
+} from "@/crypto"
+import {
+    onVerificationRequest, 
+    MyVerificationRequest,
+    checkDeviceVerificationFx
+} from "@/verification"
 import { UserNotFound } from "@/errors"
 import {
     AuthData,
@@ -55,6 +62,7 @@ import {
     destroyClientFx,
     getProfileInfoFx,
 } from "./public"
+import { uid } from "@/utils"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -185,12 +193,16 @@ onClientEvent([
         (...args) => console.log("crypto.verification.request.unknown", args)
     ],
     [
-        "crypto.verification.request",
-        onVerificationRequestFx
+        "crypto.verification.request", (
+            request: MyVerificationRequest
+        ) => {
+            request.id = uid()
+            onVerificationRequest(request)
+        }
     ],
     [
         "crypto.warning",
-        (...args) => console.log("crypto.warning", args)
+        (...args) => console.warn("crypto.warning", args)
     ],
     [
         "crypto.willUpdateDevices",
@@ -199,7 +211,7 @@ onClientEvent([
             // then they are all pre-existing devices, so ignore this and set the
             // devicesAtStart list to the devices that we see after the fetch.
             if (initialFetch) return
-            console.log(userIds)
+            console.log("crypto.willUpdateDevices", userIds)
             const cl = client()
             const myUserId = cl.getUserId()
             if (userIds.includes(myUserId)) {
@@ -213,8 +225,8 @@ onClientEvent([
         "crypto.devicesUpdated",
         (userIds: string[]) => {
             const cl = client()
-            console.log(userIds)
             if (!userIds.includes(cl.getUserId())) return
+            checkDeviceVerificationFx()
         }
     ]
 ])
