@@ -1,5 +1,5 @@
 import { client } from "@/matrix-client"
-import { checkDeviceVerificationFx } from "@/verification"
+import { checkMyDeviceVerificationFx } from "@/verification"
 import { 
     checkBackupKeyFx, 
     initCryptoFx, 
@@ -19,6 +19,6 @@ initCryptoFx.use(async () => {
     // don't await, because this can take a long times
     // cl.restoreKeyBackupWithSecretStorage(backupInfo).then(console.log)
     // }
-    checkDeviceVerificationFx()
+    checkMyDeviceVerificationFx()
 })
 

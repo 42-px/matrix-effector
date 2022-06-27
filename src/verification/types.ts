@@ -29,3 +29,8 @@ export type OnVerificationRequestFxParams = {
 export type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
   id: string
 }
+
+export type StartVerificationDeviceParams = {
+  userId: string
+  deviceId: string
+}

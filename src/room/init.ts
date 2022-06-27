@@ -14,6 +14,7 @@ import {
     guard,
     sample
 } from "effector"
+
 import {
     getIsDirectRoomsIds,
     toMappedRoom,
@@ -34,6 +35,8 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
+import { onUpdateDeviceList } from "@/verification"
+
 import {
     initRoomFx,
     updatePowerLevelFx,
@@ -91,7 +94,8 @@ import {
     sendTypingFx,
     getMembersByRoomIdFx,
     inviteUsersFx,
-    getRoomMemberFx
+    getRoomMemberFx,
+    getUserDevicesFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -588,4 +592,29 @@ getRoomMemberFx.use(({ roomId, userId }) => {
     const roomMember = matrixRoom?.getMember(userId)
     if (!roomMember) throw new UserNotFound(`${userId} room member not found`)
     return roomMember
+})
+
+getUserDevicesFx.use((id) => {
+    const cl = client()
+    const isMe = cl.getUserId() === id
+    const crossSigningInfo = cl.getStoredCrossSigningForUser(cl.getUserId())
+    return cl.getStoredDevicesForUser(id).map((device) => {
+        let verified: boolean
+        if (isMe) {
+            verified = crossSigningInfo.checkDeviceTrust(
+                crossSigningInfo,
+                device,
+                false,
+                true,
+            ).isCrossSigningVerified()
+        } else {
+            verified = device.isVerified()
+        }
+        return {
+            deviceId: device.deviceId,
+            displayName: device.getDisplayName(),
+            verified,
+        }
+    })
+
 })

@@ -1,25 +1,20 @@
 import { verificationDomain } from "./domain"
 import { 
     MyVerificationRequest, 
-    SetDeviceVerifiedFx 
+    StartVerificationDeviceParams, 
 } from "./types"
 
-export const setDeviceVerifiedFx = verificationDomain
-    .effect<SetDeviceVerifiedFx, void, Error>()
-
-export const cancelVerificationEventFx = verificationDomain
-    .effect<MyVerificationRequest, MyVerificationRequest, Error>()
-
-type DeviceIsVerifired = boolean
-
-export const setMyDeviceVerifiedFx = verificationDomain
-    .effect<void, DeviceIsVerifired, Error>()
+type DeviceIsVerified = boolean
 
 export const $currentVerificationEvent = verificationDomain
     .store<MyVerificationRequest[]>([])
 
 export const setCurrentVerificationEvent = verificationDomain
     .event<MyVerificationRequest>()
+
+export const cancelVerificationEventFx = verificationDomain
+    .effect<MyVerificationRequest, MyVerificationRequest, Error>()
+
 
 export const $verificationEvents = verificationDomain
     .store<MyVerificationRequest[]>([])
@@ -33,11 +28,30 @@ export const startSASVerification = verificationDomain
 export const confirmSASVerification = verificationDomain
     .event<void>()
 
-export const checkDeviceVerificationFx = verificationDomain
-    .effect<void, void, Error>()
 
-export const $deviceIsVerifired = verificationDomain
-    .store<DeviceIsVerifired | null>(null)
+export const $deviceIsVerified = verificationDomain
+    .store<DeviceIsVerified | null>(null)
+
+export const onUpdateDeviceList = verificationDomain
+    .event<string[]>()
+
+export const checkMyDeviceVerificationFx = verificationDomain
+    .effect<void, boolean, Error>()
+
+
+export const startVerificationDevice = verificationDomain
+    .event<StartVerificationDeviceParams>()
 
 export const startMyDeviceVerificationFx = verificationDomain
     .effect<void, void, Error>()
+
+type UserId = string
+
+export const startVerificationUser = verificationDomain
+    .event<UserId>()
+
+export const onRequestAccept = verificationDomain
+    .event<MyVerificationRequest>()
+
+export const onRequestCancel = verificationDomain
+    .event<MyVerificationRequest>()
