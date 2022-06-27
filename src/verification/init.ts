@@ -162,7 +162,7 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
             await startSASFx(request)
         }
     }
-    // При запуски приложения, если девайс не верифицирован, то отправляется запрос на верификацию и мы сразу его принимаем
+    // При запуске приложения, если девайс не верифицирован, то отправляется запрос на верификацию и мы сразу его принимаем
     if (request.isSelfVerification) {
         request.accept()
     }
