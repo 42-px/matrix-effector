@@ -115,8 +115,9 @@ export function toRoomInfo(room: Room): RoomInfo {
     }
 }
 
-export const toMappedUser = (user: User): MappedUser => (
-    {
+export const toMappedUser = (user: User): MappedUser => {
+    const cl = client()
+    return {
         avatarUrl: user.avatarUrl,
         userId: user.userId,
         currentlyActive: user.currentlyActive,
@@ -124,13 +125,32 @@ export const toMappedUser = (user: User): MappedUser => (
         lastActiveAgo: user.lastActiveAgo,
         lastPresenceTs: user.lastPresenceTs,
         presence: user.presence as any,
+        isVerified: cl.checkUserTrust(user.userId).isVerified(),
     }
-)
+}
 
 export function toMappedRoomMember(
     roomMember: RoomMember,
     user: User
 ): MappedRoomMember {
+    const cl = client()
+    const isMe = cl.getUserId() === user.userId
+    const crossSigningInfo = cl.getStoredCrossSigningForUser(cl.getUserId())
+    const allDeviceVerified = cl.getStoredDevicesForUser(user.userId)
+        .some((device) => {
+            let verified: boolean
+            if (isMe) {
+                verified = crossSigningInfo.checkDeviceTrust(
+                    crossSigningInfo,
+                    device,
+                    false,
+                    true,
+                ).isCrossSigningVerified()
+            } else {
+                verified = device.isVerified()
+            }
+            return verified
+        })
     let role = undefined
     if (roomMember.powerLevel === 100) {
         role = UserRole.admin
@@ -148,6 +168,7 @@ export function toMappedRoomMember(
         user: toMappedUser(user),
         userId: roomMember.userId,
         role,
+        allDeviceVerified,
     }
 }
 

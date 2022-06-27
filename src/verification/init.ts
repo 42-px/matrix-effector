@@ -1,31 +1,39 @@
 import { forward, sample, guard } from "effector"
 import { client } from "@/matrix-client"
+
+import { uid } from "@/utils"
+
 import { 
     updateVerificationPhase, 
-    cancelVerificationEvent, 
+    onCancelVerificationEvent,
     confirmSASVerificationFx, 
     onVerificationRequestFx, 
     startSASFx, 
     updateDeviceVerification,
+    startVerificationDeviceFx,
+    startVerificationUserFx,
+    requestAcceptFx,
 } from "./private"
 import { 
     $currentVerificationEvent, 
-    $deviceIsVerifired, 
+    $deviceIsVerified, 
     $verificationEvents, 
     cancelVerificationEventFx,
-    checkDeviceVerificationFx,
+    checkMyDeviceVerificationFx,
     confirmSASVerification,
     startMyDeviceVerificationFx,
     onVerificationRequest, 
     setCurrentVerificationEvent, 
-    setDeviceVerifiedFx, 
-    setMyDeviceVerifiedFx, 
-    startSASVerification, 
+    startSASVerification,
+    onUpdateDeviceList,
+    startVerificationDevice,
+    startVerificationUser,
+    onRequestAccept,
+    onRequestCancel, 
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
-import { uid } from "@/utils"
 
-$deviceIsVerifired
+$deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
 
 $verificationEvents
@@ -33,13 +41,13 @@ $verificationEvents
         ...requests, req
     ]))
     .on(updateVerificationPhase, (requests) => [...requests])
-    .on(cancelVerificationEvent, (requests, req) => requests
+    .on(onCancelVerificationEvent, (requests, req) => requests
         .filter((currentReq) => currentReq.id !== req.id)
     )
 // @TODO When copying an object, access to private properties was lost
 $currentVerificationEvent
     .on(setCurrentVerificationEvent, (_, req) => [req])
-    .on(cancelVerificationEvent, 
+    .on(onCancelVerificationEvent,
         ([request], canceledReq) => (
             request?.id === canceledReq.id ? [] : [request]
         )
@@ -49,13 +57,46 @@ $currentVerificationEvent
     )
 
 forward({
-    from: setMyDeviceVerifiedFx.doneData,
+    from: checkMyDeviceVerificationFx.doneData,
     to: updateDeviceVerification
 })
 
 forward({
+    from: onUpdateDeviceList,
+    to: checkMyDeviceVerificationFx
+})
+
+forward({
     from: cancelVerificationEventFx.doneData,
-    to: cancelVerificationEvent
+    to: onCancelVerificationEvent
+})
+
+forward({
+    from: startVerificationDevice,
+    to: startVerificationDeviceFx
+})
+
+forward({
+    from: startVerificationUser,
+    to: startVerificationUserFx 
+})
+
+forward({
+    from: [
+        startVerificationUserFx.doneData, 
+        startVerificationDeviceFx.doneData
+    ],
+    to: onVerificationRequest
+})
+
+forward({
+    from: onRequestAccept,
+    to: requestAcceptFx
+})
+
+forward({
+    from: onRequestCancel,
+    to: cancelVerificationEventFx
 })
 
 sample({
@@ -83,21 +124,6 @@ guard({
     target: startSASFx
 })
 
-setMyDeviceVerifiedFx.use(async () => {
-    const cl = client()
-    const userId = cl.getUserId()
-    const deviceId = cl.getDeviceId()
-    await cl.setDeviceKnown(userId, deviceId, true)
-    await cl.setDeviceVerified(userId, deviceId, true)
-    return true
-})
-
-setDeviceVerifiedFx.use(async ({ userId, deviceId }) => {
-    const cl = client()
-    await cl.setDeviceKnown(userId, deviceId, true)
-    await cl.setDeviceVerified(userId, deviceId, true)
-})
-
 onVerificationRequestFx.use(async ({request, currentRequest}) => {
     const onChange = (e: any) => {
         if (request.accepting || request.phase === Phase.Ready) {
@@ -110,11 +136,11 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
 
         if (request.cancelled) {
             request.off("change", onChange)
-            cancelVerificationEvent(request)
-        } else if (request.phase === Phase.Done) {
+            onCancelVerificationEvent(request)
+        }
+        if (request.phase === Phase.Done) {
             request.off("change", onChange)
-            setMyDeviceVerifiedFx()
-            cancelVerificationEvent(request)
+            onCancelVerificationEvent(request)
         }
         if (
             request.phase === Phase.Started 
@@ -124,6 +150,7 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
         }
     }
     request.on("change", onChange)
+    request.on("error", console.error)
     const phaseArray = [Phase.Cancelled, Phase.Done, Phase.Requested]
     // Восстановление предыдущего реквеста после обновления приложения
     if (!currentRequest && !phaseArray.includes(request.phase)) {
@@ -147,12 +174,12 @@ startSASFx.use(async (request) => {
     verifier.once("show_sas", () => {
         updateVerificationPhase()
     })
-    verifier.once("cancel", () => cancelVerificationEvent(request))
+    verifier.once("cancel", () => onCancelVerificationEvent(request))
 
     try {
         await verifier.verify()
     } catch (e) {
-        cancelVerificationEvent(request)
+        onCancelVerificationEvent(request)
     }
 })
 
@@ -169,7 +196,7 @@ confirmSASVerificationFx.use(async (currentRequest) => {
     }
 })
 
-checkDeviceVerificationFx.use(async () => {
+checkMyDeviceVerificationFx.use(async () => {
     const cl = client()
     const deviceId = cl.getDeviceId()
     const userId = cl.getUserId()
@@ -185,7 +212,7 @@ checkDeviceVerificationFx.use(async () => {
         true,
     ).isCrossSigningVerified()
 
-    updateDeviceVerification(isVerified)
+    return isVerified
 })
 
 startMyDeviceVerificationFx.use(async () => {
@@ -194,4 +221,24 @@ startMyDeviceVerificationFx.use(async () => {
         .requestVerification(cl.getUserId()) as MyVerificationRequest
     request.id = uid()
     onVerificationRequest(request)
+})
+
+startVerificationDeviceFx.use(async ({userId, deviceId}) => {
+    const cl = client()
+    const request = await cl
+        .requestVerification(userId, [deviceId]) as MyVerificationRequest
+    request.id = uid()
+    return request
+})
+
+startVerificationUserFx.use(async (userId) => {
+    const cl = client()
+    const request = await cl
+        .requestVerification(userId) as MyVerificationRequest
+    request.id = uid()
+    return request
+})
+
+requestAcceptFx.use(async (request) => {
+    await request.accept()
 })

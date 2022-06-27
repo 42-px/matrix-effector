@@ -30,6 +30,7 @@ export type MappedRoomMember = Pick<RoomMember,
 > & {
   user: MappedUser
   role?: UserRole
+  allDeviceVerified: boolean
 }
 export type MessageResponse = {
     messages: Message[]
@@ -120,4 +121,9 @@ export type RoomPermissions = {
     canRedact: boolean
     canKick: boolean
     canSetDefaultState: boolean
+}
+export type MyDeviceInfo =  {
+    verified: boolean
+    deviceId: string
+    displayName: string | null
 }

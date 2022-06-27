@@ -40,7 +40,7 @@ import {
 import {
     onVerificationRequest, 
     MyVerificationRequest,
-    checkDeviceVerificationFx
+    onUpdateDeviceList,
 } from "@/verification"
 import { UserNotFound } from "@/errors"
 import {
@@ -205,30 +205,22 @@ onClientEvent([
         (...args) => console.warn("crypto.warning", args)
     ],
     [
+        "crypto.keyBackupStatus",
+        (enabled) => console.log("keyBackupStatus", enabled)
+    ],
+    [
         "crypto.willUpdateDevices",
         (userIds: string[], initialFetch?: boolean) => {
             // If we didn't know about *any* devices before (ie. it's fresh login),
             // then they are all pre-existing devices, so ignore this and set the
             // devicesAtStart list to the devices that we see after the fetch.
             if (initialFetch) return
-            console.log("crypto.willUpdateDevices", userIds)
-            const cl = client()
-            const myUserId = cl.getUserId()
-            if (userIds.includes(myUserId)) {
-                console.log(
-                    cl.getStoredDevicesForUser(myUserId).map(d => d.deviceId)
-                )
-            }
+            onUpdateDeviceList(userIds)
         }
     ],
-    [
-        "crypto.devicesUpdated",
-        (userIds: string[]) => {
-            const cl = client()
-            if (!userIds.includes(cl.getUserId())) return
-            checkDeviceVerificationFx()
-        }
-    ]
+    ["crypto.devicesUpdated", onUpdateDeviceList],
+    ["deviceVerificationChanged", onUpdateDeviceList],
+    ["userTrustStatusChanged", onUpdateDeviceList]
 ])
 
 loginByPasswordFx.use( async (params) =>

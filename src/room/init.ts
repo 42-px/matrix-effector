@@ -14,6 +14,7 @@ import {
     guard,
     sample
 } from "effector"
+
 import {
     getIsDirectRoomsIds,
     toMappedRoom,
@@ -34,6 +35,8 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
+import { onUpdateDeviceList } from "@/verification"
+
 import {
     initRoomFx,
     updatePowerLevelFx,
@@ -92,7 +95,8 @@ import {
     getMembersByRoomIdFx,
     inviteUsersFx,
     getRoomMemberFx,
-    getPermissionsByRoomIdFx
+    getPermissionsByRoomIdFx,
+    getUserDevicesFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -622,4 +626,29 @@ getPermissionsByRoomIdFx.use(async (roomId) => {
         canSetDefaultState: powerLevel >= state_default,
         canRedact: powerLevel >= redact
     }
+})
+
+getUserDevicesFx.use((id) => {
+    const cl = client()
+    const isMe = cl.getUserId() === id
+    const crossSigningInfo = cl.getStoredCrossSigningForUser(cl.getUserId())
+    return cl.getStoredDevicesForUser(id).map((device) => {
+        let verified: boolean
+        if (isMe) {
+            verified = crossSigningInfo.checkDeviceTrust(
+                crossSigningInfo,
+                device,
+                false,
+                true,
+            ).isCrossSigningVerified()
+        } else {
+            verified = device.isVerified()
+        }
+        return {
+            deviceId: device.deviceId,
+            displayName: device.getDisplayName(),
+            verified,
+        }
+    })
+
 })

@@ -1,6 +1,5 @@
 import { EventType, TimelineWindow } from "matrix-js-sdk"
 import { client } from "./matrix-client"
-import { MappedRoomMember } from "./room/types"
 import { RoomNotFound } from "./errors"
 import { 
     DIRECT_EVENT, 

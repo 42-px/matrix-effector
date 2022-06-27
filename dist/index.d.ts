@@ -214,6 +214,7 @@ export declare enum Presence {
 	unavailable = "unavailable"
 }
 export declare type MappedUser = Pick<User, "avatarUrl" | "userId" | "currentlyActive" | "displayName" | "lastActiveAgo" | "lastPresenceTs"> & {
+	isVerified: boolean;
 	presence: Presence;
 };
 export interface EventPayload {
@@ -451,6 +452,7 @@ export declare type LoadRoomFxParams = {
 export declare type MappedRoomMember = Pick<RoomMember, "membership" | "name" | "powerLevel" | "powerLevelNorm" | "rawDisplayName" | "roomId" | "typing" | "userId"> & {
 	user: MappedUser;
 	role?: UserRole;
+	allDeviceVerified: boolean;
 };
 export declare type MessageResponse = {
 	messages: Message[];
@@ -522,6 +524,7 @@ export declare type SendTypingParams = {
 	roomId: string;
 	isTyping: boolean;
 };
+<<<<<<< HEAD
 export declare type RoomPermissions = {
 	canInvite: boolean;
 	canBan: boolean;
@@ -529,6 +532,12 @@ export declare type RoomPermissions = {
 	canRedact: boolean;
 	canKick: boolean;
 	canSetDefaultState: boolean;
+=======
+export declare type MyDeviceInfo = {
+	verified: boolean;
+	deviceId: string;
+	displayName: string | null;
+>>>>>>> d906366 (WIP)
 };
 export declare const DEFAULT_INVITE_POWERLEVEL = 50;
 export declare const DEFAULT_BAN_POWERLEVEL = 50;
@@ -605,7 +614,11 @@ export declare const getRoomMemberFx: import("effector").Effect<{
 	roomId: string;
 	userId: string;
 }, RoomMember, Error>;
+<<<<<<< HEAD
 export declare const getPermissionsByRoomIdFx: import("effector").Effect<string, RoomPermissions, Error>;
+=======
+export declare const getUserDevicesFx: import("effector").Effect<string, MyDeviceInfo[], Error>;
+>>>>>>> d906366 (WIP)
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
@@ -732,18 +745,25 @@ export declare type OnVerificationRequestFxParams = {
 export declare type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
 	id: string;
 };
-export declare const setDeviceVerifiedFx: import("effector").Effect<SetDeviceVerifiedFx, void, Error>;
-export declare const cancelVerificationEventFx: import("effector").Effect<MyVerificationRequest, MyVerificationRequest, Error>;
-export declare const setMyDeviceVerifiedFx: import("effector").Effect<void, boolean, Error>;
+export declare type StartVerificationDeviceParams = {
+	userId: string;
+	deviceId: string;
+};
 export declare const $currentVerificationEvent: import("effector").Store<MyVerificationRequest[]>;
 export declare const setCurrentVerificationEvent: import("effector").Event<MyVerificationRequest>;
+export declare const cancelVerificationEventFx: import("effector").Effect<MyVerificationRequest, MyVerificationRequest, Error>;
 export declare const $verificationEvents: import("effector").Store<MyVerificationRequest[]>;
 export declare const onVerificationRequest: import("effector").Event<MyVerificationRequest>;
 export declare const startSASVerification: import("effector").Event<void>;
 export declare const confirmSASVerification: import("effector").Event<void>;
-export declare const checkDeviceVerificationFx: import("effector").Effect<void, void, Error>;
-export declare const $deviceIsVerifired: import("effector").Store<boolean | null>;
+export declare const $deviceIsVerified: import("effector").Store<boolean | null>;
+export declare const onUpdateDeviceList: import("effector").Event<string[]>;
+export declare const checkMyDeviceVerificationFx: import("effector").Effect<void, boolean, Error>;
+export declare const startVerificationDevice: import("effector").Event<StartVerificationDeviceParams>;
 export declare const startMyDeviceVerificationFx: import("effector").Effect<void, void, Error>;
+export declare const startVerificationUser: import("effector").Event<string>;
+export declare const onRequestAccept: import("effector").Event<MyVerificationRequest>;
+export declare const onRequestCancel: import("effector").Event<MyVerificationRequest>;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;
