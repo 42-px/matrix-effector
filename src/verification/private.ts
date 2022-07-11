@@ -36,3 +36,5 @@ export const startVerificationUserFx = verificationDomain
 export const requestAcceptFx = verificationDomain
     .effect<MyVerificationRequest, void, Error>()
 
+export const cancelAllRequestsFx = verificationDomain
+    .effect<MyVerificationRequest[], void, Error>()

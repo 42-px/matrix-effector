@@ -55,3 +55,6 @@ export const onRequestAccept = verificationDomain
 
 export const onRequestCancel = verificationDomain
     .event<MyVerificationRequest>()
+
+export const cancelAllRequests = verificationDomain
+    .event<void>()

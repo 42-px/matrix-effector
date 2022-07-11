@@ -35,7 +35,6 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
-import { onUpdateDeviceList } from "@/verification"
 
 import {
     initRoomFx,
@@ -564,6 +563,16 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     if (isDirect) {
         await setDirectRoom(roomId)
     }
+    if (cl.isRoomEncrypted(roomId)) {
+        await cl.setRoomEncryption(
+            cl.getUserId(),
+            { algorithm: "m.megolm.v1.aes-sha2" }
+        )
+        const members = (
+            await room.getEncryptionTargetMembers()
+        ).map((x: RoomMember) => x.userId)
+        await cl.downloadKeys(members)
+    }
     return toRoomWithActivity(toMappedRoom(room))
 })
 
@@ -628,22 +637,15 @@ getPermissionsByRoomIdFx.use(async (roomId) => {
     }
 })
 
-getUserDevicesFx.use((id) => {
+getUserDevicesFx.use(async (userId) => {
     const cl = client()
-    const isMe = cl.getUserId() === id
-    const crossSigningInfo = cl.getStoredCrossSigningForUser(cl.getUserId())
-    return cl.getStoredDevicesForUser(id).map((device) => {
-        let verified: boolean
-        if (isMe) {
-            verified = crossSigningInfo.checkDeviceTrust(
-                crossSigningInfo,
-                device,
-                false,
-                true,
-            ).isCrossSigningVerified()
-        } else {
-            verified = device.isVerified()
-        }
+    // await cl.downloadKeys([userId], true)
+    const isMe = cl.getUserId() === userId
+    return cl.getStoredDevicesForUser(userId).map((device) => {
+        const deviceTrust = cl.checkDeviceTrust(userId, device.deviceId) 
+        const verified = isMe 
+            ? deviceTrust.isCrossSigningVerified() 
+            : deviceTrust.isVerified()
         return {
             deviceId: device.deviceId,
             displayName: device.getDisplayName(),

@@ -236,7 +236,7 @@ readAllMessagesFx.use(async ({ roomId, eventId }) => {
     // Kludge - typings fix
 
     await client()
-        .setRoomReadMarkers(roomId, eventId, rrEvent, { hidden: false })
+        .setRoomReadMarkers(roomId, eventId, rrEvent)
 })
 uploadContentFx.use(({
     file,

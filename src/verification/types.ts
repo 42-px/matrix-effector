@@ -1,9 +1,4 @@
-import { 
-    IVerificationChannel 
-} from "matrix-js-sdk/lib/crypto/verification/request/Channel"
-import {
-    VerificationRequest 
-} from "matrix-js-sdk/lib/crypto/verification/request/VerificationRequest"
+import { VerificationRequest, IVerificationChannel } from "matrix-js-sdk"
 
 export type SetDeviceVerifiedFx = {
   userId: string

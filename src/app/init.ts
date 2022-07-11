@@ -35,7 +35,8 @@ import {
     toggleTypingUser
 } from "@/room"
 import { 
-    initCryptoFx, 
+    checkBackupKeyFx,
+    initCryptoFx, onCrossSigningKeyChange, 
 } from "@/crypto"
 import {
     onVerificationRequest, 
@@ -170,7 +171,7 @@ onClientEvent([
     ],
     [
         "crossSigning.keysChanged",
-        (...args) => console.log("crossSigning.keysChanged", args)
+        onCrossSigningKeyChange
     ],
     [
         "crypto.roomKeyRequest",
@@ -206,7 +207,7 @@ onClientEvent([
     ],
     [
         "crypto.keyBackupStatus",
-        (enabled) => console.log("keyBackupStatus", enabled)
+        checkBackupKeyFx
     ],
     [
         "crypto.willUpdateDevices",
