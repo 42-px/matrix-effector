@@ -35,7 +35,6 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
-import { onUpdateDeviceList } from "@/verification"
 
 import {
     initRoomFx,
@@ -504,7 +503,8 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
 })
 
 inviteUserFx.use( async ({userId, roomId}) => {
-    const isDirect = client().getRoom(roomId).currentState
+    const room = client().getRoom(roomId)
+    const isDirect = room?.currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""
@@ -525,7 +525,8 @@ inviteUserFx.use( async ({userId, roomId}) => {
 })
 
 inviteUsersFx.use( async ({usersIds, roomId}) => {
-    const isDirect = client().getRoom(roomId).currentState
+    const room = client().getRoom(roomId)
+    const isDirect = room?.currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""
@@ -558,6 +559,16 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     const room = await cl.joinRoom(roomId)
     if (isDirect) {
         await setDirectRoom(roomId)
+    }
+    if (cl.isRoomEncrypted(roomId)) {
+        await cl.setRoomEncryption(
+            cl.getUserId(),
+            { algorithm: "m.megolm.v1.aes-sha2" }
+        )
+        const members = (
+            await room.getEncryptionTargetMembers()
+        ).map((x: RoomMember) => x.userId)
+        await cl.downloadKeys(members)
     }
     return toRoomWithActivity(toMappedRoom(room))
 })
@@ -594,22 +605,15 @@ getRoomMemberFx.use(({ roomId, userId }) => {
     return roomMember
 })
 
-getUserDevicesFx.use((id) => {
+getUserDevicesFx.use(async (userId) => {
     const cl = client()
-    const isMe = cl.getUserId() === id
-    const crossSigningInfo = cl.getStoredCrossSigningForUser(cl.getUserId())
-    return cl.getStoredDevicesForUser(id).map((device) => {
-        let verified: boolean
-        if (isMe) {
-            verified = crossSigningInfo.checkDeviceTrust(
-                crossSigningInfo,
-                device,
-                false,
-                true,
-            ).isCrossSigningVerified()
-        } else {
-            verified = device.isVerified()
-        }
+    // await cl.downloadKeys([userId], true)
+    const isMe = cl.getUserId() === userId
+    return cl.getStoredDevicesForUser(userId).map((device) => {
+        const deviceTrust = cl.checkDeviceTrust(userId, device.deviceId) 
+        const verified = isMe 
+            ? deviceTrust.isCrossSigningVerified() 
+            : deviceTrust.isVerified()
         return {
             deviceId: device.deviceId,
             displayName: device.getDisplayName(),

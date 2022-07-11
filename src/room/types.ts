@@ -30,7 +30,6 @@ export type MappedRoomMember = Pick<RoomMember,
 > & {
   user: MappedUser
   role?: UserRole
-  allDeviceVerified: boolean
 }
 export type MessageResponse = {
     messages: Message[]

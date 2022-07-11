@@ -1,7 +1,9 @@
-import { forward, sample, guard } from "effector"
+import { forward, sample, guard, attach } from "effector"
 import { client } from "@/matrix-client"
-
+import { VerificationRequestEvent } from "matrix-js-sdk"
+import { MappedUser } from "@/types"
 import { uid } from "@/utils"
+import { createDirectRoomFx } from "@/room"
 
 import { 
     updateVerificationPhase, 
@@ -13,6 +15,7 @@ import {
     startVerificationDeviceFx,
     startVerificationUserFx,
     requestAcceptFx,
+    cancelAllRequestsFx,
 } from "./private"
 import { 
     $currentVerificationEvent, 
@@ -29,17 +32,20 @@ import {
     startVerificationDevice,
     startVerificationUser,
     onRequestAccept,
-    onRequestCancel, 
+    onRequestCancel,
+    cancelAllRequests, 
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
+
+const TEN_MINUTES = 36000
 
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
 
 $verificationEvents
-    .on(onVerificationRequestFx.doneData, ((requests, req) => [
+    .on(onVerificationRequestFx.doneData, ((requests, req) => ([
         ...requests, req
-    ]))
+    ])))
     .on(updateVerificationPhase, (requests) => [...requests])
     .on(onCancelVerificationEvent, (requests, req) => requests
         .filter((currentReq) => currentReq.id !== req.id)
@@ -108,6 +114,12 @@ sample({
     target: onVerificationRequestFx
 })
 
+sample({
+    clock: cancelAllRequests,
+    source: $verificationEvents,
+    target: cancelAllRequestsFx
+})
+
 guard({
     clock: confirmSASVerification,
     source: $currentVerificationEvent
@@ -125,7 +137,8 @@ guard({
 })
 
 onVerificationRequestFx.use(async ({request, currentRequest}) => {
-    const onChange = (e: any) => {
+    const onChange = () => {
+        console.log("request UPDATE")
         if (request.accepting || request.phase === Phase.Ready) {
             if (currentRequest && currentRequest?.id !== request.id) {
                 cancelVerificationEventFx(currentRequest)
@@ -135,13 +148,15 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
         }
 
         if (request.cancelled) {
-            request.off("change", onChange)
+            request.off(VerificationRequestEvent.Change, onChange)
             onCancelVerificationEvent(request)
+            console.error("request.cancelled", request.cancellationCode)
         }
         if (request.phase === Phase.Done) {
-            request.off("change", onChange)
+            request.off(VerificationRequestEvent.Change, onChange)
             onCancelVerificationEvent(request)
         }
+
         if (
             request.phase === Phase.Started 
             && !(request.verifier as any).sasEvent
@@ -149,38 +164,35 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
             startSASFx(request)
         }
     }
-    request.on("change", onChange)
-    request.on("error", console.error)
-    const phaseArray = [Phase.Cancelled, Phase.Done, Phase.Requested]
-    // Восстановление предыдущего реквеста после обновления приложения
+    request.on(VerificationRequestEvent.Change, onChange)
+    const phaseArray = [
+        Phase.Cancelled, 
+        Phase.Done, 
+        Phase.Requested, 
+        Phase.Started
+    ]
     if (!currentRequest && !phaseArray.includes(request.phase)) {
         setCurrentVerificationEvent(request)
-        if (
-            request.phase === Phase.Started 
-          && !(request.verifier as any).sasEvent
-        ) {
-            await startSASFx(request)
-        }
+        // if (
+        //     request.phase === Phase.Started 
+        //   && !(request.verifier as any).sasEvent
+        // ) {
+        //     await startSASFx(request)
+        // }
     }
-    // При запуске приложения, если девайс не верифицирован, то отправляется запрос на верификацию и мы сразу его принимаем
-    if (request.isSelfVerification) {
-        request.accept()
-    }
+
     return request
+})
+
+requestAcceptFx.use(async (request) => {
+    await request.accept()
 })
 
 startSASFx.use(async (request) => {
     const verifier = request.beginKeyVerification("m.sas.v1")
-    verifier.once("show_sas", () => {
-        updateVerificationPhase()
-    })
+    verifier.once("show_sas", updateVerificationPhase)
     verifier.once("cancel", () => onCancelVerificationEvent(request))
-
-    try {
-        await verifier.verify()
-    } catch (e) {
-        onCancelVerificationEvent(request)
-    }
+    await verifier.verify()
 })
 
 cancelVerificationEventFx.use(async (req) => {
@@ -200,18 +212,9 @@ checkMyDeviceVerificationFx.use(async () => {
     const cl = client()
     const deviceId = cl.getDeviceId()
     const userId = cl.getUserId()
-    cl.downloadKeys([userId])
-    const device = cl.getStoredDevice(  
-        userId, deviceId
-    )
-    const crossSigningInfo = cl.getStoredCrossSigningForUser(cl.getUserId())
-    const isVerified = crossSigningInfo.checkDeviceTrust(
-        crossSigningInfo,
-        device,
-        false,
-        true,
-    ).isCrossSigningVerified()
-
+    await cl.downloadKeys([userId])
+    const isVerified = cl
+        .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
     return isVerified
 })
 
@@ -231,14 +234,20 @@ startVerificationDeviceFx.use(async ({userId, deviceId}) => {
     return request
 })
 
+const findOrCreateDirectRoomFx = attach({
+    effect: createDirectRoomFx
+})
+
 startVerificationUserFx.use(async (userId) => {
     const cl = client()
+    const user = cl.getUser(userId) as unknown as MappedUser
+    const dmRoom = await findOrCreateDirectRoomFx({ user })
     const request = await cl
-        .requestVerification(userId) as MyVerificationRequest
+        .requestVerificationDM(userId, dmRoom.roomId) as MyVerificationRequest
     request.id = uid()
     return request
 })
 
-requestAcceptFx.use(async (request) => {
-    await request.accept()
+cancelAllRequestsFx.use(async (requests) => {
+    requests.forEach(request => request.cancel())
 })

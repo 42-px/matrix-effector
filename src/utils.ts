@@ -1,4 +1,4 @@
-import { EventType, TimelineWindow } from "matrix-js-sdk"
+import { EventType, Room, TimelineWindow } from "matrix-js-sdk"
 import { client } from "./matrix-client"
 import { RoomNotFound } from "./errors"
 import { 
@@ -137,7 +137,8 @@ export const setDirectRoom = async (
     companion?: string
 ): Promise<{}> => {
     const cl = client()
-    const { creator } = cl.getRoom(roomId).currentState
+    const room = cl.getRoom(roomId) as Room
+    const { creator } = room.currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""

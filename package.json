@@ -59,7 +59,7 @@
     "@42px/effector-extra": "^1.1.1",
     "@babel/runtime": "^7.12.13",
     "effector": "^21.7.5",
-    "matrix-js-sdk": "^15.3.0",
+    "matrix-js-sdk": "github:42-px/matrix-js-sdk#fix-crypto-import",
     "patronum": "^1.1.0"
   },
   "files": [
