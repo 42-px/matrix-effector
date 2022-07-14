@@ -5,8 +5,6 @@
   "main": "./dist/matrix-effector.cjs.js",
   "jsnext:main": "./dist/index.js",
   "module": "./dist/index.js",
-  "umd:main": "./dist/matrix-effector.umd.js",
-  "iife:main": "./dist/matrix-effector.iife.js",
   "browser": "./dist/index.js",
   "exports": {
     "import": "./dist/index.js",
@@ -47,6 +45,7 @@
     "@types/request": "^2.48.7",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
+    "core-js": "^3.23.4",
     "dts-bundle-generator": "^6.0.0",
     "eslint": "^7.19.0",
     "eslint-plugin-promise": "^4.2.1",
@@ -55,12 +54,12 @@
     "typescript": "^4.1.3"
   },
   "peerDependencies": {
-    "@42px/custom-errors": "^1.0.4",
-    "@42px/effector-extra": "^1.1.1",
-    "@babel/runtime": "^7.12.13",
-    "effector": "^21.7.5",
-    "matrix-js-sdk": "^15.3.0",
-    "patronum": "^1.1.0"
+    "@42px/custom-errors": ">=1.4.0",
+    "@42px/effector-extra": ">=2.5.0",
+    "@babel/runtime": ">=7.12.13",
+    "effector": ">=22.0.0 <23.0.0",
+    "matrix-js-sdk": ">=15.0.0 <16.0.0",
+    "patronum": ">=1.8.5"
   },
   "files": [
     "dist"

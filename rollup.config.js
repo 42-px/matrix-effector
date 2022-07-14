@@ -27,18 +27,6 @@ export default {
             file: pkg.module,
             format: "es",
             sourcemap: true,
-        },
-        {
-            file: pkg["umd:main"],
-            format: "umd",
-            sourcemap: true,
-            name: "MatrixEffector",
-        },
-        {
-            file: pkg["iife:main"],
-            format: "iife",
-            name: "MatrixEffector",
-            sourcemap: true,
         }
     ],
     plugins: [
