@@ -3,11 +3,15 @@
         [
             "@babel/preset-env",
             {
-                "modules": false
+                "useBuiltIns": "entry",
+                "corejs": 3,
+                "modules": false,
+                "shippedProposals": true
             }
         ]
     ],
     "plugins": [
+        "effector/babel-plugin",
         "@babel/plugin-transform-runtime"
     ],
     "env": {
