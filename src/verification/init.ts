@@ -1,9 +1,10 @@
 import { forward, sample, guard, attach } from "effector"
-import { client } from "@/matrix-client"
 import { VerificationRequestEvent } from "matrix-js-sdk"
-import { MappedUser } from "@/types"
+
+import { client } from "@/matrix-client"
 import { uid } from "@/utils"
 import { createDirectRoomFx } from "@/room"
+import { MappedUser } from "@/types"
 
 import { 
     updateVerificationPhase, 
@@ -37,7 +38,7 @@ import {
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
 
-const TEN_MINUTES = 36000
+const TEN_MINUTES = 600000
 
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
@@ -168,17 +169,16 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
     const phaseArray = [
         Phase.Cancelled, 
         Phase.Done, 
-        Phase.Requested, 
-        Phase.Started
+        Phase.Requested
     ]
     if (!currentRequest && !phaseArray.includes(request.phase)) {
         setCurrentVerificationEvent(request)
-        // if (
-        //     request.phase === Phase.Started 
-        //   && !(request.verifier as any).sasEvent
-        // ) {
-        //     await startSASFx(request)
-        // }
+        if (
+            request.phase === Phase.Started 
+          && !(request.verifier as any).sasEvent
+        ) {
+            await startSASFx(request)
+        }
     }
 
     return request
@@ -189,6 +189,7 @@ requestAcceptFx.use(async (request) => {
 })
 
 startSASFx.use(async (request) => {
+    console.log("MATRIX_EFFECTOR startSASFx")
     const verifier = request.beginKeyVerification("m.sas.v1")
     verifier.once("show_sas", updateVerificationPhase)
     verifier.once("cancel", () => onCancelVerificationEvent(request))
@@ -201,11 +202,8 @@ cancelVerificationEventFx.use(async (req) => {
 })
 
 confirmSASVerificationFx.use(async (currentRequest) => {
-    try {
-        await (currentRequest.verifier as any).sasEvent.confirm()
-    } finally {
-        updateVerificationPhase()
-    }
+    console.log("MATRIX_EFFECTOR confirmSASVerificationFx")
+    await (currentRequest.verifier as any).sasEvent.confirm()
 })
 
 checkMyDeviceVerificationFx.use(async () => {
@@ -219,6 +217,7 @@ checkMyDeviceVerificationFx.use(async () => {
 })
 
 startMyDeviceVerificationFx.use(async () => {
+    console.log("MATRIX_EFFECTOR startMyDeviceVerificationFx")
     const cl = client()
     const request = await cl
         .requestVerification(cl.getUserId()) as MyVerificationRequest
@@ -227,6 +226,7 @@ startMyDeviceVerificationFx.use(async () => {
 })
 
 startVerificationDeviceFx.use(async ({userId, deviceId}) => {
+    console.log("MATRIX_EFFECTOR startVerificationDeviceFx")
     const cl = client()
     const request = await cl
         .requestVerification(userId, [deviceId]) as MyVerificationRequest
@@ -239,6 +239,7 @@ const findOrCreateDirectRoomFx = attach({
 })
 
 startVerificationUserFx.use(async (userId) => {
+    console.log("MATRIX_EFFECTOR startVerificationUserFx", userId)
     const cl = client()
     const user = cl.getUser(userId) as unknown as MappedUser
     const dmRoom = await findOrCreateDirectRoomFx({ user })
