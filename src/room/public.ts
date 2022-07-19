@@ -28,7 +28,8 @@ import {
     LoadRoomFxParams,
     MessageResponse,
     SendTypingParams,
-    InviteUsersParams
+    InviteUsersParams,
+    RoomPermissions
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -156,3 +157,6 @@ export const getMembersByRoomIdFx = roomDomain
     .effect<string, MappedRoomMember[], Error>()
 export const getRoomMemberFx = roomDomain
     .effect<{roomId: string; userId: string}, RoomMember, Error>()
+
+export const getPermissionsByRoomIdFx = roomDomain
+    .effect<string, RoomPermissions, Error>()

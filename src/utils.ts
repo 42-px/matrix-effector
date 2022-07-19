@@ -138,7 +138,9 @@ export const setDirectRoom = async (
     companion?: string
 ): Promise<{}> => {
     const cl = client()
-    const { creator } = cl.getRoom(roomId).currentState
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound(`Room ${roomId} not found`)
+    const { creator } = room.currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""

@@ -24,7 +24,7 @@ export const createClient = (
     if (ms !== undefined) messageBatchInterval = ms
     clientStore = matrix.createClient(options)
     callbacksStore.forEach(([eventName, cb]) => {
-        clientStore.on(eventName, cb)
+        clientStore.on(eventName as any, cb)
     })
 }
 export const client = (): MatrixClient => clientStore
