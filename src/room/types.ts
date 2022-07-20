@@ -112,3 +112,12 @@ export type SendTypingParams = {
     roomId: string
     isTyping: boolean
   }
+
+export type RoomPermissions = {
+    canInvite: boolean
+    canBan: boolean
+    canSendDefaultEvent: boolean
+    canRedact: boolean
+    canKick: boolean
+    canSetDefaultState: boolean
+}

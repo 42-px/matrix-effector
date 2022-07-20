@@ -520,6 +520,14 @@ export declare type SendTypingParams = {
 	roomId: string;
 	isTyping: boolean;
 };
+export declare type RoomPermissions = {
+	canInvite: boolean;
+	canBan: boolean;
+	canSendDefaultEvent: boolean;
+	canRedact: boolean;
+	canKick: boolean;
+	canSetDefaultState: boolean;
+};
 export declare const DEFAULT_INVITE_POWERLEVEL = 50;
 export declare const DEFAULT_BAN_POWERLEVEL = 50;
 export declare const DEFAULT_KICK_POWERLEVEL = 50;
@@ -595,6 +603,7 @@ export declare const getRoomMemberFx: import("effector").Effect<{
 	roomId: string;
 	userId: string;
 }, RoomMember, Error>;
+export declare const getPermissionsByRoomIdFx: import("effector").Effect<string, RoomPermissions, Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;

@@ -91,7 +91,8 @@ import {
     sendTypingFx,
     getMembersByRoomIdFx,
     inviteUsersFx,
-    getRoomMemberFx
+    getRoomMemberFx,
+    getPermissionsByRoomIdFx
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -500,7 +501,9 @@ createDirectRoomFx.use( async ({user, preset, initialState = []}) => {
 })
 
 inviteUserFx.use( async ({userId, roomId}) => {
-    const isDirect = client().getRoom(roomId).currentState
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound(`Room ${roomId} not found`)
+    const isDirect = room.currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""
@@ -520,7 +523,9 @@ inviteUserFx.use( async ({userId, roomId}) => {
 })
 
 inviteUsersFx.use( async ({usersIds, roomId}) => {
-    const isDirect = client().getRoom(roomId).currentState
+    const room = client().getRoom(roomId)
+    if (!room) throw new RoomNotFound(`Room ${roomId} not found`)
+    const isDirect = room.currentState
         .getStateEvents(
             EventType.RoomCreate,
             ""
@@ -586,4 +591,33 @@ getRoomMemberFx.use(({ roomId, userId }) => {
     const roomMember = matrixRoom?.getMember(userId)
     if (!roomMember) throw new UserNotFound(`${userId} room member not found`)
     return roomMember
+})
+
+getPermissionsByRoomIdFx.use(async (roomId) => {
+    const cl = client()
+    const room = cl.getRoom(roomId)
+    if (!room) throw new RoomNotFound(`Room ${roomId} not found`)
+    const userId = cl.getUserId()
+    const user = room.getMember(userId)
+    if (!user) throw new UserNotFound(`User ${userId} not found`)
+    const { powerLevel } = user 
+    const {
+        kick,
+        ban,
+        invite,
+        events_default,
+        state_default,
+        redact
+    } = room.currentState
+        .getStateEvents("m.room.power_levels", "")
+        .getContent()
+
+    return {
+        canKick: powerLevel >= kick,
+        canBan: powerLevel >= ban,
+        canInvite: powerLevel >= invite,
+        canSendDefaultEvent: powerLevel >= events_default,
+        canSetDefaultState: powerLevel >= state_default,
+        canRedact: powerLevel >= redact
+    }
 })
