@@ -521,7 +521,6 @@ export declare type SendTypingParams = {
 	roomId: string;
 	isTyping: boolean;
 };
-<<<<<<< HEAD
 export declare type RoomPermissions = {
 	canInvite: boolean;
 	canBan: boolean;
@@ -529,12 +528,11 @@ export declare type RoomPermissions = {
 	canRedact: boolean;
 	canKick: boolean;
 	canSetDefaultState: boolean;
-=======
+};
 export declare type MyDeviceInfo = {
 	verified: boolean;
 	deviceId: string;
 	displayName: string | null;
->>>>>>> d906366 (WIP)
 };
 export declare const DEFAULT_INVITE_POWERLEVEL = 50;
 export declare const DEFAULT_BAN_POWERLEVEL = 50;
@@ -611,11 +609,8 @@ export declare const getRoomMemberFx: import("effector").Effect<{
 	roomId: string;
 	userId: string;
 }, RoomMember, Error>;
-<<<<<<< HEAD
 export declare const getPermissionsByRoomIdFx: import("effector").Effect<string, RoomPermissions, Error>;
-=======
 export declare const getUserDevicesFx: import("effector").Effect<string, MyDeviceInfo[], Error>;
->>>>>>> d906366 (WIP)
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;

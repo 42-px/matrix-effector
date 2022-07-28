@@ -29,7 +29,7 @@ import {
     MessageResponse,
     SendTypingParams,
     InviteUsersParams,
-    RoomPermissions
+    RoomPermissions,
     MyDeviceInfo,
 } from "./types"
 
