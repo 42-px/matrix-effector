@@ -253,10 +253,10 @@ guard({
     target: getRoomMembersFx
 })
 guard({
-    source: sample(
-        [$currentRoomId, $timelineWindow],
-        loadRoom,
-        ([
+    source: sample({
+        source: [$currentRoomId, $timelineWindow],
+        clock: loadRoom,
+        fn: ([
             roomId,
             timelineWindow
         ], {
@@ -270,15 +270,16 @@ guard({
             initialWindowSize,
             loadAdditionalDataDirection
         })
-    ),
+    
+    }),
     filter: $loadFilter,
     target: loadInitialRoomFx
 })
 guard({
-    source: sample(
-        [$currentRoomId, $timelineWindow],
-        loadRoomMessage,
-        ([
+    source: sample({
+        source: [$currentRoomId, $timelineWindow],
+        clock: loadRoomMessage,
+        fn: ([
             roomId,
             timelineWindow
         ], {
@@ -291,15 +292,15 @@ guard({
             initialWindowSize,
             loadAdditionalDataDirection: "BACKWARD"
         })
-    ),
+    }),
     filter: $loadFilter,
     target: loadRoomMessageFx,
 })
 guard({
-    source: sample(
-        [$currentRoomId, $timelineWindow],
-        toLiveTimeline,
-        ([
+    source: sample({
+        source: [$currentRoomId, $timelineWindow],
+        clock: toLiveTimeline,
+        fn: ([
             roomId,
             timelineWindow
         ]): LoadRoomFxParams => ({
@@ -307,7 +308,7 @@ guard({
             timelineWindow: timelineWindow as TimelineWindow,
             loadAdditionalDataDirection: "BACKWARD"
         })
-    ),
+    }),
     filter: $loadFilter,
     target: toLiveTimelineFx,
 })

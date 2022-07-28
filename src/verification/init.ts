@@ -17,15 +17,16 @@ import {
     startVerificationUserFx,
     requestAcceptFx,
     cancelAllRequestsFx,
+    checkCanVerifyFx,
 } from "./private"
 import { 
     $currentVerificationEvent, 
     $deviceIsVerified, 
     $verificationEvents, 
     cancelVerificationEventFx,
-    checkMyDeviceVerificationFx,
+    checkThisDeviceVerificationFx,
     confirmSASVerification,
-    startMyDeviceVerificationFx,
+    startThisDeviceVerificationFx,
     onVerificationRequest, 
     setCurrentVerificationEvent, 
     startSASVerification,
@@ -34,7 +35,10 @@ import {
     startVerificationUser,
     onRequestAccept,
     onRequestCancel,
-    cancelAllRequests, 
+    cancelAllRequests,
+    $canVerify,
+    resetCanVerify,
+    onSelectProfileIdUpdate, 
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
 
@@ -63,14 +67,18 @@ $currentVerificationEvent
         ([request]) => [request]
     )
 
+$canVerify
+    .on(checkCanVerifyFx.doneData, (_, canVerify) => canVerify)
+    .reset(resetCanVerify)
+
 forward({
-    from: checkMyDeviceVerificationFx.doneData,
+    from: checkThisDeviceVerificationFx.doneData,
     to: updateDeviceVerification
 })
 
 forward({
     from: onUpdateDeviceList,
-    to: checkMyDeviceVerificationFx
+    to: checkThisDeviceVerificationFx
 })
 
 forward({
@@ -121,6 +129,16 @@ sample({
     target: cancelAllRequestsFx
 })
 
+sample({
+    clock: onSelectProfileIdUpdate,
+    source: $deviceIsVerified,
+    fn: (isVerified, profileId) => ({
+        profileId,
+        isVerified: Boolean(isVerified)
+    }),
+    target: checkCanVerifyFx
+})
+
 guard({
     clock: confirmSASVerification,
     source: $currentVerificationEvent
@@ -139,23 +157,25 @@ guard({
 
 onVerificationRequestFx.use(async ({request, currentRequest}) => {
     const onChange = () => {
-        console.log("request UPDATE")
         if (request.accepting || request.phase === Phase.Ready) {
             if (currentRequest && currentRequest?.id !== request.id) {
                 cancelVerificationEventFx(currentRequest)
             }
             updateVerificationPhase()
             setCurrentVerificationEvent(request)
+            return
         }
 
         if (request.cancelled) {
             request.off(VerificationRequestEvent.Change, onChange)
             onCancelVerificationEvent(request)
             console.error("request.cancelled", request.cancellationCode)
+            return
         }
         if (request.phase === Phase.Done) {
             request.off(VerificationRequestEvent.Change, onChange)
             onCancelVerificationEvent(request)
+            return
         }
 
         if (
@@ -163,6 +183,7 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
             && !(request.verifier as any).sasEvent
         ) {
             startSASFx(request)
+            return
         }
     }
     request.on(VerificationRequestEvent.Change, onChange)
@@ -189,7 +210,6 @@ requestAcceptFx.use(async (request) => {
 })
 
 startSASFx.use(async (request) => {
-    console.log("MATRIX_EFFECTOR startSASFx")
     const verifier = request.beginKeyVerification("m.sas.v1")
     verifier.once("show_sas", updateVerificationPhase)
     verifier.once("cancel", () => onCancelVerificationEvent(request))
@@ -202,11 +222,10 @@ cancelVerificationEventFx.use(async (req) => {
 })
 
 confirmSASVerificationFx.use(async (currentRequest) => {
-    console.log("MATRIX_EFFECTOR confirmSASVerificationFx")
     await (currentRequest.verifier as any).sasEvent.confirm()
 })
 
-checkMyDeviceVerificationFx.use(async () => {
+checkThisDeviceVerificationFx.use(async () => {
     const cl = client()
     const deviceId = cl.getDeviceId()
     const userId = cl.getUserId()
@@ -216,8 +235,7 @@ checkMyDeviceVerificationFx.use(async () => {
     return isVerified
 })
 
-startMyDeviceVerificationFx.use(async () => {
-    console.log("MATRIX_EFFECTOR startMyDeviceVerificationFx")
+startThisDeviceVerificationFx.use(async () => {
     const cl = client()
     const request = await cl
         .requestVerification(cl.getUserId()) as MyVerificationRequest
@@ -226,7 +244,6 @@ startMyDeviceVerificationFx.use(async () => {
 })
 
 startVerificationDeviceFx.use(async ({userId, deviceId}) => {
-    console.log("MATRIX_EFFECTOR startVerificationDeviceFx")
     const cl = client()
     const request = await cl
         .requestVerification(userId, [deviceId]) as MyVerificationRequest
@@ -239,7 +256,6 @@ const findOrCreateDirectRoomFx = attach({
 })
 
 startVerificationUserFx.use(async (userId) => {
-    console.log("MATRIX_EFFECTOR startVerificationUserFx", userId)
     const cl = client()
     const user = cl.getUser(userId) as unknown as MappedUser
     const dmRoom = await findOrCreateDirectRoomFx({ user })
@@ -251,4 +267,23 @@ startVerificationUserFx.use(async (userId) => {
 
 cancelAllRequestsFx.use(async (requests) => {
     requests.forEach(request => request.cancel())
+})
+
+checkCanVerifyFx.use(async ({ profileId, isVerified }) => {
+    const cl = client()
+    const cryptoEnabled = cl.isCryptoEnabled()
+    const homeserverSupportsCrossSigning = await cl
+        .doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+
+    const userTrust = cryptoEnabled && cl.checkUserTrust(profileId)
+    const userVerified = cryptoEnabled && userTrust && userTrust
+        .isCrossSigningVerified()
+    const isMe = profileId === cl.getUserId()
+    if (isMe && isVerified) return true
+
+    const canVerify = cryptoEnabled 
+        && homeserverSupportsCrossSigning 
+        && !userVerified 
+        && isVerified
+    return canVerify
 })

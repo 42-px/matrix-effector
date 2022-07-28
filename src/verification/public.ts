@@ -35,14 +35,14 @@ export const $deviceIsVerified = verificationDomain
 export const onUpdateDeviceList = verificationDomain
     .event<string[]>()
 
-export const checkMyDeviceVerificationFx = verificationDomain
+export const checkThisDeviceVerificationFx = verificationDomain
     .effect<void, boolean, Error>()
 
 
 export const startVerificationDevice = verificationDomain
     .event<StartVerificationDeviceParams>()
 
-export const startMyDeviceVerificationFx = verificationDomain
+export const startThisDeviceVerificationFx = verificationDomain
     .effect<void, void, Error>()
 
 type UserId = string
@@ -58,3 +58,11 @@ export const onRequestCancel = verificationDomain
 
 export const cancelAllRequests = verificationDomain
     .event<void>()
+
+export const $canVerify = verificationDomain.store<boolean>(false)
+
+export const onSelectProfileIdUpdate = verificationDomain.event<string>()
+
+export const resetCanVerify = verificationDomain
+    .event<void>()
+
