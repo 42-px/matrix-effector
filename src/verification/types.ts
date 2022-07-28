@@ -22,7 +22,7 @@ export type OnVerificationRequestFxParams = {
 
 // eslint-disable-next-line max-len
 export type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
-  id: string
+  id: number
 }
 
 export type StartVerificationDeviceParams = {

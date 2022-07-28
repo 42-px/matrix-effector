@@ -36,7 +36,8 @@ import {
 } from "@/room"
 import { 
     checkBackupKeyFx,
-    initCryptoFx, onCrossSigningKeyChange, 
+    initCryptoFx, 
+    onCrossSigningKeyChange, 
 } from "@/crypto"
 import {
     onVerificationRequest, 
@@ -63,7 +64,6 @@ import {
     destroyClientFx,
     getProfileInfoFx,
 } from "./public"
-import { uid } from "@/utils"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -197,7 +197,7 @@ onClientEvent([
         "crypto.verification.request", (
             request: MyVerificationRequest
         ) => {
-            request.id = uid()
+            request.id = Date.now()
             onVerificationRequest(request)
         }
     ],

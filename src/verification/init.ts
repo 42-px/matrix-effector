@@ -2,7 +2,6 @@ import { forward, sample, guard, attach } from "effector"
 import { VerificationRequestEvent } from "matrix-js-sdk"
 
 import { client } from "@/matrix-client"
-import { uid } from "@/utils"
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
 
@@ -239,7 +238,7 @@ startThisDeviceVerificationFx.use(async () => {
     const cl = client()
     const request = await cl
         .requestVerification(cl.getUserId()) as MyVerificationRequest
-    request.id = uid()
+    request.id = Date.now()
     onVerificationRequest(request)
 })
 
@@ -247,7 +246,7 @@ startVerificationDeviceFx.use(async ({userId, deviceId}) => {
     const cl = client()
     const request = await cl
         .requestVerification(userId, [deviceId]) as MyVerificationRequest
-    request.id = uid()
+    request.id = Date.now()
     return request
 })
 
@@ -261,7 +260,7 @@ startVerificationUserFx.use(async (userId) => {
     const dmRoom = await findOrCreateDirectRoomFx({ user })
     const request = await cl
         .requestVerificationDM(userId, dmRoom.roomId) as MyVerificationRequest
-    request.id = uid()
+    request.id = Date.now()
     return request
 })
 

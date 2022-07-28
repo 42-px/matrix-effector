@@ -640,7 +640,6 @@ getPermissionsByRoomIdFx.use(async (roomId) => {
 
 getUserDevicesFx.use(async (userId) => {
     const cl = client()
-    // await cl.downloadKeys([userId], true)
     const isMe = cl.getUserId() === userId
     return cl.getStoredDevicesForUser(userId).map((device) => {
         const deviceTrust = cl.checkDeviceTrust(userId, device.deviceId) 
