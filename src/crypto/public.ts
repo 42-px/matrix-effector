@@ -11,3 +11,5 @@ export const initCryptoFx = cryptoDomain
 
 export const onCrossSigningKeyChange = cryptoDomain
     .event<void>()
+
+export const $isCryptoEnabled = cryptoDomain.store<boolean | null>(null)

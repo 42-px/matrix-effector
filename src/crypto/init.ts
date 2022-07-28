@@ -1,8 +1,9 @@
 import { client } from "@/matrix-client"
-import { checkMyDeviceVerificationFx } from "@/verification"
+import { checkThisDeviceVerificationFx } from "@/verification"
 import { forward } from "effector"
-import { crossSigningChangeFx } from "./private"
+import { crossSigningChangeFx, setEnableCrypto } from "./private"
 import { 
+    $isCryptoEnabled,
     $isKeyBackupEnabled,
     checkBackupKeyFx, 
     initCryptoFx,
@@ -11,6 +12,9 @@ import {
 
 $isKeyBackupEnabled
     .on(checkBackupKeyFx.doneData, (_, isEnabled) => isEnabled)
+
+$isCryptoEnabled
+    .on(setEnableCrypto, (_, isEnabled) => isEnabled)
 
 forward({
     from: onCrossSigningKeyChange,
@@ -21,9 +25,14 @@ checkBackupKeyFx.use(async () => client().getKeyBackupEnabled())
 
 initCryptoFx.use(async () => {
     const cl = client()
-    if (!cl.initCrypto) return
+
+    if (!cl.initCrypto) {
+        setEnableCrypto(false)
+        return
+    }
 
     await cl.initCrypto()
+    setEnableCrypto(true)
     // @TODO Убрать хардкод.
     // Не нашел явной доки, но эта штука отвечает за то, 
     // можешь ли ты писать в конмату в которой находятся не верифицированные тобою девайсы
@@ -34,7 +43,7 @@ initCryptoFx.use(async () => {
     // don't await, because this can take a long times
         cl.restoreKeyBackupWithSecretStorage(backupInfo).then(console.log)
     }
-    checkMyDeviceVerificationFx()
+    checkThisDeviceVerificationFx()
 })
 
 crossSigningChangeFx.use(async () => {
@@ -48,5 +57,5 @@ crossSigningChangeFx.use(async () => {
     if (!cl.isCryptoEnabled()) return
     if (!cl.isInitialSyncComplete()) return
 
-    checkMyDeviceVerificationFx()
+    checkThisDeviceVerificationFx()
 })
