@@ -13,7 +13,9 @@ const callbacksStore: EventListener[] = []
 export const destroyClient = () => {
     if (clientStore) {
         clientStore.removeAllListeners()
+        // TODO Не чистить сторы, если userId нового юзера совпадает со старым юзером
         // clientStore.clearStores()
+        // clientStore.crypto.cryptoStore.deleteAllData()
         clientStore = null as any
     }
 }

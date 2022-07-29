@@ -1,6 +1,6 @@
 import { client } from "@/matrix-client"
-import { checkThisDeviceVerificationFx } from "@/verification"
 import { forward } from "effector"
+import { checkThisDeviceVerificationFx } from "@/verification"
 import { crossSigningChangeFx, setEnableCrypto } from "./private"
 import { 
     $isCryptoEnabled,
