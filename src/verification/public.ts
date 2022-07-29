@@ -59,10 +59,5 @@ export const onRequestCancel = verificationDomain
 export const cancelAllRequests = verificationDomain
     .event<void>()
 
-export const $canVerify = verificationDomain.store<boolean>(false)
-
-export const onSelectProfileIdUpdate = verificationDomain.event<string>()
-
-export const resetCanVerify = verificationDomain
-    .event<void>()
-
+export const checkCanVerifyFx = verificationDomain
+    .effect<{ profileId: string }, boolean, Error>()

@@ -378,7 +378,7 @@ export declare const createOnSyncThrottled: (ms: number) => import("effector").E
 export declare const loginByPasswordFx: import("effector").Effect<LoginByPasswordParams, MatrixLoginPayload, Error>;
 export declare const loginByTokenFx: import("effector").Effect<LoginByTokenParams, AuthData, Error>;
 export declare const initStoreFx: import("effector").Effect<void, void, Error>;
-export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk").IStartClientOpts | undefined, void, Error>;
+export declare const startClientFx: import("effector").Effect<import("matrix-js-sdk/lib").IStartClientOpts | undefined, void, Error>;
 export declare const getLoggedUserFx: import("effector").Effect<void, MappedUser | null, Error>;
 export declare const stopClientFx: import("effector").Effect<void, void, Error>;
 export declare const logoutFx: import("effector").Effect<void, void, Error>;
@@ -735,7 +735,7 @@ export declare type OnVerificationRequestFxParams = {
 	currentRequest: MyVerificationRequest | null;
 };
 export declare type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
-	id: string;
+	id: number;
 };
 export declare type StartVerificationDeviceParams = {
 	userId: string;
@@ -757,9 +757,9 @@ export declare const startVerificationUser: import("effector").Event<string>;
 export declare const onRequestAccept: import("effector").Event<MyVerificationRequest>;
 export declare const onRequestCancel: import("effector").Event<MyVerificationRequest>;
 export declare const cancelAllRequests: import("effector").Event<void>;
-export declare const $canVerify: import("effector").Store<boolean>;
-export declare const onSelectProfileIdUpdate: import("effector").Event<string>;
-export declare const resetCanVerify: import("effector").Event<void>;
+export declare const checkCanVerifyFx: import("effector").Effect<{
+	profileId: string;
+}, boolean, Error>;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;

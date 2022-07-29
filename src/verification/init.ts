@@ -16,7 +16,6 @@ import {
     startVerificationUserFx,
     requestAcceptFx,
     cancelAllRequestsFx,
-    checkCanVerifyFx,
 } from "./private"
 import { 
     $currentVerificationEvent, 
@@ -35,13 +34,9 @@ import {
     onRequestAccept,
     onRequestCancel,
     cancelAllRequests,
-    $canVerify,
-    resetCanVerify,
-    onSelectProfileIdUpdate, 
+    checkCanVerifyFx,
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
-
-const TEN_MINUTES = 600000
 
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
@@ -65,10 +60,6 @@ $currentVerificationEvent
     .on(updateVerificationPhase,
         ([request]) => [request]
     )
-
-$canVerify
-    .on(checkCanVerifyFx.doneData, (_, canVerify) => canVerify)
-    .reset(resetCanVerify)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
@@ -126,16 +117,6 @@ sample({
     clock: cancelAllRequests,
     source: $verificationEvents,
     target: cancelAllRequestsFx
-})
-
-sample({
-    clock: onSelectProfileIdUpdate,
-    source: $deviceIsVerified,
-    fn: (isVerified, profileId) => ({
-        profileId,
-        isVerified: Boolean(isVerified)
-    }),
-    target: checkCanVerifyFx
 })
 
 guard({
@@ -268,11 +249,17 @@ cancelAllRequestsFx.use(async (requests) => {
     requests.forEach(request => request.cancel())
 })
 
-checkCanVerifyFx.use(async ({ profileId, isVerified }) => {
+checkCanVerifyFx.use(async ({ profileId }) => {
     const cl = client()
     const cryptoEnabled = cl.isCryptoEnabled()
     const homeserverSupportsCrossSigning = await cl
         .doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+
+    const deviceId = cl.getDeviceId()
+    const userId = cl.getUserId()
+    await cl.downloadKeys([userId])
+    const isVerified = cl
+        .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
 
     const userTrust = cryptoEnabled && cl.checkUserTrust(profileId)
     const userVerified = cryptoEnabled && userTrust && userTrust

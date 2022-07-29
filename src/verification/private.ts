@@ -39,5 +39,3 @@ export const requestAcceptFx = verificationDomain
 export const cancelAllRequestsFx = verificationDomain
     .effect<MyVerificationRequest[], void, Error>()
 
-export const checkCanVerifyFx = verificationDomain
-    .effect<{ profileId: string; isVerified: boolean }, boolean, Error>()
