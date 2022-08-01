@@ -137,15 +137,6 @@ guard({
 
 onVerificationRequestFx.use(async ({request, currentRequest}) => {
     const onChange = () => {
-        if (request.accepting || request.phase === Phase.Ready) {
-            if (currentRequest && currentRequest?.id !== request.id) {
-                cancelVerificationEventFx(currentRequest)
-            }
-            updateVerificationPhase()
-            setCurrentVerificationEvent(request)
-            return
-        }
-
         if (request.cancelled) {
             request.off(VerificationRequestEvent.Change, onChange)
             onCancelVerificationEvent(request)
@@ -158,6 +149,15 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
             return
         }
 
+        if (request.phase === Phase.Ready) {
+            if (currentRequest && currentRequest?.id !== request.id) {
+                cancelVerificationEventFx(currentRequest)
+            }
+            updateVerificationPhase()
+            setCurrentVerificationEvent(request)
+            return
+        }
+
         if (
             request.phase === Phase.Started 
             && !(request.verifier as any).sasEvent
@@ -167,12 +167,12 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
         }
     }
     request.on(VerificationRequestEvent.Change, onChange)
-    const phaseArray = [
+    const excludePhaseArray = [
         Phase.Cancelled, 
         Phase.Done, 
         Phase.Requested
     ]
-    if (!currentRequest && !phaseArray.includes(request.phase)) {
+    if (!currentRequest && !excludePhaseArray.includes(request.phase)) {
         setCurrentVerificationEvent(request)
         if (
             request.phase === Phase.Started 
