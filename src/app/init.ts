@@ -198,8 +198,15 @@ onClientEvent([
         "crypto.verification.request", (
             request: MyVerificationRequest
         ) => {
-            request.id = Date.now()
-            onVerificationRequest(request)
+            const cl = client()
+            const deviceId = cl.getDeviceId()
+            const userId = cl.getUserId()
+            const isVerified = cl
+                .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
+            if (isVerified || request.isSelfVerification) {
+                request.id = Date.now()
+                onVerificationRequest(request)
+            }
         }
     ],
     [
