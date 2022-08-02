@@ -4,6 +4,7 @@ import { VerificationRequestEvent } from "matrix-js-sdk"
 import { client } from "@/matrix-client"
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
+import { destroyClientFx } from "@/app"
 
 import { 
     updateVerificationPhase, 
@@ -39,8 +40,10 @@ import {
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
 
+
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
+    .reset(destroyClientFx.done)
 
 $verificationEvents
     .on(onVerificationRequestFx.doneData, ((requests, req) => ([
@@ -50,7 +53,8 @@ $verificationEvents
     .on(onCancelVerificationEvent, (requests, req) => requests
         .filter((currentReq) => currentReq.id !== req.id)
     )
-// @TODO When copying an object, access to private properties was lost
+    .reset(destroyClientFx.done)
+// When copying an object, proto properties was lost
 $currentVerificationEvent
     .on(setCurrentVerificationEvent, (_, req) => [req])
     .on(onCancelVerificationEvent,
@@ -61,6 +65,7 @@ $currentVerificationEvent
     .on(updateVerificationPhase,
         ([request]) => [request]
     )
+    .reset(destroyClientFx.done)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,

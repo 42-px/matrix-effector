@@ -21,7 +21,9 @@ forward({
     to: crossSigningChangeFx
 })
 
-checkBackupKeyFx.use(async () => client().getKeyBackupEnabled())
+checkBackupKeyFx.use(() => {
+    return client().getKeyBackupEnabled()
+})
 
 initCryptoFx.use(async () => {
     const cl = client()
