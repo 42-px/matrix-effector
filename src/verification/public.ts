@@ -61,3 +61,6 @@ export const cancelAllRequests = verificationDomain
 
 export const checkCanVerifyFx = verificationDomain
     .effect<{ profileId: string }, boolean, Error>()
+
+export const onUsersProfileUpdate = verificationDomain
+    .event<UserId[]>()

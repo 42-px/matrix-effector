@@ -35,6 +35,7 @@ import {
     onRequestCancel,
     cancelAllRequests,
     checkCanVerifyFx,
+    onUsersProfileUpdate
 } from "./public"
 import { MyVerificationRequest, Phase } from "./types"
 
@@ -146,6 +147,7 @@ onVerificationRequestFx.use(async ({request, currentRequest}) => {
         if (request.phase === Phase.Done) {
             request.off(VerificationRequestEvent.Change, onChange)
             onCancelVerificationEvent(request)
+            onUsersProfileUpdate([request.otherUserId])
             return
         }
 

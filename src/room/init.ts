@@ -572,7 +572,8 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
         const members = (
             await room.getEncryptionTargetMembers()
         ).map((x: RoomMember) => x.userId)
-        await cl.downloadKeys(members)
+        await cl.downloadKeys(members, true)
+        await cl.downloadKeysForUsers(members, {})
     }
     return toRoomWithActivity(toMappedRoom(room))
 })

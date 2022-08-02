@@ -43,6 +43,7 @@ import {
     onVerificationRequest, 
     MyVerificationRequest,
     onUpdateDeviceList,
+    onUsersProfileUpdate,
 } from "@/verification"
 import { UserNotFound } from "@/errors"
 import {
@@ -217,11 +218,21 @@ onClientEvent([
             // devicesAtStart list to the devices that we see after the fetch.
             if (initialFetch) return
             onUpdateDeviceList(userIds)
+            onUsersProfileUpdate(userIds)
         }
     ],
-    ["crypto.devicesUpdated", onUpdateDeviceList],
-    ["deviceVerificationChanged", onUpdateDeviceList],
-    ["userTrustStatusChanged", onUpdateDeviceList]
+    ["crypto.devicesUpdated", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }],
+    ["deviceVerificationChanged", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }],
+    ["userTrustStatusChanged", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }]
 ])
 
 loginByPasswordFx.use( async (params) =>
