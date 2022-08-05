@@ -1,5 +1,4 @@
 import { forward, sample, guard, attach } from "effector"
-import { VerificationRequestEvent } from "matrix-js-sdk"
 
 import { client } from "@/matrix-client"
 import { createDirectRoomFx } from "@/room"
@@ -36,9 +35,9 @@ import {
     onRequestCancel,
     cancelAllRequests,
     checkCanVerifyFx,
-    onUsersProfileUpdate
 } from "./public"
-import { MyVerificationRequest, Phase } from "./types"
+import { MyVerificationRequest } from "./types"
+import { onVerificationRequestFxHandler } from "./helpers"
 
 
 $deviceIsVerified
@@ -141,56 +140,7 @@ guard({
     target: startSASFx
 })
 
-onVerificationRequestFx.use(async ({request, currentRequest}) => {
-    const onChange = () => {
-        if (request.cancelled) {
-            request.off(VerificationRequestEvent.Change, onChange)
-            onCancelVerificationEvent(request)
-            console.error("request.cancelled", request.cancellationCode)
-            return
-        }
-        if (request.phase === Phase.Done) {
-            request.off(VerificationRequestEvent.Change, onChange)
-            onCancelVerificationEvent(request)
-            onUsersProfileUpdate([request.otherUserId])
-            return
-        }
-
-        if (request.phase === Phase.Ready) {
-            if (currentRequest && currentRequest?.id !== request.id) {
-                cancelVerificationEventFx(currentRequest)
-            }
-            updateVerificationPhase()
-            setCurrentVerificationEvent(request)
-            return
-        }
-
-        if (
-            request.phase === Phase.Started 
-            && !(request.verifier as any).sasEvent
-        ) {
-            startSASFx(request)
-            return
-        }
-    }
-    request.on(VerificationRequestEvent.Change, onChange)
-    const excludePhaseArray = [
-        Phase.Cancelled, 
-        Phase.Done, 
-        Phase.Requested
-    ]
-    if (!currentRequest && !excludePhaseArray.includes(request.phase)) {
-        setCurrentVerificationEvent(request)
-        if (
-            request.phase === Phase.Started 
-          && !(request.verifier as any).sasEvent
-        ) {
-            await startSASFx(request)
-        }
-    }
-
-    return request
-})
+onVerificationRequestFx.use(onVerificationRequestFxHandler)
 
 requestAcceptFx.use(async (request) => {
     await request.accept()
