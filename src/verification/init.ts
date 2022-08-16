@@ -4,7 +4,6 @@ import { client } from "@/matrix-client"
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
 import { destroyClientFx } from "@/app"
-
 import { 
     updateVerificationPhase, 
     onCancelVerificationEvent,
@@ -16,12 +15,18 @@ import {
     startVerificationUserFx,
     requestAcceptFx,
     cancelAllRequestsFx,
+    checkRecoveryKeyFx,
+    $savedInputToKeyMethod,
+    $secretStorageKeyResolveAndReject,
+    restoreKeyBackupFx,
+    cancelVerificationEventFx,
+    checkPassphraseFx,
 } from "./private"
 import { 
+    onHasPassphrase,
     $currentVerificationEvent, 
     $deviceIsVerified, 
     $verificationEvents, 
-    cancelVerificationEventFx,
     checkThisDeviceVerificationFx,
     confirmSASVerification,
     startThisDeviceVerificationFx,
@@ -35,14 +40,30 @@ import {
     onRequestCancel,
     cancelAllRequests,
     checkCanVerifyFx,
+    createRecoveryKeyFx,
+    checkRecoveryKey,
+    saveInputToKeyMethod,
+    setSecretStorageKeyResolveAndReject,
+    startRecoveryKeyOrPassphraseVerification,
+    checkPassphrase,
+    $hasPassphrase,
 } from "./public"
 import { MyVerificationRequest } from "./types"
-import { onVerificationRequestFxHandler } from "./helpers"
+import { onVerificationRequestFxReducer } from "./reducers"
+import { InvalidBackupInfo } from "@/errors"
+import { accessSecretStorage } from "../cryptoCallbacks"
 
+$savedInputToKeyMethod
+    .on(saveInputToKeyMethod, (_, method) => method)
+    .reset(destroyClientFx)
+
+$secretStorageKeyResolveAndReject
+    .on(setSecretStorageKeyResolveAndReject, (_, callbacks) => callbacks) 
+    .reset(destroyClientFx)
 
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
-    .reset(destroyClientFx.done)
+    .reset(destroyClientFx)
 
 $verificationEvents
     .on(onVerificationRequestFx.doneData, ((requests, req) => ([
@@ -52,7 +73,7 @@ $verificationEvents
     .on(onCancelVerificationEvent, (requests, req) => requests
         .filter((currentReq) => currentReq.id !== req.id)
     )
-    .reset(destroyClientFx.done)
+    .reset(destroyClientFx)
 // When copying an object, proto properties was lost
 $currentVerificationEvent
     .on(setCurrentVerificationEvent, (_, req) => [req])
@@ -64,7 +85,11 @@ $currentVerificationEvent
     .on(updateVerificationPhase,
         ([request]) => [request]
     )
-    .reset(destroyClientFx.done)
+    .reset(destroyClientFx)
+
+$hasPassphrase
+    .on(onHasPassphrase, (_, val) => val )
+    .reset(destroyClientFx)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
@@ -109,6 +134,11 @@ forward({
     to: cancelVerificationEventFx
 })
 
+forward({
+    from: startRecoveryKeyOrPassphraseVerification,
+    to: restoreKeyBackupFx
+})
+
 sample({
     clock: onVerificationRequest,
     source: $currentVerificationEvent,
@@ -140,7 +170,7 @@ guard({
     target: startSASFx
 })
 
-onVerificationRequestFx.use(onVerificationRequestFxHandler)
+onVerificationRequestFx.use(onVerificationRequestFxReducer)
 
 requestAcceptFx.use(async (request) => {
     await request.accept()
@@ -230,3 +260,56 @@ checkCanVerifyFx.use(async ({ profileId }) => {
         && isVerified
     return canVerify
 })
+
+sample({
+    clock: checkPassphrase,
+    source: $secretStorageKeyResolveAndReject,
+    filter: (resolveAndReject ) => resolveAndReject !== null,
+    fn: (resolveAndReject, {passphrase}) => ({
+        resolveAndReject: resolveAndReject as any,
+        passphrase
+    }),
+    target: checkPassphraseFx
+})
+
+sample({
+    clock: checkRecoveryKey,
+    source: $secretStorageKeyResolveAndReject,
+    filter: (resolveAndReject ) => resolveAndReject !== null,
+    fn: (resolveAndReject, {recoveryKey}) => ({
+        resolveAndReject: resolveAndReject as any,
+        recoveryKey
+    }),
+    target: checkRecoveryKeyFx
+})
+
+checkRecoveryKeyFx.use(async ({resolveAndReject, recoveryKey}) => {
+    resolveAndReject.resolve({recoveryKey})
+})
+
+checkPassphraseFx.use(async ({resolveAndReject, passphrase}) => {
+    resolveAndReject.resolve({passphrase})
+})
+
+createRecoveryKeyFx.use(async () => {
+    const cl = client()
+    const key = await cl.createRecoveryKeyFromPassphrase()
+    if (!key) throw new Error("createRecovery Error")
+    return key
+})
+
+restoreKeyBackupFx.use(async () => {
+    const cl = client()
+    accessSecretStorage(async () => {
+        const backupInfo = await cl.getKeyBackupVersion()
+        await cl.checkOwnCrossSigningTrust()
+    
+        if (!backupInfo) throw new InvalidBackupInfo("backupInfo is null") 
+        // don't await, because this can take a long times
+        cl.restoreKeyBackupWithSecretStorage(backupInfo)
+    })
+})
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+window.createRecoveryKeyFx = createRecoveryKeyFx

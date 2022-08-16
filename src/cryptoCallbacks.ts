@@ -9,10 +9,15 @@ import {
 } from "matrix-js-sdk"
 import { client } from "@/matrix-client"
 import { IdbLoad, IdbSave } from "./idbHelper"
+import { 
+    InputToKeyParams, 
+    onHasPassphrase, 
+    setSecretStorageKeyResolveAndReject, 
+} from "@/verification"
 
-const secretStorageBeingAccessed = false
-const secretStorageKeys: Record<string, Uint8Array> = {}
-const secretStorageKeyInfo: Record<string, ISecretStorageKeyInfo> = {}
+let secretStorageBeingAccessed = false
+let secretStorageKeys: Record<string, Uint8Array> = {}
+let secretStorageKeyInfo: Record<string, ISecretStorageKeyInfo> = {}
 
 let dehydrationCache: {
     key?: Uint8Array
@@ -28,35 +33,100 @@ function cacheSecretStorageKey(
     keyInfo: ISecretStorageKeyInfo,
     key: Uint8Array,
 ): void {
-    if (isCachingAllowed()) {
-        secretStorageKeys[keyId] = key
-        secretStorageKeyInfo[keyId] = keyInfo
+    secretStorageKeys[keyId] = key
+    secretStorageKeyInfo[keyId] = keyInfo
+}
+
+export async function promptForBackupPassphrase(): Promise<Uint8Array> {
+    const key = new Uint8Array()
+
+    console.log("promptForBackupPassphrase")
+    // const success = await finished;
+    // if (!success) throw new Error("Key backup prompt cancelled");
+
+    return key
+}
+
+export async function accessSecretStorage(
+    func = async () => {return}, 
+    forceReset = false
+): Promise<any> {
+    const cl = client()
+    secretStorageBeingAccessed = true
+    try {
+
+        // await cli.bootstrapCrossSigning({
+        //     authUploadDeviceSigningKeys: async (makeRequest) => {
+        //         const { finished } = Modal.createDialog(InteractiveAuthDialog, {
+        //             title: _t("Setting up keys"),
+        //             matrixClient: cli,
+        //             makeRequest,
+        //         })
+        //         const [confirmed] = await finished
+        //         if (!confirmed) {
+        //             throw new Error("Cross-signing key upload auth canceled")
+        //         }
+        //     },
+        // })
+        await cl.bootstrapSecretStorage({
+            getKeyBackupPassphrase: promptForBackupPassphrase,
+        })
+
+        // const keyId = Object.keys(secretStorageKeys)[0]
+        // if (keyId && SettingsStore.getValue("feature_dehydration")) {
+        //     let dehydrationKeyInfo = {}
+        //     if (secretStorageKeyInfo[keyId] && secretStorageKeyInfo[keyId].passphrase) {
+        //         dehydrationKeyInfo = { passphrase: secretStorageKeyInfo[keyId].passphrase }
+        //     }
+        //     console.log("Setting dehydration key")
+        //     await cl.setDehydrationKey(secretStorageKeys[keyId], dehydrationKeyInfo, "Backup device")
+        // } else if (!keyId) {
+        //     console.warn("Not setting dehydration key: no SSSS key found")
+        // } else {
+        //     console.log("Not setting dehydration key: feature disabled")
+        // }
+
+        // `return await` needed here to ensure `finally` block runs after the
+        // inner operation completes.
+        return await func()
+    } catch (e) {
+        // SecurityCustomisations.catchAccessSecretStorageError?.(e)
+        console.error(e)
+        // Re-throw so that higher level logic can abort as needed
+        throw e
+    } finally {
+        // Clear secret storage key cache now that work is complete
+        secretStorageBeingAccessed = false
+        if (!isCachingAllowed()) {
+            secretStorageKeys = {}
+            secretStorageKeyInfo = {}
+        }
     }
 }
 
+
 function makeInputToKey(
     keyInfo: ISecretStorageKeyInfo,
-): (
-  keyParams: { passphrase: string; recoveryKey: string }
-) => Promise<Uint8Array> {
-    return async ({ passphrase, recoveryKey }) => {
-        if (passphrase) {
+): (params: InputToKeyParams) => Promise<Uint8Array> {
+    return async (params) => {
+        if (params.passphrase) {
             return deriveKey(
-                passphrase,
+                params.passphrase,
                 keyInfo.passphrase.salt,
                 keyInfo.passphrase.iterations,
             )
-        } else {
-            return decodeRecoveryKey(recoveryKey)
+        } else if(params.recoveryKey) {
+            return decodeRecoveryKey(params.recoveryKey)
         }
+        throw new Error("Invalid recoveryKey or passphrase")
     }
 }
 
 async function getSecretStorageKey(
     { keys: keyInfos }: { keys: Record<string, ISecretStorageKeyInfo> },
 ): Promise<any> {
-    const cli = client()
-    let keyId = await cli.getDefaultSecretStorageKeyId() as string
+    const cl = client()
+    let keyId = await cl.getDefaultSecretStorageKeyId() as string
     let keyInfo: any
     if(!keyInfos) {
         return ["", new Uint8Array()]
@@ -69,9 +139,7 @@ async function getSecretStorageKey(
             // isn't set
             keyId = ""
         }
-    }
-    console.log("keyid", keyInfos[keyId])
-    if (!keyId) {
+    } else {
         // if no default SSSS key is set, fall back to a heuristic of using the
         // only available key, if only one key is set
         const keyInfoEntries = Object.entries(keyInfos)
@@ -85,9 +153,23 @@ async function getSecretStorageKey(
     }
 
     // Check the in-memory cache
-    if (isCachingAllowed() && secretStorageKeys[keyId]) {
+    if (secretStorageKeys[keyId] && isCachingAllowed()) {
         return [keyId, secretStorageKeys[keyId]]
     }
+
+    const inputToKey = makeInputToKey(keyInfo)
+    const promise = new Promise<InputToKeyParams>((resolve, reject) => {
+        setSecretStorageKeyResolveAndReject({
+            reject,
+            resolve
+        })
+    })
+
+    onHasPassphrase(Boolean(keyInfo.passphrase))
+
+    const input = await promise
+
+    const key = await inputToKey(input)
 
     if (dehydrationCache.key) {
         if (
@@ -97,27 +179,9 @@ async function getSecretStorageKey(
             return [keyId, dehydrationCache.key]
         }
     }
-
-    const inputToKey = makeInputToKey(keyInfo)
-
-    const recoveryKey = await client().createRecoveryKeyFromPassphrase("----")
-    const key = await inputToKey(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        {passphrase: "", recoveryKey: recoveryKey?.keyInfo?.pubkey}
-    )
-    // console.log(recoveryKey);
-    // const key = recoveryKey.keyInfo?.key;
-
-    console.log("GOT IT", key, keyId)
-    // Save to cache to avoid future prompts in the current session
     cacheSecretStorageKey(keyId, keyInfo, key)
-    if(keyId && key) {
-        return [keyId, key]
-    }
-        
-    return ["", new Uint8Array()]
-    
+
+    return [keyId, key]
 }
 
 export async function getDehydrationKey(

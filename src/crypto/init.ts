@@ -1,7 +1,10 @@
 import { client } from "@/matrix-client"
 import { forward } from "effector"
 import { checkThisDeviceVerificationFx } from "@/verification"
-import { crossSigningChangeFx, setEnableCrypto } from "./private"
+import { 
+    crossSigningChangeFx, 
+    setEnableCrypto
+} from "./private"
 import { 
     $isCryptoEnabled,
     $isKeyBackupEnabled,
@@ -40,11 +43,6 @@ initCryptoFx.use(async () => {
     // можешь ли ты писать в конмату в которой находятся не верифицированные тобою девайсы
     cl.setGlobalErrorOnUnknownDevices(false)
     cl.setCryptoTrustCrossSignedDevices(true)
-    const backupInfo = await cl.getKeyBackupVersion()
-    if (backupInfo) {
-    // don't await, because this can take a long times
-        cl.restoreKeyBackupWithSecretStorage(backupInfo).then(console.log)
-    }
     checkThisDeviceVerificationFx()
 })
 

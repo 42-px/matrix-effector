@@ -1,4 +1,8 @@
-import { VerificationRequest, IVerificationChannel } from "matrix-js-sdk"
+import { 
+    VerificationRequest, 
+    IVerificationChannel, 
+    ISecretStorageKeyInfo 
+} from "matrix-js-sdk"
 
 export type SetDeviceVerifiedFx = {
   userId: string
@@ -29,3 +33,33 @@ export type StartVerificationDeviceParams = {
   userId: string
   deviceId: string
 }
+
+export type InputToKeyParams = {
+  passphrase?: string
+  recoveryKey?: string
+}
+
+export type CheckRecoveryKeyParams = Pick<InputToKeyParams, "recoveryKey">
+export type CheckPassphrase = Pick<InputToKeyParams, "passphrase">
+
+export type CheckRecoveryKeyFxParams = CheckRecoveryKeyParams & {
+  resolveAndReject: SecretStorageKeyResolveAndReject
+}
+
+export type CheckPassphraseFxParams = CheckPassphrase & {
+  resolveAndReject: SecretStorageKeyResolveAndReject
+}
+
+export type SavedInputToKeyMethod = (
+  params: InputToKeyParams
+) => Promise<Uint8Array>
+
+
+export type CheckCanVerifyFxParams = {
+  profileId: string
+}
+
+export type SecretStorageKeyResolveAndReject = {
+  resolve:(input: InputToKeyParams) => void
+  reject: () => void
+} 

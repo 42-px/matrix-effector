@@ -11,6 +11,7 @@ export * from "./profile"
 export * from "./types"
 export * from "./matrix-client"
 export * from "./verification"
+export * from "./cryptoCallbacks"
 export {
     getRoomMemberAvatarUrl,
     getSenderAvatarUrl,

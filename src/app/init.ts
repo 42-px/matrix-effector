@@ -236,9 +236,10 @@ onClientEvent([
         onUpdateDeviceList(userIds)
         onUsersProfileUpdate(userIds)
     }],
-    ["userTrustStatusChanged", (userIds: string[]) => {
-        onUpdateDeviceList(userIds)
-        onUsersProfileUpdate(userIds)
+    ["userTrustStatusChanged", (userId: string) => {
+        onUpdateDeviceList([userId])
+        onUsersProfileUpdate([userId])
+        console.log("userTrustStatusChanged", [userId])
     }]
 ])
 
