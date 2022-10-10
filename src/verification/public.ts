@@ -1,19 +1,34 @@
-import { IRecoveryKey } from "matrix-js-sdk/lib"
+import { createApi } from "effector"
+import { IRecoveryKey, ISecretStorageKeyInfo } from "matrix-js-sdk/lib"
 import { verificationDomain } from "./domain"
-import { 
+import {
     CheckCanVerifyFxParams,
     CheckPassphrase,
     CheckRecoveryKeyParams,
     InputToKeyParams,
-    MyVerificationRequest, 
-    SavedInputToKeyMethod, 
-    SecretStorageKeyResolveAndReject, 
-    StartVerificationDeviceParams, 
+    MyVerificationRequest,
+    SavedInputToKeyMethod,
+    SecretStorageKeyResolveAndReject,
+    StartVerificationDeviceParams,
 } from "./types"
 
 type DeviceIsVerified = boolean
 
 // Emodji SAS Verification
+
+export const $isWaitingAnotherUser = verificationDomain
+    .store<boolean>(false)
+
+export const {
+    setWaitingAnotherUser,
+    resetWaitingAnotherUser
+} = createApi(
+    $isWaitingAnotherUser,
+    {
+        setWaitingAnotherUser: () => true,
+        resetWaitingAnotherUser: () => false
+    }
+)
 
 export const $currentVerificationEvent = verificationDomain
     .store<MyVerificationRequest[]>([])
@@ -70,6 +85,22 @@ export const setSecretStorageKeyResolveAndReject = verificationDomain
 export const startRecoveryKeyOrPassphraseVerification = verificationDomain
     .event<void>()
 
+type CheckKeyInfo = {
+    keyInfo: ISecretStorageKeyInfo
+    inputToKey: (params: InputToKeyParams) => Promise<Uint8Array>
+}
+
+export const $checkKeyInfo = verificationDomain
+    .store<CheckKeyInfo | null>(null)
+
+export const setCheckKeyInfo = verificationDomain
+    .event<CheckKeyInfo>()
+
+export const onCheckSecretStorageKey = verificationDomain.event<string>()
+
+export const checkSecretStorageKeyFx = verificationDomain
+    .effect<CheckKeyInfo & { input: string }, boolean, Error>()
+
 // passpharasse verification 
 
 export const checkPassphrase = verificationDomain
@@ -87,7 +118,7 @@ export const onUpdateDeviceList = verificationDomain
 
 export const checkThisDeviceVerificationFx = verificationDomain
     .effect<void, boolean, Error>()
-    
+
 export const checkCanVerifyFx = verificationDomain
     .effect<CheckCanVerifyFxParams, boolean, Error>()
 

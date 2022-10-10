@@ -4,12 +4,12 @@ import { client } from "@/matrix-client"
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
 import { destroyClientFx } from "@/app"
-import { 
-    updateVerificationPhase, 
+import {
+    updateVerificationPhase,
     onCancelVerificationEvent,
-    confirmSASVerificationFx, 
-    onVerificationRequestFx, 
-    startSASFx, 
+    confirmSASVerificationFx,
+    onVerificationRequestFx,
+    startSASFx,
     updateDeviceVerification,
     startVerificationDeviceFx,
     startVerificationUserFx,
@@ -22,16 +22,16 @@ import {
     cancelVerificationEventFx,
     checkPassphraseFx,
 } from "./private"
-import { 
+import {
     onHasPassphrase,
-    $currentVerificationEvent, 
-    $deviceIsVerified, 
-    $verificationEvents, 
+    $currentVerificationEvent,
+    $deviceIsVerified,
+    $verificationEvents,
     checkThisDeviceVerificationFx,
     confirmSASVerification,
     startThisDeviceVerificationFx,
-    onVerificationRequest, 
-    setCurrentVerificationEvent, 
+    onVerificationRequest,
+    setCurrentVerificationEvent,
     startSASVerification,
     onUpdateDeviceList,
     startVerificationDevice,
@@ -47,6 +47,12 @@ import {
     startRecoveryKeyOrPassphraseVerification,
     checkPassphrase,
     $hasPassphrase,
+    setWaitingAnotherUser,
+    resetWaitingAnotherUser,
+    checkSecretStorageKeyFx,
+    $checkKeyInfo,
+    setCheckKeyInfo,
+    onCheckSecretStorageKey,
 } from "./public"
 import { MyVerificationRequest } from "./types"
 import { onVerificationRequestFxReducer } from "./reducers"
@@ -58,7 +64,7 @@ $savedInputToKeyMethod
     .reset(destroyClientFx)
 
 $secretStorageKeyResolveAndReject
-    .on(setSecretStorageKeyResolveAndReject, (_, callbacks) => callbacks) 
+    .on(setSecretStorageKeyResolveAndReject, (_, callbacks) => callbacks)
     .reset(destroyClientFx)
 
 $deviceIsVerified
@@ -88,8 +94,11 @@ $currentVerificationEvent
     .reset(destroyClientFx)
 
 $hasPassphrase
-    .on(onHasPassphrase, (_, val) => val )
+    .on(onHasPassphrase, (_, val) => val)
     .reset(destroyClientFx)
+
+$checkKeyInfo
+    .on(setCheckKeyInfo, (_, val) => val)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
@@ -113,12 +122,31 @@ forward({
 
 forward({
     from: startVerificationUser,
-    to: startVerificationUserFx 
+    to: startVerificationUserFx
 })
 
 forward({
     from: [
-        startVerificationUserFx.doneData, 
+        startVerificationUserFx,
+        startVerificationDeviceFx,
+        confirmSASVerification,
+        startSASFx,
+        startThisDeviceVerificationFx
+    ],
+    to: setWaitingAnotherUser
+})
+
+forward({
+    from: [
+        onCancelVerificationEvent,
+        $currentVerificationEvent.updates
+    ],
+    to: resetWaitingAnotherUser
+})
+
+forward({
+    from: [
+        startVerificationUserFx.doneData,
         startVerificationDeviceFx.doneData
     ],
     to: onVerificationRequest
@@ -152,6 +180,28 @@ sample({
     clock: cancelAllRequests,
     source: $verificationEvents,
     target: cancelAllRequestsFx
+})
+
+sample({
+    clock: checkPassphrase,
+    source: $secretStorageKeyResolveAndReject,
+    filter: (resolveAndReject) => resolveAndReject !== null,
+    fn: (resolveAndReject, { passphrase }) => ({
+        resolveAndReject: resolveAndReject as any,
+        passphrase
+    }),
+    target: checkPassphraseFx
+})
+
+sample({
+    clock: checkRecoveryKey,
+    source: $secretStorageKeyResolveAndReject,
+    filter: (resolveAndReject) => resolveAndReject !== null,
+    fn: (resolveAndReject, { recoveryKey }) => ({
+        resolveAndReject: resolveAndReject as any,
+        recoveryKey
+    }),
+    target: checkRecoveryKeyFx
 })
 
 guard({
@@ -210,7 +260,7 @@ startThisDeviceVerificationFx.use(async () => {
     onVerificationRequest(request)
 })
 
-startVerificationDeviceFx.use(async ({userId, deviceId}) => {
+startVerificationDeviceFx.use(async ({ userId, deviceId }) => {
     const cl = client()
     const request = await cl
         .requestVerification(userId, [deviceId]) as MyVerificationRequest
@@ -254,41 +304,19 @@ checkCanVerifyFx.use(async ({ profileId }) => {
     const isMe = profileId === cl.getUserId()
     if (isMe && isVerified) return true
 
-    const canVerify = cryptoEnabled 
-        && homeserverSupportsCrossSigning 
-        && !userVerified 
+    const canVerify = cryptoEnabled
+        && homeserverSupportsCrossSigning
+        && !userVerified
         && isVerified
     return canVerify
 })
 
-sample({
-    clock: checkPassphrase,
-    source: $secretStorageKeyResolveAndReject,
-    filter: (resolveAndReject ) => resolveAndReject !== null,
-    fn: (resolveAndReject, {passphrase}) => ({
-        resolveAndReject: resolveAndReject as any,
-        passphrase
-    }),
-    target: checkPassphraseFx
+checkRecoveryKeyFx.use(async ({ resolveAndReject, recoveryKey }) => {
+    resolveAndReject.resolve({ recoveryKey })
 })
 
-sample({
-    clock: checkRecoveryKey,
-    source: $secretStorageKeyResolveAndReject,
-    filter: (resolveAndReject ) => resolveAndReject !== null,
-    fn: (resolveAndReject, {recoveryKey}) => ({
-        resolveAndReject: resolveAndReject as any,
-        recoveryKey
-    }),
-    target: checkRecoveryKeyFx
-})
-
-checkRecoveryKeyFx.use(async ({resolveAndReject, recoveryKey}) => {
-    resolveAndReject.resolve({recoveryKey})
-})
-
-checkPassphraseFx.use(async ({resolveAndReject, passphrase}) => {
-    resolveAndReject.resolve({passphrase})
+checkPassphraseFx.use(async ({ resolveAndReject, passphrase }) => {
+    resolveAndReject.resolve({ passphrase })
 })
 
 createRecoveryKeyFx.use(async () => {
@@ -303,11 +331,33 @@ restoreKeyBackupFx.use(async () => {
     accessSecretStorage(async () => {
         const backupInfo = await cl.getKeyBackupVersion()
         await cl.checkOwnCrossSigningTrust()
-    
-        if (!backupInfo) throw new InvalidBackupInfo("backupInfo is null") 
+
+        if (!backupInfo) throw new InvalidBackupInfo("backupInfo is null")
         // don't await, because this can take a long times
         cl.restoreKeyBackupWithSecretStorage(backupInfo)
     })
+})
+
+guard({
+    source: sample({
+        clock: onCheckSecretStorageKey,
+        source: $checkKeyInfo,
+        fn: (checkKeyInfo, input) => ({
+            inputToKey: checkKeyInfo?.inputToKey,
+            keyInfo: checkKeyInfo?.keyInfo,
+            input
+        }),
+    }),
+    filter: (params): params is any => Boolean(
+        params.keyInfo && params.inputToKey
+    ),
+    target: checkSecretStorageKeyFx,
+})
+
+
+checkSecretStorageKeyFx.use(async ({ input, keyInfo, inputToKey }) => {
+    const key = await inputToKey({ passphrase: "", recoveryKey: input })
+    return client().checkSecretStorageKey(key, keyInfo)
 })
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

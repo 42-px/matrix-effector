@@ -1,18 +1,19 @@
-import { 
-    decodeRecoveryKey, 
-    deriveKey, 
-    DeviceTrustLevel, 
-    encodeBase64, 
-    encodeUnpaddedBase64, 
-    ICryptoCallbacks, 
-    ISecretStorageKeyInfo 
+import {
+    decodeRecoveryKey,
+    deriveKey,
+    DeviceTrustLevel,
+    encodeBase64,
+    encodeUnpaddedBase64,
+    ICryptoCallbacks,
+    ISecretStorageKeyInfo
 } from "matrix-js-sdk"
 import { client } from "@/matrix-client"
 import { IdbLoad, IdbSave } from "./idbHelper"
-import { 
-    InputToKeyParams, 
-    onHasPassphrase, 
-    setSecretStorageKeyResolveAndReject, 
+import {
+    InputToKeyParams,
+    onHasPassphrase,
+    setCheckKeyInfo,
+    setSecretStorageKeyResolveAndReject,
 } from "@/verification"
 
 let secretStorageBeingAccessed = false
@@ -48,7 +49,7 @@ export async function promptForBackupPassphrase(): Promise<Uint8Array> {
 }
 
 export async function accessSecretStorage(
-    func = async () => {return}, 
+    func = async () => { return },
     forceReset = false
 ): Promise<any> {
     const cl = client()
@@ -109,13 +110,14 @@ function makeInputToKey(
     keyInfo: ISecretStorageKeyInfo,
 ): (params: InputToKeyParams) => Promise<Uint8Array> {
     return async (params) => {
+        console.log(params)
         if (params.passphrase) {
             return deriveKey(
                 params.passphrase,
                 keyInfo.passphrase.salt,
                 keyInfo.passphrase.iterations,
             )
-        } else if(params.recoveryKey) {
+        } else if (params.recoveryKey) {
             return decodeRecoveryKey(params.recoveryKey)
         }
         throw new Error("Invalid recoveryKey or passphrase")
@@ -128,7 +130,7 @@ async function getSecretStorageKey(
     const cl = client()
     let keyId = await cl.getDefaultSecretStorageKeyId() as string
     let keyInfo: any
-    if(!keyInfos) {
+    if (!keyInfos) {
         return ["", new Uint8Array()]
     }
     if (keyId) {
@@ -146,7 +148,7 @@ async function getSecretStorageKey(
         if (keyInfoEntries.length > 1) {
             throw new Error("Multiple storage key requests not implemented")
         }
-        if(keyInfoEntries[0]) {
+        if (keyInfoEntries[0]) {
             keyId = keyInfoEntries[0][0]
             keyInfo = keyInfoEntries[0][1]
         }
@@ -166,6 +168,7 @@ async function getSecretStorageKey(
     })
 
     onHasPassphrase(Boolean(keyInfo.passphrase))
+    setCheckKeyInfo({ keyInfo, inputToKey: inputToKey })
 
     const input = await promise
 
@@ -188,7 +191,7 @@ export async function getDehydrationKey(
     keyInfo: ISecretStorageKeyInfo,
 ): Promise<Uint8Array> {
     const inputToKey = makeInputToKey(keyInfo)
-    const key = await inputToKey({ passphrase: "", recoveryKey: ""})
+    const key = await inputToKey({ passphrase: "", recoveryKey: "" })
 
     // need to copy the key because rehydration (unpickling) will clobber it
     dehydrationCache = { key: new Uint8Array(key), keyInfo }
@@ -238,7 +241,7 @@ async function onSecretRequested(
                 `session backup key requested by ${deviceId}, but not found in cache`,
             )
         }
-        if(key) {
+        if (key) {
             return encodeBase64(key)
         }
     }
@@ -253,79 +256,84 @@ export const crossSigningCallbacks: ICryptoCallbacks = {
     getDehydrationKey,
 }
 
-export const GetPickleKey = 
-  async (userId: string, deviceId: string): Promise<string | null> => {
-      if (!window.crypto || !window.crypto.subtle) {
-          return null
-      }
-      let data
-      try {
-          data = await IdbLoad("pickleKey", [userId, deviceId])
-      } catch (e) {
-          console.log("idbLoad for pickleKey failed", e)
-      }
-      if (!data) {
-          return null
-      }
-      if (!data.encrypted || !data.iv || !data.cryptoKey) {
-          console.log("Badly formatted pickle key")
-          return null
-      }
+export const GetPickleKey =
+    async (userId: string, deviceId: string): Promise<string | null> => {
+        if (!window.crypto || !window.crypto.subtle) {
+            return null
+        }
+        let data
+        try {
+            data = await IdbLoad("pickleKey", [userId, deviceId])
+        } catch (e) {
+            console.log("idbLoad for pickleKey failed", e)
+        }
+        if (!data) {
+            return null
+        }
+        if (!data.encrypted || !data.iv || !data.cryptoKey) {
+            console.log("Badly formatted pickle key")
+            return null
+        }
 
-      const additionalData = new Uint8Array(userId.length + deviceId.length + 1)
-      for (let i = 0; i < userId.length; i++) {
-          additionalData[i] = userId.charCodeAt(i)
-      }
-      additionalData[userId.length] = 124 // "|"
-      for (let i = 0; i < deviceId.length; i++) {
-          additionalData[userId.length + 1 + i] = deviceId.charCodeAt(i)
-      }
+        const additionalData = new Uint8Array(
+            userId.length + deviceId.length + 1
+        )
+        for (let i = 0; i < userId.length; i++) {
+            additionalData[i] = userId.charCodeAt(i)
+        }
+        additionalData[userId.length] = 124 // "|"
+        for (let i = 0; i < deviceId.length; i++) {
+            additionalData[userId.length + 1 + i] = deviceId.charCodeAt(i)
+        }
 
-      try {
-          const key = await crypto.subtle.decrypt(
-              { name: "AES-GCM", iv: data.iv, additionalData }, data.cryptoKey,
-              data.encrypted,
-          )
-          return encodeUnpaddedBase64(key)
-      } catch (e) {
-          console.log("Error decrypting pickle key")
-          return null
-      }
-  }
+        try {
+            const key = await crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: data.iv, additionalData },
+                data.cryptoKey,
+                data.encrypted,
+            )
+            return encodeUnpaddedBase64(key)
+        } catch (e) {
+            console.log("Error decrypting pickle key")
+            return null
+        }
+    }
 
-export const CreatePickleKey = 
-  async (userId: string, deviceId: string): Promise<string | null> => {
-      if (!window.crypto || !window.crypto.subtle) {
-          return null
-      }
-      const crypto = window.crypto
-      const randomArray = new Uint8Array(32)
-      crypto.getRandomValues(randomArray)
-      const cryptoKey = await crypto.subtle.generateKey(
-          { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"],
-      )
-      const iv = new Uint8Array(32)
-      crypto.getRandomValues(iv)
+export const CreatePickleKey =
+    async (userId: string, deviceId: string): Promise<string | null> => {
+        if (!window.crypto || !window.crypto.subtle) {
+            return null
+        }
+        const crypto = window.crypto
+        const randomArray = new Uint8Array(32)
+        crypto.getRandomValues(randomArray)
+        const cryptoKey = await crypto.subtle.generateKey(
+            { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"],
+        )
+        const iv = new Uint8Array(32)
+        crypto.getRandomValues(iv)
 
-      const additionalData = new Uint8Array(userId.length + deviceId.length + 1)
-      for (let i = 0; i < userId.length; i++) {
-          additionalData[i] = userId.charCodeAt(i)
-      }
-      additionalData[userId.length] = 124 // "|"
-      for (let i = 0; i < deviceId.length; i++) {
-          additionalData[userId.length + 1 + i] = deviceId.charCodeAt(i)
-      }
+        const additionalData = new Uint8Array(
+            userId.length + deviceId.length + 1
+        )
+        for (let i = 0; i < userId.length; i++) {
+            additionalData[i] = userId.charCodeAt(i)
+        }
+        additionalData[userId.length] = 124 // "|"
+        for (let i = 0; i < deviceId.length; i++) {
+            additionalData[userId.length + 1 + i] = deviceId.charCodeAt(i)
+        }
 
-      const encrypted = await crypto.subtle.encrypt(
-          { name: "AES-GCM", iv, additionalData }, cryptoKey, randomArray,
-      )
+        const encrypted = await crypto.subtle.encrypt(
+            { name: "AES-GCM", iv, additionalData }, cryptoKey, randomArray,
+        )
 
-      try {
-          await IdbSave(
-              "pickleKey", [userId, deviceId], { encrypted, iv, cryptoKey }
-          )
-      } catch (e) {
-          return null
-      }
-      return encodeUnpaddedBase64(randomArray)
-  }
+        try {
+            await IdbSave(
+                "pickleKey", [userId, deviceId], { encrypted, iv, cryptoKey }
+            )
+        } catch (e) {
+            return null
+        }
+        return encodeUnpaddedBase64(randomArray)
+    }
