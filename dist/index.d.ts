@@ -777,13 +777,12 @@ export declare const onRequestAccept: import("effector").Event<MyVerificationReq
 export declare const onRequestCancel: import("effector").Event<MyVerificationRequest>;
 export declare const cancelAllRequests: import("effector").Event<void>;
 export declare const checkRecoveryKey: import("effector").Event<CheckRecoveryKeyParams>;
-export declare const createRecoveryKeyFx: import("effector").Effect<void, IRecoveryKey, Error>;
+export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect<string | undefined, IRecoveryKey, Error>;
 export declare const saveInputToKeyMethod: import("effector").Event<SavedInputToKeyMethod>;
 export declare const setSecretStorageKeyResolveAndReject: import("effector").Event<SecretStorageKeyResolveAndReject>;
 export declare const startRecoveryKeyOrPassphraseVerification: import("effector").Event<void>;
 export declare type CheckKeyInfo = {
 	keyInfo: ISecretStorageKeyInfo;
-	inputToKey: (params: InputToKeyParams) => Promise<Uint8Array>;
 };
 export declare const $checkKeyInfo: import("effector").Store<CheckKeyInfo | null>;
 export declare const setCheckKeyInfo: import("effector").Event<CheckKeyInfo>;

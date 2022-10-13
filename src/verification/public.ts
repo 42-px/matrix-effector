@@ -73,8 +73,8 @@ export const cancelAllRequests = verificationDomain
 export const checkRecoveryKey = verificationDomain
     .event<CheckRecoveryKeyParams>()
 
-export const createRecoveryKeyFx = verificationDomain
-    .effect<void, IRecoveryKey, Error>()
+export const createRecoveryKeyAndPassPhraseFx = verificationDomain
+    .effect<string | undefined, IRecoveryKey, Error>()
 
 export const saveInputToKeyMethod = verificationDomain
     .event<SavedInputToKeyMethod>()
@@ -87,7 +87,6 @@ export const startRecoveryKeyOrPassphraseVerification = verificationDomain
 
 type CheckKeyInfo = {
     keyInfo: ISecretStorageKeyInfo
-    inputToKey: (params: InputToKeyParams) => Promise<Uint8Array>
 }
 
 export const $checkKeyInfo = verificationDomain

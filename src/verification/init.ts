@@ -40,7 +40,7 @@ import {
     onRequestCancel,
     cancelAllRequests,
     checkCanVerifyFx,
-    createRecoveryKeyFx,
+    createRecoveryKeyAndPassPhraseFx,
     checkRecoveryKey,
     saveInputToKeyMethod,
     setSecretStorageKeyResolveAndReject,
@@ -319,9 +319,9 @@ checkPassphraseFx.use(async ({ resolveAndReject, passphrase }) => {
     resolveAndReject.resolve({ passphrase })
 })
 
-createRecoveryKeyFx.use(async () => {
+createRecoveryKeyAndPassPhraseFx.use(async (password) => {
     const cl = client()
-    const key = await cl.createRecoveryKeyFromPassphrase()
+    const key = await cl.createRecoveryKeyFromPassphrase(password)
     if (!key) throw new Error("createRecovery Error")
     return key
 })
@@ -343,23 +343,25 @@ guard({
         clock: onCheckSecretStorageKey,
         source: $checkKeyInfo,
         fn: (checkKeyInfo, input) => ({
-            inputToKey: checkKeyInfo?.inputToKey,
             keyInfo: checkKeyInfo?.keyInfo,
             input
         }),
     }),
     filter: (params): params is any => Boolean(
-        params.keyInfo && params.inputToKey
+        params.keyInfo
     ),
     target: checkSecretStorageKeyFx,
 })
 
 
-checkSecretStorageKeyFx.use(async ({ input, keyInfo, inputToKey }) => {
-    const key = await inputToKey({ passphrase: "", recoveryKey: input })
-    return client().checkSecretStorageKey(key, keyInfo)
+checkSecretStorageKeyFx.use(({ input, keyInfo }) => {
+    const cl = client()
+    const decodedKey = cl.keyBackupKeyFromRecoveryKey(input)
+    return cl.checkSecretStorageKey(
+        decodedKey, keyInfo,
+    )
 })
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-window.createRecoveryKeyFx = createRecoveryKeyFx
+window.createRecoveryKeyAndPassPhraseFx = createRecoveryKeyAndPassPhraseFx

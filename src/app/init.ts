@@ -316,6 +316,7 @@ createClientFx.use(async (
     const { store } = cl
     if (store) await store.startup()
     await initCryptoFx()
+    await cl.downloadKeys([cl.getUserId() ?? createClientParams.options.userId])
     await cl.startClient(startClientParams)
 })
 

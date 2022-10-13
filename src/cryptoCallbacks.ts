@@ -69,23 +69,34 @@ export async function accessSecretStorage(
         //         }
         //     },
         // })
+        await cl.bootstrapCrossSigning({})
         await cl.bootstrapSecretStorage({
             getKeyBackupPassphrase: promptForBackupPassphrase,
         })
 
-        // const keyId = Object.keys(secretStorageKeys)[0]
-        // if (keyId && SettingsStore.getValue("feature_dehydration")) {
-        //     let dehydrationKeyInfo = {}
-        //     if (secretStorageKeyInfo[keyId] && secretStorageKeyInfo[keyId].passphrase) {
-        //         dehydrationKeyInfo = { passphrase: secretStorageKeyInfo[keyId].passphrase }
-        //     }
-        //     console.log("Setting dehydration key")
-        //     await cl.setDehydrationKey(secretStorageKeys[keyId], dehydrationKeyInfo, "Backup device")
-        // } else if (!keyId) {
-        //     console.warn("Not setting dehydration key: no SSSS key found")
-        // } else {
-        //     console.log("Not setting dehydration key: feature disabled")
-        // }
+        const keyId = Object.keys(secretStorageKeys)[0]
+        if (keyId) {
+            let dehydrationKeyInfo = {}
+            if (
+                secretStorageKeyInfo[keyId]
+                && secretStorageKeyInfo[keyId].passphrase
+            ) {
+                dehydrationKeyInfo = {
+                    passphrase: secretStorageKeyInfo[keyId].passphrase
+                }
+            }
+            console.log("Setting dehydration key")
+            await cl
+                .setDehydrationKey(
+                    secretStorageKeys[keyId],
+                    dehydrationKeyInfo,
+                    "Backup device"
+                )
+        } else if (!keyId) {
+            console.warn("Not setting dehydration key: no SSSS key found")
+        } else {
+            console.log("Not setting dehydration key: feature disabled")
+        }
 
         // `return await` needed here to ensure `finally` block runs after the
         // inner operation completes.
@@ -159,6 +170,13 @@ async function getSecretStorageKey(
         return [keyId, secretStorageKeys[keyId]]
     }
 
+    if (dehydrationCache.key) {
+        if (await cl.checkSecretStorageKey(dehydrationCache.key, keyInfo)) {
+            cacheSecretStorageKey(keyId, keyInfo, dehydrationCache.key)
+            return [keyId, dehydrationCache.key]
+        }
+    }
+
     const inputToKey = makeInputToKey(keyInfo)
     const promise = new Promise<InputToKeyParams>((resolve, reject) => {
         setSecretStorageKeyResolveAndReject({
@@ -168,20 +186,12 @@ async function getSecretStorageKey(
     })
 
     onHasPassphrase(Boolean(keyInfo.passphrase))
-    setCheckKeyInfo({ keyInfo, inputToKey: inputToKey })
+    setCheckKeyInfo({ keyInfo })
 
     const input = await promise
 
     const key = await inputToKey(input)
 
-    if (dehydrationCache.key) {
-        if (
-            await client().checkSecretStorageKey(dehydrationCache.key, keyInfo)
-        ) {
-            cacheSecretStorageKey(keyId, keyInfo, dehydrationCache.key)
-            return [keyId, dehydrationCache.key]
-        }
-    }
     cacheSecretStorageKey(keyId, keyInfo, key)
 
     return [keyId, key]
