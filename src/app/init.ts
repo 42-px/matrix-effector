@@ -67,6 +67,7 @@ import {
     getProfileInfoFx,
 } from "./public"
 import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
+import { IdbDelete } from "@/idbHelper"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -96,6 +97,31 @@ onClientEvent([
                 }
             }
         }],
+        ["Session.logged_out", (args) => {
+            console.log("Session.logged_out", args)
+        }],
+        // @TODO Реализовать. Этот эвент приходит когда логаут происходит из другой сессии.
+        // cli.on(HttpApiEvent.SessionLoggedOut, function (errObj) {
+        //     if (Lifecycle.isLoggingOut()) return;
+
+        //     // A modal might have been open when we were logged out by the server
+        //     Modal.closeCurrentModal('Session.logged_out');
+
+        //     if (errObj.httpStatus === 401 && errObj.data && errObj.data['soft_logout']) {
+        //         logger.warn("Soft logout issued by server - avoiding data deletion");
+        //         Lifecycle.softLogout();
+        //         return;
+        //     }
+
+        //     Modal.createDialog(ErrorDialog, {
+        //         title: _t('Signed Out'),
+        //         description: _t('For security, this session has been signed out. Please sign in again.'),
+        //     });
+
+        //     dis.dispatch({
+        //         action: 'logout',
+        //     });
+        // });
     ["Room", (room: Room) => {
         const cl = client()
         const user = room.getMember(cl.getUserId())
@@ -323,9 +349,10 @@ createClientFx.use(async (
 destroyClientFx.use(async () => {
     const cl = client()
     if (!cl) return
-    await cl.logout()
-    await cl.store?.deleteAllData()
+    await IdbDelete("pickleKey", [cl.getUserId(), cl.getDeviceId()])
+    await IdbDelete("account", "mx_access_token")
     cl.stopClient()
+    await cl.logout()
     destroyClient()
 })
 
