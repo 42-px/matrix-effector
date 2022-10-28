@@ -26,7 +26,7 @@ export const destroyClient = () => {
 export const createClient = (
     {options, messageBatchInterval: ms}: CreateClientOptions
 ): void => {
-    destroyClient()
+    // destroyClient()
     if (ms !== undefined) messageBatchInterval = ms
     clientStore = matrix.createClient(options)
     callbacksStore.forEach(([eventName, cb]) => {
