@@ -18,6 +18,7 @@ export const destroyClient = () => {
         clientStore.clearStores()
         clientStore.crypto.stop()
         clientStore.crypto.cryptoStore.deleteAllData()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         clientStore = null as any
     }
