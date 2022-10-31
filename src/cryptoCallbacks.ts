@@ -121,7 +121,6 @@ function makeInputToKey(
     keyInfo: ISecretStorageKeyInfo,
 ): (params: InputToKeyParams) => Promise<Uint8Array> {
     return async (params) => {
-        console.log(params)
         if (params.passphrase) {
             return deriveKey(
                 params.passphrase,

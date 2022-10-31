@@ -99,6 +99,7 @@ $hasPassphrase
 
 $checkKeyInfo
     .on(setCheckKeyInfo, (_, val) => val)
+    .reset(destroyClientFx)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
