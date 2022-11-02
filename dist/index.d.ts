@@ -786,6 +786,7 @@ export declare const crossSigningCallbacks: ICryptoCallbacks;
 export declare const GetPickleKey: (userId: string, deviceId: string) => Promise<string | null>;
 export declare const CreatePickleKey: (userId: string, deviceId: string) => Promise<string | null>;
 export declare function tryToUnlockSecretStorageWithDehydrationKey(client: MatrixClient): Promise<void>;
+export declare const confirmResetCrossSigningFx: import("effector").Effect<void, void, Error>;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;

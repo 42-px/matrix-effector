@@ -12,6 +12,7 @@ export * from "./types"
 export * from "./matrix-client"
 export * from "./verification"
 export * from "./cryptoCallbacks"
+export * from "./reset-cross-signing"
 export {
     getRoomMemberAvatarUrl,
     getSenderAvatarUrl,
