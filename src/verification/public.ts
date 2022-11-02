@@ -78,8 +78,11 @@ export const createRecoveryKeyAndPassPhraseFx = verificationDomain
 export const saveInputToKeyMethod = verificationDomain
     .event<SavedInputToKeyMethod>()
 
-export const onNeedRecoveryKeyOrPassphrase = verificationDomain
+export const setSecretStoragePromise = verificationDomain
     .event<SecretStorageKeyResolveAndReject>()
+
+export const onNeedRecoveryKeyOrPassphrase = verificationDomain
+    .event<void>()
 
 export const startRecoveryKeyOrPassphraseVerification = verificationDomain
     .event<void>()

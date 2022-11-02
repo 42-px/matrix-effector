@@ -779,7 +779,8 @@ export declare const cancelAllRequests: import("effector").Event<void>;
 export declare const resolveRecoveryKey: import("effector").Event<ResolveRecoveryKeyParams>;
 export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect<string | undefined, IRecoveryKey, Error>;
 export declare const saveInputToKeyMethod: import("effector").Event<SavedInputToKeyMethod>;
-export declare const onNeedRecoveryKeyOrPassphrase: import("effector").Event<SecretStorageKeyResolveAndReject>;
+export declare const setSecretStoragePromise: import("effector").Event<SecretStorageKeyResolveAndReject>;
+export declare const onNeedRecoveryKeyOrPassphrase: import("effector").Event<void>;
 export declare const startRecoveryKeyOrPassphraseVerification: import("effector").Event<void>;
 export declare type CheckKeyInfo = {
 	keyInfo: ISecretStorageKeyInfo;

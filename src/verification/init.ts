@@ -43,7 +43,6 @@ import {
     createRecoveryKeyAndPassPhraseFx,
     resolveRecoveryKey,
     saveInputToKeyMethod,
-    onNeedRecoveryKeyOrPassphrase,
     startRecoveryKeyOrPassphraseVerification,
     resolvePassphrase,
     $hasPassphrase,
@@ -54,6 +53,7 @@ import {
     setCheckKeyInfo,
     onCheckSecretStorageKey,
     onRecoveryKeyOrPassphraseSuccess,
+    setSecretStoragePromise,
 } from "./public"
 import { MyVerificationRequest } from "./types"
 import { onVerificationRequestFxReducer } from "./reducers"
@@ -65,7 +65,7 @@ $savedInputToKeyMethod
     .reset(destroyClientFx)
 
 $secretStorageKeyResolveAndReject
-    .on(onNeedRecoveryKeyOrPassphrase, (_, callbacks) => callbacks)
+    .on(setSecretStoragePromise, (_, callbacks) => callbacks)
     .reset([destroyClientFx, onRecoveryKeyOrPassphraseSuccess])
     
 $deviceIsVerified

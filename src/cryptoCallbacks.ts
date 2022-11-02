@@ -16,6 +16,7 @@ import {
     setCheckKeyInfo,
     onNeedRecoveryKeyOrPassphrase,
     onRecoveryKeyOrPassphraseSuccess,
+    setSecretStoragePromise,
 } from "@/verification"
 
 let secretStorageBeingAccessed = false
@@ -172,12 +173,12 @@ async function getSecretStorageKey(
 
     const inputToKey = makeInputToKey(keyInfo)
     const promise = new Promise<InputToKeyParams>((resolve, reject) => {
-        onNeedRecoveryKeyOrPassphrase({
+        setSecretStoragePromise({
             reject,
             resolve
         })
     })
-
+    onNeedRecoveryKeyOrPassphrase()
     onHasPassphrase(Boolean(keyInfo.passphrase))
     setCheckKeyInfo({ keyInfo })
 
