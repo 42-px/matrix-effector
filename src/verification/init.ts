@@ -362,7 +362,3 @@ checkSecretStorageKeyFx.use(({ input, keyInfo }) => {
         decodedKey, keyInfo,
     )
 })
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-window.createRecoveryKeyAndPassPhraseFx = createRecoveryKeyAndPassPhraseFx
