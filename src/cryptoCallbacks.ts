@@ -5,7 +5,8 @@ import {
     encodeBase64,
     encodeUnpaddedBase64,
     ICryptoCallbacks,
-    ISecretStorageKeyInfo
+    ISecretStorageKeyInfo,
+    MatrixClient
 } from "matrix-js-sdk"
 import { client } from "@/matrix-client"
 import { IdbLoad, IdbSave } from "./idbHelper"
@@ -13,7 +14,8 @@ import {
     InputToKeyParams,
     onHasPassphrase,
     setCheckKeyInfo,
-    setSecretStorageKeyResolveAndReject,
+    onNeedRecoveryKeyOrPassphrase,
+    onRecoveryKeyOrPassphraseSuccess,
 } from "@/verification"
 
 let secretStorageBeingAccessed = false
@@ -27,6 +29,10 @@ let dehydrationCache: {
 
 function isCachingAllowed(): boolean {
     return secretStorageBeingAccessed
+}
+
+function setCachingAllowed(newVal: boolean): void {
+    secretStorageBeingAccessed = newVal
 }
 
 function cacheSecretStorageKey(
@@ -53,51 +59,41 @@ export async function accessSecretStorage(
     forceReset = false
 ): Promise<any> {
     const cl = client()
-    secretStorageBeingAccessed = true
+    setCachingAllowed(true)
     try {
-
-        // await cli.bootstrapCrossSigning({
-        //     authUploadDeviceSigningKeys: async (makeRequest) => {
-        //         const { finished } = Modal.createDialog(InteractiveAuthDialog, {
-        //             title: _t("Setting up keys"),
-        //             matrixClient: cli,
-        //             makeRequest,
-        //         })
-        //         const [confirmed] = await finished
-        //         if (!confirmed) {
-        //             throw new Error("Cross-signing key upload auth canceled")
-        //         }
-        //     },
-        // })
-        await cl.bootstrapCrossSigning({})
-        await cl.bootstrapSecretStorage({
-            getKeyBackupPassphrase: promptForBackupPassphrase,
-        })
-
-        const keyId = Object.keys(secretStorageKeys)[0]
-        if (keyId) {
-            let dehydrationKeyInfo = {}
-            if (
-                secretStorageKeyInfo[keyId]
-                && secretStorageKeyInfo[keyId].passphrase
-            ) {
-                dehydrationKeyInfo = {
-                    passphrase: secretStorageKeyInfo[keyId].passphrase
-                }
-            }
-            console.log("Setting dehydration key")
-            await cl
-                .setDehydrationKey(
-                    secretStorageKeys[keyId],
-                    dehydrationKeyInfo,
-                    "Backup device"
-                )
-        } else if (!keyId) {
-            console.warn("Not setting dehydration key: no SSSS key found")
+        if (!(await cl.hasSecretStorageKey()) || forceReset) {
+            // Потребуется для сбросса кросс подписей 
         } else {
-            console.log("Not setting dehydration key: feature disabled")
+            await cl.bootstrapCrossSigning({})
+            await cl.bootstrapSecretStorage({
+                getKeyBackupPassphrase: promptForBackupPassphrase,
+            })
+    
+            const keyId = Object.keys(secretStorageKeys)[0]
+            if (keyId) {
+                let dehydrationKeyInfo = {}
+                if (
+                    secretStorageKeyInfo[keyId]
+                    && secretStorageKeyInfo[keyId].passphrase
+                ) {
+                    dehydrationKeyInfo = {
+                        passphrase: secretStorageKeyInfo[keyId].passphrase
+                    }
+                }
+                console.log("Setting dehydration key")
+                await cl
+                    .setDehydrationKey(
+                        secretStorageKeys[keyId],
+                        dehydrationKeyInfo,
+                        "Backup device"
+                    )
+            } else if (!keyId) {
+                console.warn("Not setting dehydration key: no SSSS key found")
+            } else {
+                console.log("Not setting dehydration key: feature disabled")
+            }
+    
         }
-
         // `return await` needed here to ensure `finally` block runs after the
         // inner operation completes.
         return await func()
@@ -108,7 +104,7 @@ export async function accessSecretStorage(
         throw e
     } finally {
         // Clear secret storage key cache now that work is complete
-        secretStorageBeingAccessed = false
+        setCachingAllowed(false)
         if (!isCachingAllowed()) {
             secretStorageKeys = {}
             secretStorageKeyInfo = {}
@@ -151,17 +147,15 @@ async function getSecretStorageKey(
             // isn't set
             keyId = ""
         }
-    } else {
+    } 
+    if (!keyId) {
         // if no default SSSS key is set, fall back to a heuristic of using the
         // only available key, if only one key is set
         const keyInfoEntries = Object.entries(keyInfos)
         if (keyInfoEntries.length > 1) {
             throw new Error("Multiple storage key requests not implemented")
         }
-        if (keyInfoEntries[0]) {
-            keyId = keyInfoEntries[0][0]
-            keyInfo = keyInfoEntries[0][1]
-        }
+        [keyId, keyInfo] = keyInfoEntries[0]
     }
 
     // Check the in-memory cache
@@ -178,7 +172,7 @@ async function getSecretStorageKey(
 
     const inputToKey = makeInputToKey(keyInfo)
     const promise = new Promise<InputToKeyParams>((resolve, reject) => {
-        setSecretStorageKeyResolveAndReject({
+        onNeedRecoveryKeyOrPassphrase({
             reject,
             resolve
         })
@@ -192,7 +186,7 @@ async function getSecretStorageKey(
     const key = await inputToKey(input)
 
     cacheSecretStorageKey(keyId, keyInfo, key)
-
+    onRecoveryKeyOrPassphraseSuccess()
     return [keyId, key]
 }
 
@@ -346,3 +340,56 @@ export const CreatePickleKey =
         }
         return encodeUnpaddedBase64(randomArray)
     }
+
+export async function tryToUnlockSecretStorageWithDehydrationKey(
+    client: MatrixClient,
+): Promise<void> {
+    const key = dehydrationCache.key
+    let restoringBackup = false
+    if (key && (await client.isSecretStorageReady())) {
+        setCachingAllowed(true)
+        try {
+            await client.checkOwnCrossSigningTrust()
+    
+            // we also need to set a new dehydrated device to replace the
+            // device we rehydrated
+            let dehydrationKeyInfo = {}
+            if (
+                dehydrationCache.keyInfo 
+                && dehydrationCache.keyInfo.passphrase
+            ) {
+                dehydrationKeyInfo = { 
+                    passphrase: dehydrationCache.keyInfo.passphrase }
+            }
+            await client
+                .setDehydrationKey(key, dehydrationKeyInfo, "Backup device")
+    
+            // and restore from backup
+            const backupInfo = await client.getKeyBackupVersion()
+            if (backupInfo) {
+                restoringBackup = true
+                // don't await, because this can take a long time
+                client.restoreKeyBackupWithSecretStorage(backupInfo)
+                    .finally(() => {
+                        secretStorageBeingAccessed = false
+                        if (!isCachingAllowed()) {
+                            secretStorageKeys = {}
+                            secretStorageKeyInfo = {}
+                        }
+                    })
+            }
+        } finally {
+            dehydrationCache = {}
+            // the secret storage cache is needed for restoring from backup, so
+            // don't clear it yet if we're restoring from backup
+            if (!restoringBackup) {
+                setCachingAllowed(false)
+                if (!isCachingAllowed()) {
+                    secretStorageKeys = {}
+                    secretStorageKeyInfo = {}
+                }
+            }
+        }
+    }
+}
+    

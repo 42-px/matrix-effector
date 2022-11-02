@@ -1,6 +1,7 @@
 import { client } from "@/matrix-client"
 import { forward } from "effector"
 import { checkThisDeviceVerificationFx } from "@/verification"
+import { destroyClientFx } from "@/app"
 import { 
     crossSigningChangeFx, 
     setEnableCrypto
@@ -15,9 +16,11 @@ import {
 
 $isKeyBackupEnabled
     .on(checkBackupKeyFx.doneData, (_, isEnabled) => isEnabled)
+    .reset(destroyClientFx)
 
 $isCryptoEnabled
     .on(setEnableCrypto, (_, isEnabled) => isEnabled)
+    .reset(destroyClientFx)
 
 forward({
     from: onCrossSigningKeyChange,

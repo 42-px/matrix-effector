@@ -39,14 +39,14 @@ export type InputToKeyParams = {
   recoveryKey?: string
 }
 
-export type CheckRecoveryKeyParams = Pick<InputToKeyParams, "recoveryKey">
-export type CheckPassphrase = Pick<InputToKeyParams, "passphrase">
+export type ResolveRecoveryKeyParams = Pick<InputToKeyParams, "recoveryKey">
+export type ResolvePassphrase = Pick<InputToKeyParams, "passphrase">
 
-export type CheckRecoveryKeyFxParams = CheckRecoveryKeyParams & {
+export type ResolveRecoveryKeyFxParams = ResolveRecoveryKeyParams & {
   resolveAndReject: SecretStorageKeyResolveAndReject
 }
 
-export type CheckPassphraseFxParams = CheckPassphrase & {
+export type ResolvePassphraseFxParams = ResolvePassphrase & {
   resolveAndReject: SecretStorageKeyResolveAndReject
 }
 

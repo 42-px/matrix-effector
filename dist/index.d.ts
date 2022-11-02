@@ -746,12 +746,12 @@ export declare type InputToKeyParams = {
 	passphrase?: string;
 	recoveryKey?: string;
 };
-export declare type CheckRecoveryKeyParams = Pick<InputToKeyParams, "recoveryKey">;
-export declare type CheckPassphrase = Pick<InputToKeyParams, "passphrase">;
-export declare type CheckRecoveryKeyFxParams = CheckRecoveryKeyParams & {
+export declare type ResolveRecoveryKeyParams = Pick<InputToKeyParams, "recoveryKey">;
+export declare type ResolvePassphrase = Pick<InputToKeyParams, "passphrase">;
+export declare type ResolveRecoveryKeyFxParams = ResolveRecoveryKeyParams & {
 	resolveAndReject: SecretStorageKeyResolveAndReject;
 };
-export declare type CheckPassphraseFxParams = CheckPassphrase & {
+export declare type ResolvePassphraseFxParams = ResolvePassphrase & {
 	resolveAndReject: SecretStorageKeyResolveAndReject;
 };
 export declare type SavedInputToKeyMethod = (params: InputToKeyParams) => Promise<Uint8Array>;
@@ -776,10 +776,10 @@ export declare const startVerificationUser: import("effector").Event<string>;
 export declare const onRequestAccept: import("effector").Event<MyVerificationRequest>;
 export declare const onRequestCancel: import("effector").Event<MyVerificationRequest>;
 export declare const cancelAllRequests: import("effector").Event<void>;
-export declare const checkRecoveryKey: import("effector").Event<CheckRecoveryKeyParams>;
+export declare const resolveRecoveryKey: import("effector").Event<ResolveRecoveryKeyParams>;
 export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect<string | undefined, IRecoveryKey, Error>;
 export declare const saveInputToKeyMethod: import("effector").Event<SavedInputToKeyMethod>;
-export declare const setSecretStorageKeyResolveAndReject: import("effector").Event<SecretStorageKeyResolveAndReject>;
+export declare const onNeedRecoveryKeyOrPassphrase: import("effector").Event<SecretStorageKeyResolveAndReject>;
 export declare const startRecoveryKeyOrPassphraseVerification: import("effector").Event<void>;
 export declare type CheckKeyInfo = {
 	keyInfo: ISecretStorageKeyInfo;
@@ -790,7 +790,8 @@ export declare const onCheckSecretStorageKey: import("effector").Event<string>;
 export declare const checkSecretStorageKeyFx: import("effector").Effect<CheckKeyInfo & {
 	input: string;
 }, boolean, Error>;
-export declare const checkPassphrase: import("effector").Event<CheckPassphrase>;
+export declare const onRecoveryKeyOrPassphraseSuccess: import("effector").Event<void>;
+export declare const resolvePassphrase: import("effector").Event<ResolvePassphrase>;
 export declare const $hasPassphrase: import("effector").Store<boolean>;
 export declare const onHasPassphrase: import("effector").Event<boolean>;
 export declare const $deviceIsVerified: import("effector").Store<boolean | null>;
@@ -804,6 +805,7 @@ export declare function getDehydrationKey(keyInfo: ISecretStorageKeyInfo): Promi
 export declare const crossSigningCallbacks: ICryptoCallbacks;
 export declare const GetPickleKey: (userId: string, deviceId: string) => Promise<string | null>;
 export declare const CreatePickleKey: (userId: string, deviceId: string) => Promise<string | null>;
+export declare function tryToUnlockSecretStorageWithDehydrationKey(client: MatrixClient): Promise<void>;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;

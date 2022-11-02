@@ -1,7 +1,7 @@
 import { verificationDomain } from "./domain"
 import { 
-    CheckPassphraseFxParams,
-    CheckRecoveryKeyFxParams,
+    ResolvePassphraseFxParams,
+    ResolveRecoveryKeyFxParams,
     MyVerificationRequest, 
     OnVerificationRequestFxParams, 
     SavedInputToKeyMethod, 
@@ -44,8 +44,8 @@ export const cancelVerificationEventFx = verificationDomain
     .effect<MyVerificationRequest, MyVerificationRequest, Error>()
 
 // Recovery key
-export const checkRecoveryKeyFx = verificationDomain
-    .effect<CheckRecoveryKeyFxParams, void, Error>()
+export const resolveRecoveryKeyFx = verificationDomain
+    .effect<ResolveRecoveryKeyFxParams, void, Error>()
 
 export const $savedInputToKeyMethod = verificationDomain
     .store<SavedInputToKeyMethod | null>(null)
@@ -57,8 +57,8 @@ export const restoreKeyBackupFx = verificationDomain
     .effect<void, void, Error>()
 
 // passpharasse verification 
-export const checkPassphraseFx = verificationDomain
-    .effect<CheckPassphraseFxParams, void, Error>()
+export const resolvePassphraseFx = verificationDomain
+    .effect<ResolvePassphraseFxParams, void, Error>()
 
 // others
 export const updateDeviceVerification = verificationDomain
