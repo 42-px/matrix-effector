@@ -63,3 +63,7 @@ export type SecretStorageKeyResolveAndReject = {
   resolve:(input: InputToKeyParams) => void
   reject: () => void
 } 
+
+export type CheckKeyInfo = {
+  keyInfo: ISecretStorageKeyInfo
+}

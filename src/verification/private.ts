@@ -6,7 +6,8 @@ import {
     OnVerificationRequestFxParams, 
     SavedInputToKeyMethod, 
     SecretStorageKeyResolveAndReject, 
-    StartVerificationDeviceParams 
+    StartVerificationDeviceParams, 
+    CheckKeyInfo
 } from "./types"
 
 // Emodji SAS Verification
@@ -55,6 +56,12 @@ export const $secretStorageKeyResolveAndReject = verificationDomain
 
 export const restoreKeyBackupFx = verificationDomain
     .effect<void, void, Error>()
+
+export const $checkKeyInfo = verificationDomain
+    .store<CheckKeyInfo | null>(null)
+
+export const checkSecretStorageKeyFx = verificationDomain
+    .effect<CheckKeyInfo & { input: string }, boolean, Error>()
 
 // passpharasse verification 
 export const resolvePassphraseFx = verificationDomain

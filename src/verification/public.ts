@@ -1,5 +1,5 @@
 import { createApi } from "effector"
-import { IRecoveryKey, ISecretStorageKeyInfo } from "matrix-js-sdk/lib"
+import { IRecoveryKey } from "matrix-js-sdk/lib"
 import { verificationDomain } from "./domain"
 import {
     CheckCanVerifyFxParams,
@@ -9,6 +9,7 @@ import {
     SavedInputToKeyMethod,
     SecretStorageKeyResolveAndReject,
     StartVerificationDeviceParams,
+    CheckKeyInfo,
 } from "./types"
 
 type DeviceIsVerified = boolean
@@ -87,22 +88,15 @@ export const onNeedRecoveryKeyOrPassphrase = verificationDomain
 export const startRecoveryKeyOrPassphraseVerification = verificationDomain
     .event<void>()
 
-type CheckKeyInfo = {
-    keyInfo: ISecretStorageKeyInfo
-}
-
-export const $checkKeyInfo = verificationDomain
-    .store<CheckKeyInfo | null>(null)
-
 export const setCheckKeyInfo = verificationDomain
     .event<CheckKeyInfo>()
 
 export const onCheckSecretStorageKey = verificationDomain.event<string>()
 
-export const checkSecretStorageKeyFx = verificationDomain
-    .effect<CheckKeyInfo & { input: string }, boolean, Error>()
-
 export const onRecoveryKeyOrPassphraseSuccess = verificationDomain.event<void>()
+
+export const onValidRecoveryKey = verificationDomain.event<void>()
+export const onInvalidRecoveryKey = verificationDomain.event<Error>()
 
 // passphrasse verification 
 

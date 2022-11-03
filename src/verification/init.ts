@@ -21,6 +21,8 @@ import {
     restoreKeyBackupFx,
     cancelVerificationEventFx,
     resolvePassphraseFx,
+    checkSecretStorageKeyFx,
+    $checkKeyInfo,
 } from "./private"
 import {
     onHasPassphrase,
@@ -48,12 +50,12 @@ import {
     $hasPassphrase,
     setWaitingAnotherUser,
     resetWaitingAnotherUser,
-    checkSecretStorageKeyFx,
-    $checkKeyInfo,
     setCheckKeyInfo,
     onCheckSecretStorageKey,
     onRecoveryKeyOrPassphraseSuccess,
     setSecretStoragePromise,
+    onValidRecoveryKey,
+    onInvalidRecoveryKey,
 } from "./public"
 import { MyVerificationRequest } from "./types"
 import { onVerificationRequestFxReducer } from "./reducers"
@@ -167,6 +169,16 @@ forward({
 forward({
     from: startRecoveryKeyOrPassphraseVerification,
     to: restoreKeyBackupFx
+})
+
+forward({
+    from: checkSecretStorageKeyFx.doneData,
+    to: onValidRecoveryKey
+})
+
+forward({
+    from: checkSecretStorageKeyFx.failData,
+    to: onInvalidRecoveryKey,
 })
 
 sample({
