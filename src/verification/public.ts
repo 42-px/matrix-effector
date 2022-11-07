@@ -3,13 +3,10 @@ import { IRecoveryKey } from "matrix-js-sdk/lib"
 import { verificationDomain } from "./domain"
 import {
     CheckCanVerifyFxParams,
-    ResolvePassphrase,
-    ResolveRecoveryKeyParams,
     MyVerificationRequest,
-    SavedInputToKeyMethod,
-    SecretStorageKeyResolveAndReject,
     StartVerificationDeviceParams,
     CheckKeyInfo,
+    InputToKeyParams,
 } from "./types"
 
 type DeviceIsVerified = boolean
@@ -70,17 +67,9 @@ export const cancelAllRequests = verificationDomain
 
 
 // Recovery Key
-export const resolveRecoveryKey = verificationDomain
-    .event<ResolveRecoveryKeyParams>()
 
 export const createRecoveryKeyAndPassPhraseFx = verificationDomain
     .effect<string | undefined, IRecoveryKey, Error>()
-
-export const saveInputToKeyMethod = verificationDomain
-    .event<SavedInputToKeyMethod>()
-
-export const setSecretStoragePromise = verificationDomain
-    .event<SecretStorageKeyResolveAndReject>()
 
 export const onNeedRecoveryKeyOrPassphrase = verificationDomain
     .event<void>()
@@ -100,9 +89,6 @@ export const onInvalidRecoveryKey = verificationDomain.event<Error>()
 
 // passphrasse verification 
 
-export const resolvePassphrase = verificationDomain
-    .event<ResolvePassphrase>()
-
 export const $hasPassphrase = verificationDomain.store<boolean>(false)
 export const onHasPassphrase = verificationDomain.event<boolean>()
 
@@ -121,3 +107,10 @@ export const checkCanVerifyFx = verificationDomain
 
 export const onUsersProfileUpdate = verificationDomain
     .event<UserId[]>()
+
+export const onResolveSecretStorageKey = verificationDomain
+    .event<InputToKeyParams>()
+
+export const onRejectSecretStorageKey = verificationDomain
+    .event<void>()
+

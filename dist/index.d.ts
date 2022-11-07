@@ -719,10 +719,6 @@ export declare const createClient: ({ options, messageBatchInterval: ms }: Creat
 export declare const client: () => MatrixClient;
 export declare const onClientEvent: (callbacks: EventListener[]) => void;
 export declare const createRoomMessageBatch: () => import("effector").Event<Message[]>;
-export declare type SetDeviceVerifiedFx = {
-	userId: string;
-	deviceId: string;
-};
 export declare enum Phase {
 	Unsent = 1,
 	Requested = 2,
@@ -746,21 +742,8 @@ export declare type InputToKeyParams = {
 	passphrase?: string;
 	recoveryKey?: string;
 };
-export declare type ResolveRecoveryKeyParams = Pick<InputToKeyParams, "recoveryKey">;
-export declare type ResolvePassphrase = Pick<InputToKeyParams, "passphrase">;
-export declare type ResolveRecoveryKeyFxParams = ResolveRecoveryKeyParams & {
-	resolveAndReject: SecretStorageKeyResolveAndReject;
-};
-export declare type ResolvePassphraseFxParams = ResolvePassphrase & {
-	resolveAndReject: SecretStorageKeyResolveAndReject;
-};
-export declare type SavedInputToKeyMethod = (params: InputToKeyParams) => Promise<Uint8Array>;
 export declare type CheckCanVerifyFxParams = {
 	profileId: string;
-};
-export declare type SecretStorageKeyResolveAndReject = {
-	resolve: (input: InputToKeyParams) => void;
-	reject: () => void;
 };
 export declare type CheckKeyInfo = {
 	keyInfo: ISecretStorageKeyInfo;
@@ -779,10 +762,7 @@ export declare const startVerificationUser: import("effector").Event<string>;
 export declare const onRequestAccept: import("effector").Event<MyVerificationRequest>;
 export declare const onRequestCancel: import("effector").Event<MyVerificationRequest>;
 export declare const cancelAllRequests: import("effector").Event<void>;
-export declare const resolveRecoveryKey: import("effector").Event<ResolveRecoveryKeyParams>;
 export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect<string | undefined, IRecoveryKey, Error>;
-export declare const saveInputToKeyMethod: import("effector").Event<SavedInputToKeyMethod>;
-export declare const setSecretStoragePromise: import("effector").Event<SecretStorageKeyResolveAndReject>;
 export declare const onNeedRecoveryKeyOrPassphrase: import("effector").Event<void>;
 export declare const startRecoveryKeyOrPassphraseVerification: import("effector").Event<void>;
 export declare const setCheckKeyInfo: import("effector").Event<CheckKeyInfo>;
@@ -790,7 +770,6 @@ export declare const onCheckSecretStorageKey: import("effector").Event<string>;
 export declare const onRecoveryKeyOrPassphraseSuccess: import("effector").Event<void>;
 export declare const onValidRecoveryKey: import("effector").Event<void>;
 export declare const onInvalidRecoveryKey: import("effector").Event<Error>;
-export declare const resolvePassphrase: import("effector").Event<ResolvePassphrase>;
 export declare const $hasPassphrase: import("effector").Store<boolean>;
 export declare const onHasPassphrase: import("effector").Event<boolean>;
 export declare const $deviceIsVerified: import("effector").Store<boolean | null>;
@@ -798,6 +777,8 @@ export declare const onUpdateDeviceList: import("effector").Event<string[]>;
 export declare const checkThisDeviceVerificationFx: import("effector").Effect<void, boolean, Error>;
 export declare const checkCanVerifyFx: import("effector").Effect<CheckCanVerifyFxParams, boolean, Error>;
 export declare const onUsersProfileUpdate: import("effector").Event<string[]>;
+export declare const onResolveSecretStorageKey: import("effector").Event<InputToKeyParams>;
+export declare const onRejectSecretStorageKey: import("effector").Event<void>;
 export declare function promptForBackupPassphrase(): Promise<Uint8Array>;
 export declare function accessSecretStorage(func?: () => Promise<void>, forceReset?: boolean): Promise<any>;
 export declare function getDehydrationKey(keyInfo: ISecretStorageKeyInfo): Promise<Uint8Array>;

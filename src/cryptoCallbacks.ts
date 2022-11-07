@@ -16,8 +16,9 @@ import {
     setCheckKeyInfo,
     onNeedRecoveryKeyOrPassphrase,
     onRecoveryKeyOrPassphraseSuccess,
-    setSecretStoragePromise,
+    onRejectSecretStorageKey,
 } from "@/verification"
+import { onResolveSecretStorageKey } from "./verification"
 
 let secretStorageBeingAccessed = false
 let secretStorageKeys: Record<string, Uint8Array> = {}
@@ -131,6 +132,22 @@ function makeInputToKey(
     }
 }
 
+type CreatePromiseResult<T> = {
+    promise: Promise<T>
+    resolve: (params: T) => void
+    reject: (params: any) => void
+}
+
+function createPromise<T>(): CreatePromiseResult<T> {
+    let resolve = (params: T) => { return }
+    let reject = (params: any) => { return }
+    const promise = new Promise<T>((res, rej) => {
+        resolve = res
+        reject = rej
+    })
+    return {promise, resolve, reject}
+}
+
 async function getSecretStorageKey(
     { keys: keyInfos }: { keys: Record<string, ISecretStorageKeyInfo> },
 ): Promise<any> {
@@ -172,12 +189,15 @@ async function getSecretStorageKey(
     }
 
     const inputToKey = makeInputToKey(keyInfo)
-    const promise = new Promise<InputToKeyParams>((resolve, reject) => {
-        setSecretStoragePromise({
-            reject,
-            resolve
-        })
+    const {promise, resolve, reject} = createPromise<InputToKeyParams>()
+    const resolveWatcher = onResolveSecretStorageKey.watch(resolve)
+    const rejectWatcher = onRejectSecretStorageKey.watch(reject)
+
+    promise.finally(() => {
+        resolveWatcher.unsubscribe()
+        rejectWatcher.unsubscribe()
     })
+
     onNeedRecoveryKeyOrPassphrase()
     onHasPassphrase(Boolean(keyInfo.passphrase))
     setCheckKeyInfo({ keyInfo })

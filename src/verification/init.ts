@@ -15,12 +15,8 @@ import {
     startVerificationUserFx,
     requestAcceptFx,
     cancelAllRequestsFx,
-    resolveRecoveryKeyFx,
-    $savedInputToKeyMethod,
-    $secretStorageKeyResolveAndReject,
     restoreKeyBackupFx,
     cancelVerificationEventFx,
-    resolvePassphraseFx,
     checkSecretStorageKeyFx,
     $checkKeyInfo,
 } from "./private"
@@ -43,32 +39,20 @@ import {
     cancelAllRequests,
     checkCanVerifyFx,
     createRecoveryKeyAndPassPhraseFx,
-    resolveRecoveryKey,
-    saveInputToKeyMethod,
     startRecoveryKeyOrPassphraseVerification,
-    resolvePassphrase,
     $hasPassphrase,
     setWaitingAnotherUser,
     resetWaitingAnotherUser,
     setCheckKeyInfo,
     onCheckSecretStorageKey,
-    onRecoveryKeyOrPassphraseSuccess,
-    setSecretStoragePromise,
     onValidRecoveryKey,
     onInvalidRecoveryKey,
+    onRejectSecretStorageKey,
 } from "./public"
 import { MyVerificationRequest } from "./types"
 import { onVerificationRequestFxReducer } from "./reducers"
 import { InvalidBackupInfo } from "@/errors"
 import { accessSecretStorage } from "../cryptoCallbacks"
-
-$savedInputToKeyMethod
-    .on(saveInputToKeyMethod, (_, method) => method)
-    .reset(destroyClientFx)
-
-$secretStorageKeyResolveAndReject
-    .on(setSecretStoragePromise, (_, callbacks) => callbacks)
-    .reset([destroyClientFx, onRecoveryKeyOrPassphraseSuccess])
     
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
@@ -102,7 +86,7 @@ $hasPassphrase
 
 $checkKeyInfo
     .on(setCheckKeyInfo, (_, val) => val)
-    .reset(destroyClientFx)
+    .reset([destroyClientFx, onRejectSecretStorageKey])
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
@@ -194,28 +178,6 @@ sample({
     clock: cancelAllRequests,
     source: $verificationEvents,
     target: cancelAllRequestsFx
-})
-
-sample({
-    clock: resolvePassphrase,
-    source: $secretStorageKeyResolveAndReject,
-    filter: (resolveAndReject) => resolveAndReject !== null,
-    fn: (resolveAndReject, { passphrase }) => ({
-        resolveAndReject: resolveAndReject as any,
-        passphrase
-    }),
-    target: resolvePassphraseFx
-})
-
-sample({
-    clock: resolveRecoveryKey,
-    source: $secretStorageKeyResolveAndReject,
-    filter: (resolveAndReject) => resolveAndReject !== null,
-    fn: (resolveAndReject, { recoveryKey }) => ({
-        resolveAndReject: resolveAndReject as any,
-        recoveryKey
-    }),
-    target: resolveRecoveryKeyFx
 })
 
 guard({
@@ -323,14 +285,6 @@ checkCanVerifyFx.use(async ({ profileId }) => {
         && !userVerified
         && isVerified
     return canVerify
-})
-
-resolveRecoveryKeyFx.use(async ({ resolveAndReject, recoveryKey }) => {
-    resolveAndReject.resolve({ recoveryKey })
-})
-
-resolvePassphraseFx.use(async ({ resolveAndReject, passphrase }) => {
-    resolveAndReject.resolve({ passphrase })
 })
 
 createRecoveryKeyAndPassPhraseFx.use(async (password) => {
