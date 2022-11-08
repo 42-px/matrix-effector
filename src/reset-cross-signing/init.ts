@@ -71,6 +71,7 @@ confirmResetCrossSigningFx.use(async () => {
                 onNeedUserPassword()
                 await interactiveAuth.attemptAuth()
             },
+
             setupNewCrossSigning: true,
         }).then(() => {
             res({
