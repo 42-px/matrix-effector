@@ -21,6 +21,7 @@ import { ConfirmResetCrossSigningFxResult } from "./types"
 
 $interactiveAuthInstance
     .on(setInteractiveAuth, (_, auth) => auth)
+    .reset(submitAuthDictFx.doneData)
 
 sample({
     clock: submitAuthDict,
