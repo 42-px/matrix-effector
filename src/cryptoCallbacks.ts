@@ -199,6 +199,7 @@ async function getSecretStorageKey(
     })
 
     onNeedRecoveryKeyOrPassphrase()
+    // @TODO переделать по аналогии с getSecureBackupSetupMethods в matrix-react-sdk
     onHasPassphrase(Boolean(keyInfo.passphrase))
     setCheckKeyInfo({ keyInfo })
 
