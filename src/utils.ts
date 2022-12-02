@@ -1,4 +1,4 @@
-import { EventType, Room, TimelineWindow } from "matrix-js-sdk"
+import { EventType, TimelineWindow } from "matrix-js-sdk"
 import { client } from "./matrix-client"
 import { RoomNotFound } from "./errors"
 import { 
