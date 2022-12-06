@@ -1,9 +1,11 @@
 import { forward, sample, guard, attach } from "effector"
-
 import { client } from "@/matrix-client"
+
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
 import { destroyClientFx } from "@/app"
+import { InvalidBackupInfo } from "@/errors"
+
 import {
     updateVerificationPhase,
     onCancelVerificationEvent,
@@ -17,8 +19,9 @@ import {
     cancelAllRequestsFx,
     restoreKeyBackupFx,
     cancelVerificationEventFx,
-    checkSecretStorageKeyFx,
+    validateRecoveryKeyFx,
     $checkKeyInfo,
+    validatePassphraseFx,
 } from "./private"
 import {
     onHasPassphrase,
@@ -44,15 +47,21 @@ import {
     setWaitingAnotherUser,
     resetWaitingAnotherUser,
     setCheckKeyInfo,
-    onCheckSecretStorageKey,
+    validateRecoveryKey,
     onValidRecoveryKey,
     onInvalidRecoveryKey,
     onRejectSecretStorageKey,
+    validatePassphrase,
+    onInvalidPassphrase,
+    onValidPassphrase,
 } from "./public"
-import { MyVerificationRequest } from "./types"
+import { 
+    MyVerificationRequest, 
+    ValidatePassphraseFxParams, 
+    ValidateRecoveryKeyFxParams 
+} from "./types"
 import { onVerificationRequestFxReducer } from "./reducers"
-import { InvalidBackupInfo } from "@/errors"
-import { accessSecretStorage } from "../cryptoCallbacks"
+import { accessSecretStorage, makeInputToKey } from "../cryptoCallbacks"
     
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
@@ -156,13 +165,23 @@ forward({
 })
 
 forward({
-    from: checkSecretStorageKeyFx.doneData,
+    from: validateRecoveryKeyFx.doneData,
     to: onValidRecoveryKey
 })
 
 forward({
-    from: checkSecretStorageKeyFx.failData,
+    from: validateRecoveryKeyFx.failData,
     to: onInvalidRecoveryKey,
+})
+
+forward({
+    from: validatePassphraseFx.doneData,
+    to: onValidPassphrase
+})
+
+forward({
+    from: validatePassphraseFx.failData,
+    to: onInvalidPassphrase,
 })
 
 sample({
@@ -307,24 +326,52 @@ restoreKeyBackupFx.use(async () => {
 
 guard({
     source: sample({
-        clock: onCheckSecretStorageKey,
+        clock: validateRecoveryKey,
         source: $checkKeyInfo,
         fn: (checkKeyInfo, input) => ({
             keyInfo: checkKeyInfo?.keyInfo,
             input
         }),
     }),
-    filter: (params): params is any => Boolean(
+    filter: (params): params is ValidateRecoveryKeyFxParams => Boolean(
         params.keyInfo
     ),
-    target: checkSecretStorageKeyFx,
+    target: validateRecoveryKeyFx,
 })
 
+guard({
+    source: sample({
+        clock: validatePassphrase,
+        source: $checkKeyInfo,
+        fn: (checkKeyInfo, passphrase) => ({
+            keyInfo: checkKeyInfo?.keyInfo,
+            passphrase,
+        }),
+    }),
+    filter: (params): params is ValidatePassphraseFxParams => Boolean(
+        params.keyInfo
+    ),
+    target: validatePassphraseFx,
+})
 
-checkSecretStorageKeyFx.use(({ input, keyInfo }) => {
+validateRecoveryKeyFx.use(async ({ input, keyInfo }) => {
     const cl = client()
     const decodedKey = cl.keyBackupKeyFromRecoveryKey(input)
-    return cl.checkSecretStorageKey(
+    const isValid = await cl.checkSecretStorageKey(
         decodedKey, keyInfo,
     )
+    if (!isValid) throw new Error("Invalid recovery Key")
+    return isValid
 })
+
+validatePassphraseFx.use( async ({keyInfo, passphrase}) => {
+    const cl = client()
+    const makeInput = makeInputToKey(keyInfo)
+    const decodedKey = await makeInput({passphrase})
+    const isValid = await cl.checkSecretStorageKey(
+        decodedKey, keyInfo,
+    )
+    if (!isValid) throw new Error("Invalid passphrase")
+    return isValid
+})
+

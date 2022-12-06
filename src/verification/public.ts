@@ -80,7 +80,7 @@ export const startRecoveryKeyOrPassphraseVerification = verificationDomain
 export const setCheckKeyInfo = verificationDomain
     .event<CheckKeyInfo>()
 
-export const onCheckSecretStorageKey = verificationDomain.event<string>()
+export const validateRecoveryKey = verificationDomain.event<string>()
 
 export const onRecoveryKeyOrPassphraseSuccess = verificationDomain.event<void>()
 
@@ -91,6 +91,10 @@ export const onInvalidRecoveryKey = verificationDomain.event<Error>()
 
 export const $hasPassphrase = verificationDomain.store<boolean>(false)
 export const onHasPassphrase = verificationDomain.event<boolean>()
+
+export const validatePassphrase = verificationDomain.event<string>()
+export const onValidPassphrase = verificationDomain.event<void>()
+export const onInvalidPassphrase = verificationDomain.event<Error>()
 
 // others
 export const $deviceIsVerified = verificationDomain

@@ -41,3 +41,6 @@ export type CheckCanVerifyFxParams = {
 export type CheckKeyInfo = {
   keyInfo: ISecretStorageKeyInfo
 }
+
+export type ValidatePassphraseFxParams = CheckKeyInfo & { passphrase: string }
+export type ValidateRecoveryKeyFxParams = CheckKeyInfo & { input: string }

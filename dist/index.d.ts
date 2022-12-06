@@ -748,6 +748,12 @@ export declare type CheckCanVerifyFxParams = {
 export declare type CheckKeyInfo = {
 	keyInfo: ISecretStorageKeyInfo;
 };
+export declare type ValidatePassphraseFxParams = CheckKeyInfo & {
+	passphrase: string;
+};
+export declare type ValidateRecoveryKeyFxParams = CheckKeyInfo & {
+	input: string;
+};
 export declare const $isWaitingAnotherUser: import("effector").Store<boolean>;
 declare const setWaitingAnotherUser: import("effector").Event<void>, resetWaitingAnotherUser: import("effector").Event<void>;
 export declare const $currentVerificationEvent: import("effector").Store<MyVerificationRequest[]>;
@@ -766,12 +772,15 @@ export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect
 export declare const onNeedRecoveryKeyOrPassphrase: import("effector").Event<void>;
 export declare const startRecoveryKeyOrPassphraseVerification: import("effector").Event<void>;
 export declare const setCheckKeyInfo: import("effector").Event<CheckKeyInfo>;
-export declare const onCheckSecretStorageKey: import("effector").Event<string>;
+export declare const validateRecoveryKey: import("effector").Event<string>;
 export declare const onRecoveryKeyOrPassphraseSuccess: import("effector").Event<void>;
 export declare const onValidRecoveryKey: import("effector").Event<void>;
 export declare const onInvalidRecoveryKey: import("effector").Event<Error>;
 export declare const $hasPassphrase: import("effector").Store<boolean>;
 export declare const onHasPassphrase: import("effector").Event<boolean>;
+export declare const validatePassphrase: import("effector").Event<string>;
+export declare const onValidPassphrase: import("effector").Event<void>;
+export declare const onInvalidPassphrase: import("effector").Event<Error>;
 export declare const $deviceIsVerified: import("effector").Store<boolean | null>;
 export declare const onUpdateDeviceList: import("effector").Event<string[]>;
 export declare const checkThisDeviceVerificationFx: import("effector").Effect<void, boolean, Error>;
@@ -781,6 +790,7 @@ export declare const onResolveSecretStorageKey: import("effector").Event<InputTo
 export declare const onRejectSecretStorageKey: import("effector").Event<void>;
 export declare function promptForBackupPassphrase(): Promise<Uint8Array>;
 export declare function accessSecretStorage(func?: () => Promise<void>, forceReset?: boolean): Promise<any>;
+export declare function makeInputToKey(keyInfo: ISecretStorageKeyInfo): (params: InputToKeyParams) => Promise<Uint8Array>;
 export declare function getDehydrationKey(keyInfo: ISecretStorageKeyInfo): Promise<Uint8Array>;
 export declare const crossSigningCallbacks: ICryptoCallbacks;
 export declare const GetPickleKey: (userId: string, deviceId: string) => Promise<string | null>;

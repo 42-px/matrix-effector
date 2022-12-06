@@ -4,6 +4,8 @@ import {
     OnVerificationRequestFxParams, 
     StartVerificationDeviceParams, 
     CheckKeyInfo,
+    ValidatePassphraseFxParams,
+    ValidateRecoveryKeyFxParams,
 } from "./types"
 
 // Emodji SAS Verification
@@ -48,9 +50,12 @@ export const restoreKeyBackupFx = verificationDomain
 export const $checkKeyInfo = verificationDomain
     .store<CheckKeyInfo | null>(null)
 
-export const checkSecretStorageKeyFx = verificationDomain
-    .effect<CheckKeyInfo & { input: string }, boolean, Error>()
+export const validateRecoveryKeyFx = verificationDomain
+    .effect<ValidateRecoveryKeyFxParams, boolean, Error>()
 
 // others
 export const updateDeviceVerification = verificationDomain
     .event<boolean>()
+
+export const validatePassphraseFx = verificationDomain
+    .effect<ValidatePassphraseFxParams, boolean, Error>()
