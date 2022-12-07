@@ -41,7 +41,6 @@ import {
     onRequestCancel,
     cancelAllRequests,
     checkCanVerifyFx,
-    createRecoveryKeyAndPassPhraseFx,
     startRecoveryKeyOrPassphraseVerification,
     $hasPassphrase,
     setWaitingAnotherUser,
@@ -304,13 +303,6 @@ checkCanVerifyFx.use(async ({ profileId }) => {
         && !userVerified
         && isVerified
     return canVerify
-})
-
-createRecoveryKeyAndPassPhraseFx.use(async (password) => {
-    const cl = client()
-    const key = await cl.createRecoveryKeyFromPassphrase(password)
-    if (!key) throw new Error("createRecovery Error")
-    return key
 })
 
 restoreKeyBackupFx.use(async () => {

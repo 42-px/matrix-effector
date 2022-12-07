@@ -23,7 +23,7 @@ import {
     cancelCreateNewMethod, 
     onNeedCreateRecoveryMethod,
     onNewRecoveryMethodCreated
-} from "@/reset-cross-signing"
+} from "@/create-verification-method"
 
 let secretStorageBeingAccessed = false
 let secretStorageKeys: Record<string, Uint8Array> = {}
@@ -214,7 +214,7 @@ async function getSecretStorageKey(
         resolveWatcher.unsubscribe()
         rejectWatcher.unsubscribe()
     })
-
+    
     onNeedRecoveryKeyOrPassphrase()
     onHasPassphrase(Boolean(keyInfo.passphrase))
     setCheckKeyInfo({ keyInfo })

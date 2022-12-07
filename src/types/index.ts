@@ -174,3 +174,13 @@ export enum UserRole {
     admin = "Admin",
     moderator = "Moderator"
 }
+
+export enum SecureBackupSetupMethod {
+    Key = "key",
+    Passphrase = "passphrase",
+}
+
+export enum RecoveryKeyOrPassphraseEnum {
+    RecoveryKey = "RecoveryKey",
+    Passphrase = "Passphrase"
+}
