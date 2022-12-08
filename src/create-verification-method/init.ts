@@ -15,12 +15,18 @@ import {
     createRecoveryKeyAndPassPhraseFx,
     getSecureBackupSetupMethodsFx,
     lossAllRecoveryKeyMethod, 
+    onNewRecoveryMethodCreated, 
     resetAllRecoveryKeyMethodsFx
 } from "./public"
 
 forward({
     from: lossAllRecoveryKeyMethod,
     to: resetAllRecoveryKeyMethodsFx
+})
+
+forward({
+    from: bootstrapSecretStorageFx.doneData,
+    to: onNewRecoveryMethodCreated,
 })
 
 resetAllRecoveryKeyMethodsFx.use(async () => {

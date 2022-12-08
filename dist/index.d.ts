@@ -830,6 +830,7 @@ export declare const onUserPasswordError: import("effector").Event<string>;
 export declare const onUserPasswordSuccess: import("effector").Event<void>;
 export declare const onInteractiveAuthBusyChange: import("effector").Event<boolean>;
 export declare const onInteractiveAuthStateUpdate: import("effector").Event<OnInteractiveAuthStateUpdateResult>;
+export declare const cancelInteractiveAuth: import("effector").Event<void>;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;

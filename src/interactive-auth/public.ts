@@ -15,3 +15,5 @@ export const onUserPasswordSuccess = d.event<void>()
 export const onInteractiveAuthBusyChange = d.event<boolean>()
 export const onInteractiveAuthStateUpdate = d
     .event<OnInteractiveAuthStateUpdateResult>()
+
+export const cancelInteractiveAuth = d.event<void>()

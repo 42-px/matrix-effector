@@ -10,6 +10,7 @@ import {
     submitAuthDictFx 
 } from "./private"
 import { 
+    cancelInteractiveAuth,
     createInteractiveAuthFx, 
     onInteractiveAuthBusyChange,
     onInteractiveAuthStateUpdate,
@@ -21,7 +22,7 @@ import {
 
 $interactiveAuthInstance
     .on(setInteractiveAuth, (_, auth) => auth)
-    .reset(onUserPasswordSuccess)
+    .reset([onUserPasswordSuccess, cancelInteractiveAuth])
 
 sample({
     clock: submitAuthDict,
@@ -60,8 +61,17 @@ createInteractiveAuthFx.use(async (requestCallback) => {
     })
     setInteractiveAuth(interactiveAuth)
     onNeedUserPassword()
-    await interactiveAuth.attemptAuth()
-    onUserPasswordSuccess()
+
+    await new Promise<void>(async (resolve, reject) => {
+        const unSub = cancelInteractiveAuth.watch(() => {
+            unSub()
+            reject()
+        })
+        await interactiveAuth.attemptAuth()
+        unSub()
+        onUserPasswordSuccess()
+        resolve()
+    })
 })
 
 submitAuthDictFx.use(async ({password, interactiveAuth}) => {
