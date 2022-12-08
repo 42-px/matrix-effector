@@ -62,7 +62,7 @@ createInteractiveAuthFx.use(async (requestCallback) => {
     setInteractiveAuth(interactiveAuth)
     onNeedUserPassword()
 
-    await new Promise<void>(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
         const unSub = cancelInteractiveAuth.watch(() => {
             unSub()
             reject()
