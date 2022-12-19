@@ -59,3 +59,6 @@ export const updateDeviceVerification = verificationDomain
 
 export const validatePassphraseFx = verificationDomain
     .effect<ValidatePassphraseFxParams, boolean, Error>()
+
+export const checkCanVerifyFx = verificationDomain
+    .effect<void, boolean, Error>()

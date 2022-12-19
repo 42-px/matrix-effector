@@ -3,7 +3,7 @@ import { client } from "@/matrix-client"
 
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
-import { destroyClientFx } from "@/app"
+import { createClientFx, destroyClientFx } from "@/app"
 import { InvalidBackupInfo } from "@/errors"
 
 import {
@@ -22,6 +22,7 @@ import {
     validateRecoveryKeyFx,
     $checkKeyInfo,
     validatePassphraseFx,
+    checkCanVerifyFx,
 } from "./private"
 import {
     onHasPassphrase,
@@ -40,7 +41,6 @@ import {
     onRequestAccept,
     onRequestCancel,
     cancelAllRequests,
-    checkCanVerifyFx,
     startRecoveryKeyOrPassphraseVerification,
     $hasPassphrase,
     setWaitingAnotherUser,
@@ -53,6 +53,7 @@ import {
     validatePassphrase,
     onInvalidPassphrase,
     onValidPassphrase,
+    $canVerify,
 } from "./public"
 import { 
     MyVerificationRequest, 
@@ -95,6 +96,10 @@ $hasPassphrase
 $checkKeyInfo
     .on(setCheckKeyInfo, (_, val) => val)
     .reset([destroyClientFx, onRejectSecretStorageKey])
+
+$canVerify
+    .on(checkCanVerifyFx.doneData, (_, canVerify) => canVerify)
+    .reset(destroyClientFx.done)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
@@ -181,6 +186,11 @@ forward({
 forward({
     from: validatePassphraseFx.failData,
     to: onInvalidPassphrase,
+})
+
+forward({
+    from: [createClientFx.doneData, $deviceIsVerified.updates],
+    to: checkCanVerifyFx
 })
 
 sample({
@@ -280,7 +290,7 @@ cancelAllRequestsFx.use(async (requests) => {
     requests.forEach(request => request.cancel())
 })
 
-checkCanVerifyFx.use(async ({ profileId }) => {
+checkCanVerifyFx.use(async () => {
     const cl = client()
     const cryptoEnabled = cl.isCryptoEnabled()
     const homeserverSupportsCrossSigning = await cl
@@ -292,15 +302,8 @@ checkCanVerifyFx.use(async ({ profileId }) => {
     const isVerified = cl
         .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
 
-    const userTrust = cryptoEnabled && cl.checkUserTrust(profileId)
-    const userVerified = cryptoEnabled && userTrust && userTrust
-        .isCrossSigningVerified()
-    const isMe = profileId === cl.getUserId()
-    if (isMe && isVerified) return true
-
     const canVerify = cryptoEnabled
         && homeserverSupportsCrossSigning
-        && !userVerified
         && isVerified
     return canVerify
 })
