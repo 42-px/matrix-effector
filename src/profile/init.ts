@@ -1,8 +1,9 @@
 import { client } from "@/matrix-client"
-import { forward } from "effector"
+import { forward, guard } from "effector"
 import { IAuthData } from "matrix-js-sdk"
 
 import { createInteractiveAuthFx } from "@/interactive-auth"
+import { onUpdateDeviceList } from "@/verification"
 
 import { logoutSessionsByIdFx } from "./private"
 import { 
@@ -12,6 +13,7 @@ import {
     $mySessionsInfo,
     clearMySessionsInfo,
     logoutSessionsById,
+    renameDeviceFx,
 } from "./public"
 
 $mySessionsInfo
@@ -23,9 +25,10 @@ forward({
     to: logoutSessionsByIdFx
 })
 
-forward({
-    from: logoutSessionsByIdFx.done,
-    to: getMySessionsFx
+guard({
+    clock: onUpdateDeviceList,
+    filter: $mySessionsInfo.map((sessions) => Boolean(sessions)),
+    target: getMySessionsFx,
 })
 
 updateDisplayNameFx.use(async (newDisplayName) => {
@@ -71,4 +74,10 @@ logoutSessionsByIdFx.use(async (sessionsId) => {
     }
     await createInteractiveAuthFx(callback)
     await callback
+})
+
+renameDeviceFx.use(async ({deviceId, newDisplayName}) => {
+    await client().setDeviceDetails(deviceId, {
+        display_name: newDisplayName,
+    })
 })

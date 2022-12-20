@@ -723,12 +723,17 @@ export declare type SessionInfo = IMyDevice & {
 	isVerified: boolean;
 	isCurrentSession: boolean;
 };
+export declare type RenameDeviceParams = {
+	deviceId: string;
+	newDisplayName: string;
+};
 export declare const updateDisplayNameFx: import("effector").Effect<string, void, Error>;
 export declare const updateAvatarUrlFx: import("effector").Effect<string, void, Error>;
 export declare const $mySessionsInfo: import("effector").Store<SessionInfo[] | null>;
 export declare const getMySessionsFx: import("effector").Effect<void, SessionInfo[], Error>;
 export declare const clearMySessionsInfo: import("effector").Event<void>;
 export declare const logoutSessionsById: import("effector").Event<string[]>;
+export declare const renameDeviceFx: import("effector").Effect<RenameDeviceParams, void, Error>;
 export declare const destroyClient: () => void;
 export declare const createClient: ({ options, messageBatchInterval: ms }: CreateClientOptions) => void;
 export declare const client: () => MatrixClient;

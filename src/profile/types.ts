@@ -4,3 +4,8 @@ export type SessionInfo = IMyDevice & {
     isVerified: boolean
     isCurrentSession: boolean
 }
+
+export type RenameDeviceParams = {
+    deviceId: string
+    newDisplayName: string
+}
