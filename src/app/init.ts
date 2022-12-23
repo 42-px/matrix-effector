@@ -7,6 +7,9 @@ import {
     EventType,
     UserTrustLevel,
 } from "matrix-js-sdk"
+import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
+
+import { IdbDelete } from "@/idbHelper"
 import {
     toMappedRoom,
     toMappedUser,
@@ -65,9 +68,13 @@ import {
     createClientFx,
     destroyClientFx,
     getProfileInfoFx,
+    $currentDeviceId,
 } from "./public"
-import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
-import { IdbDelete } from "@/idbHelper"
+
+$currentDeviceId
+    .on(createClientFx.done, 
+        (_, {params}) => params.createClientParams.options.deviceId)
+    .reset(destroyClientFx.done)
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
