@@ -39,9 +39,8 @@ import {
     toggleTypingUser
 } from "@/room"
 import {
-    checkBackupKeyFx,
     initCryptoFx,
-    onCrossSigningKeyChange,
+    onSessionRemaining,
 } from "@/crypto"
 import {
     onVerificationRequest,
@@ -49,7 +48,9 @@ import {
     onUpdateDeviceList,
     onUsersProfileUpdate,
 } from "@/verification"
+import { onCrossSigningKeyChange } from "@/cross-signing"
 import { UserNotFound } from "@/errors"
+
 import {
     AuthData,
     StateEventsContent
@@ -69,6 +70,7 @@ import {
     destroyClientFx,
     getProfileInfoFx,
     $currentDeviceId,
+    onUpdateKeyBackupStatus,
 } from "./public"
 
 $currentDeviceId
@@ -249,8 +251,7 @@ onClientEvent([
         (...args) => console.warn("crypto.warning", args)
     ],
     [
-        "crypto.keyBackupStatus",
-        checkBackupKeyFx
+        "crypto.keyBackupStatus", onUpdateKeyBackupStatus
     ],
     [
         "crypto.willUpdateDevices",
@@ -278,6 +279,10 @@ onClientEvent([
     ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
         onUpdateDeviceList([userId])
         onUsersProfileUpdate([userId])
+    }],
+    ["crypto.keyBackupSessionsRemaining", (e) => {
+        console.log("crypto.keyBackupSessionsRemaining")
+        onSessionRemaining(e)
     }]
 ])
 

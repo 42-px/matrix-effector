@@ -1,10 +1,40 @@
 import { IAuthData } from "matrix-js-sdk"
+import { forward } from "effector"
 
 import { client } from "@/matrix-client"
 import { createInteractiveAuthFx } from "@/interactive-auth"
+import { destroyClientFx } from "@/app"
 
-import { confirmResetCrossSigningFx } from "./public"
+import { 
+    $crossSigningId, 
+    confirmResetCrossSigningFx, 
+    crossSigningChangeFx, 
+    onCrossSigningKeyChange
+} from "./public"
 import { ConfirmResetCrossSigningFxResult } from "./types"
+import { getCrossSigningIdFx } from "./private"
+
+$crossSigningId
+    .on(getCrossSigningIdFx.doneData, (_, id) => id)
+    .reset(destroyClientFx)
+
+forward({
+    from: onCrossSigningKeyChange,
+    to: crossSigningChangeFx
+})
+
+crossSigningChangeFx.use(async () => {
+    const cl = client()
+    if (!(
+        await cl.doesServerSupportUnstableFeature(
+            "org.matrix.e2e_cross_signing"
+        )
+    )) return
+
+    if (!cl.isCryptoEnabled()) return
+    if (!cl.isInitialSyncComplete()) return
+
+})
 
 confirmResetCrossSigningFx.use(async () => {
     const cl = client()
@@ -29,4 +59,9 @@ confirmResetCrossSigningFx.use(async () => {
         })
     })
     return promise
+})
+
+getCrossSigningIdFx.use(() => {
+    const cl = client()
+    return cl.getCrossSigningId()
 })

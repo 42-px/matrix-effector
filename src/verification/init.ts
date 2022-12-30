@@ -5,6 +5,8 @@ import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
 import { createClientFx, destroyClientFx } from "@/app"
 import { InvalidBackupInfo } from "@/errors"
+import { initCryptoFx } from "@/crypto"
+import { crossSigningChangeFx } from "@/cross-signing"
 
 import {
     updateVerificationPhase,
@@ -191,6 +193,11 @@ forward({
 forward({
     from: [createClientFx.doneData, $deviceIsVerified.updates],
     to: checkCanVerifyFx
+})
+
+forward({
+    from: [initCryptoFx.done, crossSigningChangeFx.done],
+    to: checkThisDeviceVerificationFx
 })
 
 sample({

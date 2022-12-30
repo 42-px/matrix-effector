@@ -4,6 +4,7 @@ import {
     DeviceTrustLevel,
     encodeBase64,
     encodeUnpaddedBase64,
+    IAuthData,
     ICryptoCallbacks,
     ISecretStorageKeyInfo,
     MatrixClient
@@ -24,6 +25,7 @@ import {
     onNeedCreateRecoveryMethod,
     onNewRecoveryMethodCreated
 } from "@/create-verification-method"
+import { createInteractiveAuthFx } from "@/interactive-auth"
 
 let secretStorageBeingAccessed = false
 let secretStorageKeys: Record<string, Uint8Array> = {}
@@ -99,7 +101,16 @@ export async function accessSecretStorage(
             })
             await promise
         } else {
-            await cl.bootstrapCrossSigning({})
+            await cl.bootstrapCrossSigning({
+                authUploadDeviceSigningKeys: async (makeRequest) => {
+                    const requestCallback = (
+                        auth: IAuthData, 
+                    ): Promise<IAuthData> => {
+                        return makeRequest(auth)
+                    }
+                    await createInteractiveAuthFx(requestCallback)
+                },
+            })
             await cl.bootstrapSecretStorage({
                 getKeyBackupPassphrase: promptForBackupPassphrase,
             })

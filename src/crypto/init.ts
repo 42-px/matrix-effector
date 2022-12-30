@@ -5,28 +5,23 @@ import {
     decryptMegolmKeyFile, 
     encryptMegolmKeyFile
 } from "@/MegolmExportEncryption"
-import { checkThisDeviceVerificationFx } from "@/verification"
 import { destroyClientFx } from "@/app"
 
 import { 
-    crossSigningChangeFx, 
-    getIdentityKeyFx, 
-    setEnableCrypto
+    setEnableCrypto,
+    getIdentityKeyFx,
+    getDeviceEd25519KeyFx,
 } from "./private"
 import { 
     $identityKey,
     $isCryptoEnabled,
-    $isKeyBackupEnabled,
-    checkBackupKeyFx, 
     initCryptoFx,
     exportE2ERoomsKeysFx, 
-    onCrossSigningKeyChange,
-    importE2ERoomsKeysFx, 
+    importE2ERoomsKeysFx,
+    $sessionsRemaining,
+    onSessionRemaining,
+    $deviceEd25519Key,
 } from "./public"
-
-$isKeyBackupEnabled
-    .on(checkBackupKeyFx.doneData, (_, isEnabled) => isEnabled)
-    .reset(destroyClientFx)
 
 $isCryptoEnabled
     .on(setEnableCrypto, (_, isEnabled) => isEnabled)
@@ -36,23 +31,17 @@ $identityKey
     .on(getIdentityKeyFx.doneData, (_, key) => key)
     .reset(destroyClientFx)
 
-forward({
-    from: onCrossSigningKeyChange,
-    to: crossSigningChangeFx
-})
+$sessionsRemaining
+    .on(onSessionRemaining, (_, remaining) => remaining)
+    .reset(destroyClientFx)
+
+$deviceEd25519Key
+    .on(getDeviceEd25519KeyFx.doneData, (_, key) => key)
+    .reset(destroyClientFx)
 
 forward({
-    from: initCryptoFx.done,
-    to: getIdentityKeyFx
-})
-
-forward({
-    from: [initCryptoFx.done, crossSigningChangeFx.done],
-    to: checkThisDeviceVerificationFx
-})
-
-checkBackupKeyFx.use(() => {
-    return client().getKeyBackupEnabled()
+    from: initCryptoFx.doneData,
+    to: getDeviceEd25519KeyFx
 })
 
 initCryptoFx.use(async () => {
@@ -70,19 +59,6 @@ initCryptoFx.use(async () => {
     // можешь ли ты писать в конмату в которой находятся не верифицированные тобою девайсы
     cl.setGlobalErrorOnUnknownDevices(false)
     cl.setCryptoTrustCrossSignedDevices(true)
-})
-
-crossSigningChangeFx.use(async () => {
-    const cl = client()
-    if (!(
-        await cl.doesServerSupportUnstableFeature(
-            "org.matrix.e2e_cross_signing"
-        )
-    )) return
-
-    if (!cl.isCryptoEnabled()) return
-    if (!cl.isInitialSyncComplete()) return
-
 })
 
 getIdentityKeyFx.use(() => {
@@ -106,4 +82,9 @@ importE2ERoomsKeysFx.use(async ({arrayBuffer, passphrase}) => {
     )
     const cl = client()
     cl.importRoomKeys(JSON.parse(keys))
+})
+
+getDeviceEd25519KeyFx.use(() => {
+    const cl = client()
+    return cl.getDeviceEd25519Key()
 })
