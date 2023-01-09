@@ -115,7 +115,7 @@ export async function accessSecretStorage(
 }
 
 
-function makeInputToKey(
+export function makeInputToKey(
     keyInfo: ISecretStorageKeyInfo,
 ): (params: InputToKeyParams) => Promise<Uint8Array> {
     return async (params) => {
