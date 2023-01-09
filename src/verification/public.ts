@@ -1,20 +1,37 @@
+import { createApi } from "effector"
+import { IRecoveryKey } from "matrix-js-sdk/lib"
 import { verificationDomain } from "./domain"
-import { 
-    MyVerificationRequest, 
-    StartVerificationDeviceParams, 
+import {
+    CheckCanVerifyFxParams,
+    MyVerificationRequest,
+    StartVerificationDeviceParams,
+    CheckKeyInfo,
+    InputToKeyParams,
 } from "./types"
 
 type DeviceIsVerified = boolean
+
+// Emodji SAS Verification
+
+export const $isWaitingAnotherUser = verificationDomain
+    .store<boolean>(false)
+
+export const {
+    setWaitingAnotherUser,
+    resetWaitingAnotherUser
+} = createApi(
+    $isWaitingAnotherUser,
+    {
+        setWaitingAnotherUser: () => true,
+        resetWaitingAnotherUser: () => false
+    }
+)
 
 export const $currentVerificationEvent = verificationDomain
     .store<MyVerificationRequest[]>([])
 
 export const setCurrentVerificationEvent = verificationDomain
     .event<MyVerificationRequest>()
-
-export const cancelVerificationEventFx = verificationDomain
-    .effect<MyVerificationRequest, MyVerificationRequest, Error>()
-
 
 export const $verificationEvents = verificationDomain
     .store<MyVerificationRequest[]>([])
@@ -27,17 +44,6 @@ export const startSASVerification = verificationDomain
 
 export const confirmSASVerification = verificationDomain
     .event<void>()
-
-
-export const $deviceIsVerified = verificationDomain
-    .store<DeviceIsVerified | null>(null)
-
-export const onUpdateDeviceList = verificationDomain
-    .event<string[]>()
-
-export const checkThisDeviceVerificationFx = verificationDomain
-    .effect<void, boolean, Error>()
-
 
 export const startVerificationDevice = verificationDomain
     .event<StartVerificationDeviceParams>()
@@ -59,8 +65,52 @@ export const onRequestCancel = verificationDomain
 export const cancelAllRequests = verificationDomain
     .event<void>()
 
+
+// Recovery Key
+
+export const createRecoveryKeyAndPassPhraseFx = verificationDomain
+    .effect<string | undefined, IRecoveryKey, Error>()
+
+export const onNeedRecoveryKeyOrPassphrase = verificationDomain
+    .event<void>()
+
+export const startRecoveryKeyOrPassphraseVerification = verificationDomain
+    .event<void>()
+
+export const setCheckKeyInfo = verificationDomain
+    .event<CheckKeyInfo>()
+
+export const onCheckSecretStorageKey = verificationDomain.event<string>()
+
+export const onRecoveryKeyOrPassphraseSuccess = verificationDomain.event<void>()
+
+export const onValidRecoveryKey = verificationDomain.event<void>()
+export const onInvalidRecoveryKey = verificationDomain.event<Error>()
+
+// passphrasse verification 
+
+export const $hasPassphrase = verificationDomain.store<boolean>(false)
+export const onHasPassphrase = verificationDomain.event<boolean>()
+
+// others
+export const $deviceIsVerified = verificationDomain
+    .store<DeviceIsVerified | null>(null)
+
+export const onUpdateDeviceList = verificationDomain
+    .event<string[]>()
+
+export const checkThisDeviceVerificationFx = verificationDomain
+    .effect<void, boolean, Error>()
+
 export const checkCanVerifyFx = verificationDomain
-    .effect<{ profileId: string }, boolean, Error>()
+    .effect<CheckCanVerifyFxParams, boolean, Error>()
 
 export const onUsersProfileUpdate = verificationDomain
     .event<UserId[]>()
+
+export const onResolveSecretStorageKey = verificationDomain
+    .event<InputToKeyParams>()
+
+export const onRejectSecretStorageKey = verificationDomain
+    .event<void>()
+

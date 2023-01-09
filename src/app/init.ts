@@ -5,6 +5,7 @@ import {
     Room,
     RoomMember,
     EventType,
+    UserTrustLevel,
 } from "matrix-js-sdk"
 import {
     toMappedRoom,
@@ -34,13 +35,13 @@ import {
     onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
-import { 
+import {
     checkBackupKeyFx,
-    initCryptoFx, 
-    onCrossSigningKeyChange, 
+    initCryptoFx,
+    onCrossSigningKeyChange,
 } from "@/crypto"
 import {
-    onVerificationRequest, 
+    onVerificationRequest,
     MyVerificationRequest,
     onUpdateDeviceList,
     onUsersProfileUpdate,
@@ -65,6 +66,8 @@ import {
     destroyClientFx,
     getProfileInfoFx,
 } from "./public"
+import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
+import { IdbDelete } from "@/idbHelper"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -84,7 +87,7 @@ onClientEvent([
             toStartOfTimeline: boolean,
             removed,
             data
-        ) => {            
+        ) => {
             const eventType = event.getType()
             if (eventType === ROOM_MESSAGE_EVENT
                 || eventType === ROOM_REDACTION_EVENT
@@ -94,6 +97,31 @@ onClientEvent([
                 }
             }
         }],
+    ["Session.logged_out", (args) => {
+        console.log("Session.logged_out", args)
+    }],
+    // @TODO Реализовать. Этот эвент приходит когда логаут происходит из другой сессии.
+    // cli.on(HttpApiEvent.SessionLoggedOut, function (errObj) {
+    //     if (Lifecycle.isLoggingOut()) return;
+
+    //     // A modal might have been open when we were logged out by the server
+    //     Modal.closeCurrentModal('Session.logged_out');
+
+    //     if (errObj.httpStatus === 401 && errObj.data && errObj.data['soft_logout']) {
+    //         logger.warn("Soft logout issued by server - avoiding data deletion");
+    //         Lifecycle.softLogout();
+    //         return;
+    //     }
+
+    //     Modal.createDialog(ErrorDialog, {
+    //         title: _t('Signed Out'),
+    //         description: _t('For security, this session has been signed out. Please sign in again.'),
+    //     });
+
+    //     dis.dispatch({
+    //         action: 'logout',
+    //     });
+    // });
     ["Room", (room: Room) => {
         const cl = client()
         const user = room.getMember(cl.getUserId())
@@ -104,7 +132,7 @@ onClientEvent([
                 EventType.RoomCreate,
                 ""
             )?.getContent<StateEventsContent>()?.isDirect)
-               
+
         if (isDirect) {
             directRoomCreated(room)
         } else {
@@ -232,35 +260,39 @@ onClientEvent([
         onUpdateDeviceList(userIds)
         onUsersProfileUpdate(userIds)
     }],
-    ["deviceVerificationChanged", (userIds: string[]) => {
-        onUpdateDeviceList(userIds)
-        onUsersProfileUpdate(userIds)
+    ["deviceVerificationChanged", (
+        userId: string,
+        deviceId: string,
+        deviceInfo: DeviceInfo
+    ) => {
+        onUpdateDeviceList([userId])
+        onUsersProfileUpdate([userId])
     }],
-    ["userTrustStatusChanged", (userIds: string[]) => {
-        onUpdateDeviceList(userIds)
-        onUsersProfileUpdate(userIds)
+    ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
+        onUpdateDeviceList([userId])
+        onUsersProfileUpdate([userId])
     }]
 ])
 
-loginByPasswordFx.use( async (params) =>
+loginByPasswordFx.use(async (params) =>
     await client().login(LOGIN_BY_PASSWORD, params))
 
 loginByTokenFx.use(async (params): Promise<AuthData> => {
     const response = await fetch(
         `${params.baseUrl}/_matrix/client/r0/login`,
-        { 
-            method: "POST", 
-            body: JSON.stringify({type: LOGIN_BY_TOKEN, token: params.token }) 
+        {
+            method: "POST",
+            body: JSON.stringify({ type: LOGIN_BY_TOKEN, token: params.token })
         }
     )
-    const { 
+    const {
         user_id,
         access_token,
         device_id,
         well_known
     } = await response.json()
-    return { 
-        userId: user_id, 
+    return {
+        userId: user_id,
         accessToken: access_token,
         deviceId: device_id,
         wellKnown: well_known
@@ -274,7 +306,7 @@ initStoreFx.use(async () => {
 
 startClientFx.use((params) => client().startClient(params))
 
-logoutFx.use( async () => {
+logoutFx.use(async () => {
     await client().logout()
 })
 
@@ -309,19 +341,21 @@ createClientFx.use(async (
     const { store } = cl
     if (store) await store.startup()
     await initCryptoFx()
+    await cl.downloadKeys([cl.getUserId() ?? createClientParams.options.userId])
     await cl.startClient(startClientParams)
 })
 
 destroyClientFx.use(async () => {
     const cl = client()
     if (!cl) return
-    await cl.logout() 
-    await cl.store?.deleteAllData()
+    await IdbDelete("pickleKey", [cl.getUserId(), cl.getDeviceId()])
+    await IdbDelete("account", "mx_access_token")
     cl.stopClient()
+    await cl.logout()
     destroyClient()
 })
 
-getProfileInfoFx.use( async (userId) => {
+getProfileInfoFx.use(async (userId) => {
     const cl = client()
     const user = cl.getUser(userId)
     if (!user) throw new UserNotFound()

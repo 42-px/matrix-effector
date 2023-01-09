@@ -11,3 +11,4 @@ export const CantInviteUsers =
   createCustomError("CantInviteUsers")
 export const NotEnoughPermissions = 
   createCustomError("NotEnoughPermissions")
+export const InvalidBackupInfo = createCustomError("InvalidBackupInfo")

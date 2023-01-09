@@ -1,9 +1,8 @@
-import { VerificationRequest, IVerificationChannel } from "matrix-js-sdk"
-
-export type SetDeviceVerifiedFx = {
-  userId: string
-  deviceId: string
-} 
+import { 
+    VerificationRequest, 
+    IVerificationChannel, 
+    ISecretStorageKeyInfo 
+} from "matrix-js-sdk"
 
 // When importing Phase from matrix-js-sdk, the build crashes because of cyclic dependencies
 export enum Phase {
@@ -28,4 +27,17 @@ export type MyVerificationRequest = VerificationRequest<IVerificationChannel> & 
 export type StartVerificationDeviceParams = {
   userId: string
   deviceId: string
+}
+
+export type InputToKeyParams = {
+  passphrase?: string
+  recoveryKey?: string
+}
+
+export type CheckCanVerifyFxParams = {
+  profileId: string
+}
+
+export type CheckKeyInfo = {
+  keyInfo: ISecretStorageKeyInfo
 }
