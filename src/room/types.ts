@@ -121,3 +121,8 @@ export type RoomPermissions = {
     canKick: boolean
     canSetDefaultState: boolean
 }
+export type MyDeviceInfo =  {
+    verified: boolean
+    deviceId: string
+    displayName: string | null
+}

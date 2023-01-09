@@ -14,6 +14,7 @@ import {
     guard,
     sample
 } from "effector"
+
 import {
     getIsDirectRoomsIds,
     toMappedRoom,
@@ -34,6 +35,7 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
+
 import {
     initRoomFx,
     updatePowerLevelFx,
@@ -92,7 +94,8 @@ import {
     getMembersByRoomIdFx,
     inviteUsersFx,
     getRoomMemberFx,
-    getPermissionsByRoomIdFx
+    getPermissionsByRoomIdFx,
+    getUserDevicesFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -251,10 +254,10 @@ guard({
     target: getRoomMembersFx
 })
 guard({
-    source: sample(
-        [$currentRoomId, $timelineWindow],
-        loadRoom,
-        ([
+    source: sample({
+        source: [$currentRoomId, $timelineWindow],
+        clock: loadRoom,
+        fn: ([
             roomId,
             timelineWindow
         ], {
@@ -268,15 +271,16 @@ guard({
             initialWindowSize,
             loadAdditionalDataDirection
         })
-    ),
+    
+    }),
     filter: $loadFilter,
     target: loadInitialRoomFx
 })
 guard({
-    source: sample(
-        [$currentRoomId, $timelineWindow],
-        loadRoomMessage,
-        ([
+    source: sample({
+        source: [$currentRoomId, $timelineWindow],
+        clock: loadRoomMessage,
+        fn: ([
             roomId,
             timelineWindow
         ], {
@@ -289,15 +293,15 @@ guard({
             initialWindowSize,
             loadAdditionalDataDirection: "BACKWARD"
         })
-    ),
+    }),
     filter: $loadFilter,
     target: loadRoomMessageFx,
 })
 guard({
-    source: sample(
-        [$currentRoomId, $timelineWindow],
-        toLiveTimeline,
-        ([
+    source: sample({
+        source: [$currentRoomId, $timelineWindow],
+        clock: toLiveTimeline,
+        fn: ([
             roomId,
             timelineWindow
         ]): LoadRoomFxParams => ({
@@ -305,7 +309,7 @@ guard({
             timelineWindow: timelineWindow as TimelineWindow,
             loadAdditionalDataDirection: "BACKWARD"
         })
-    ),
+    }),
     filter: $loadFilter,
     target: toLiveTimelineFx,
 })
@@ -513,6 +517,7 @@ inviteUserFx.use( async ({userId, roomId}) => {
     }
     try {
         await client().invite(roomId, userId)
+        await client().sendSharedHistoryKeys(roomId, [userId])
     } catch (e: any) {
         if (e.httpStatus === 403) {
             throw new NotEnoughPermissions(
@@ -536,6 +541,7 @@ inviteUsersFx.use( async ({usersIds, roomId}) => {
     for (const id of usersIds) {
         try {
             await client().invite(roomId, id)
+            await client().sendSharedHistoryKeys(roomId, [id])
         } catch (e: any) {
             if (e.httpStatus === 403) {
                 throw new NotEnoughPermissions()
@@ -557,6 +563,17 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     const room = await cl.joinRoom(roomId)
     if (isDirect) {
         await setDirectRoom(roomId)
+    }
+    if (cl.isRoomEncrypted(roomId)) {
+        await cl.setRoomEncryption(
+            cl.getUserId(),
+            { algorithm: "m.megolm.v1.aes-sha2" }
+        )
+        const members = (
+            await room.getEncryptionTargetMembers()
+        ).map((x: RoomMember) => x.userId)
+        await cl.downloadKeys(members, true)
+        await cl.downloadKeysForUsers(members, {})
     }
     return toRoomWithActivity(toMappedRoom(room))
 })
@@ -620,4 +637,21 @@ getPermissionsByRoomIdFx.use(async (roomId) => {
         canSetDefaultState: powerLevel >= state_default,
         canRedact: powerLevel >= redact
     }
+})
+
+getUserDevicesFx.use(async (userId) => {
+    const cl = client()
+    const isMe = cl.getUserId() === userId
+    return cl.getStoredDevicesForUser(userId).map((device) => {
+        const deviceTrust = cl.checkDeviceTrust(userId, device.deviceId) 
+        const verified = isMe 
+            ? deviceTrust.isCrossSigningVerified() 
+            : deviceTrust.isVerified()
+        return {
+            deviceId: device.deviceId,
+            displayName: device.getDisplayName(),
+            verified,
+        }
+    })
+
 })

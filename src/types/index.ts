@@ -25,6 +25,7 @@ export type MappedUser = Pick<User,
     "lastActiveAgo" |
     "lastPresenceTs"
 > & {
+    isVerified: boolean
     presence: Presence
 }
 export interface EventPayload {

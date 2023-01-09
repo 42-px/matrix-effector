@@ -34,6 +34,17 @@ import {
     onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
+import { 
+    checkBackupKeyFx,
+    initCryptoFx, 
+    onCrossSigningKeyChange, 
+} from "@/crypto"
+import {
+    onVerificationRequest, 
+    MyVerificationRequest,
+    onUpdateDeviceList,
+    onUsersProfileUpdate,
+} from "@/verification"
 import { UserNotFound } from "@/errors"
 import {
     AuthData,
@@ -73,7 +84,7 @@ onClientEvent([
             toStartOfTimeline: boolean,
             removed,
             data
-        ) => {
+        ) => {            
             const eventType = event.getType()
             if (eventType === ROOM_MESSAGE_EVENT
                 || eventType === ROOM_REDACTION_EVENT
@@ -101,10 +112,11 @@ onClientEvent([
         }
     }],
     ["Room.localEchoUpdated", () => updateMessages()],
-    ["sync", (state, prevState) => {
+    ["sync", async (state, prevState) => {
         if (state === "PREPARED") {
             const rooms = getMappedRooms()
             onCachedState(rooms)
+            await client().uploadKeys()
             return
         }
         if (state === "SYNCING" && prevState === "PREPARED") {
@@ -158,6 +170,76 @@ onClientEvent([
         "User.displayName",
         (e, user: User) => onRoomUserUpdate(user)
     ],
+    [
+        "crossSigning.keysChanged",
+        onCrossSigningKeyChange
+    ],
+    [
+        "crypto.roomKeyRequest",
+        (...args) => console.log("crypto.roomKeyRequest", args)
+    ],
+    [
+        "crypto.roomKeyRequestCancellation",
+        (...args) => console.log("crypto.roomKeyRequestCancellation", args)
+    ],
+    [
+        "crypto.secrets.requestCancelled",
+        (...args) => console.log("crypto.secrets.requestCancelled", args)
+    ],
+    [
+        "crypto.suggestKeyRestore",
+        (...args) => console.log("crypto.suggestKeyRestore", args)
+    ],
+    [
+        "crypto.verification.request.unknown",
+        (...args) => console.log("crypto.verification.request.unknown", args)
+    ],
+    [
+        "crypto.verification.request", (
+            request: MyVerificationRequest
+        ) => {
+            const cl = client()
+            const deviceId = cl.getDeviceId()
+            const userId = cl.getUserId()
+            const isVerified = cl
+                .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
+            if (isVerified || request.isSelfVerification) {
+                request.id = Date.now()
+                onVerificationRequest(request)
+            }
+        }
+    ],
+    [
+        "crypto.warning",
+        (...args) => console.warn("crypto.warning", args)
+    ],
+    [
+        "crypto.keyBackupStatus",
+        checkBackupKeyFx
+    ],
+    [
+        "crypto.willUpdateDevices",
+        (userIds: string[], initialFetch?: boolean) => {
+            // If we didn't know about *any* devices before (ie. it's fresh login),
+            // then they are all pre-existing devices, so ignore this and set the
+            // devicesAtStart list to the devices that we see after the fetch.
+            if (initialFetch) return
+            onUpdateDeviceList(userIds)
+            onUsersProfileUpdate(userIds)
+        }
+    ],
+    ["crypto.devicesUpdated", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }],
+    ["deviceVerificationChanged", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }],
+    ["userTrustStatusChanged", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }]
 ])
 
 loginByPasswordFx.use( async (params) =>
@@ -223,9 +305,11 @@ createClientFx.use(async (
     }
 ) => {
     createClient(createClientParams)
-    const { store } = client()
+    const cl = client()
+    const { store } = cl
     if (store) await store.startup()
-    await client().startClient(startClientParams)
+    await initCryptoFx()
+    await cl.startClient(startClientParams)
 })
 
 destroyClientFx.use(async () => {

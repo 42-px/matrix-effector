@@ -13,6 +13,9 @@ const callbacksStore: EventListener[] = []
 export const destroyClient = () => {
     if (clientStore) {
         clientStore.removeAllListeners()
+        // TODO Не чистить сторы, если userId нового юзера совпадает со старым юзером
+        // clientStore.clearStores()
+        // clientStore.crypto.cryptoStore.deleteAllData()
         clientStore = null as any
     }
 }
@@ -24,7 +27,7 @@ export const createClient = (
     if (ms !== undefined) messageBatchInterval = ms
     clientStore = matrix.createClient(options)
     callbacksStore.forEach(([eventName, cb]) => {
-        clientStore.on(eventName, cb)
+        clientStore.on(eventName as any, cb)
     })
 }
 export const client = (): MatrixClient => clientStore
