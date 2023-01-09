@@ -19,6 +19,11 @@ import {
     onRejectSecretStorageKey,
 } from "@/verification"
 import { onResolveSecretStorageKey } from "./verification"
+import { 
+    cancelCreateNewMethod, 
+    onNeedCreateRecoveryMethod,
+    onNewRecoveryMethodCreated
+} from "@/create-verification-method"
 
 let secretStorageBeingAccessed = false
 let secretStorageKeys: Record<string, Uint8Array> = {}
@@ -28,6 +33,22 @@ let dehydrationCache: {
     key?: Uint8Array
     keyInfo?: ISecretStorageKeyInfo
 } = {}
+
+type CreatePromiseResult<T> = {
+    promise: Promise<T>
+    resolve: (params: T) => void
+    reject: (params: any) => void
+}
+
+function createPromise<T>(): CreatePromiseResult<T> {
+    let resolve = (params: T) => { return }
+    let reject = (params: any) => { return }
+    const promise = new Promise<T>((res, rej) => {
+        resolve = res
+        reject = rej
+    })
+    return {promise, resolve, reject}
+}
 
 function isCachingAllowed(): boolean {
     return secretStorageBeingAccessed
@@ -64,7 +85,19 @@ export async function accessSecretStorage(
     setCachingAllowed(true)
     try {
         if (!(await cl.hasSecretStorageKey()) || forceReset) {
-            // Потребуется для сбросса кросс подписей 
+            const {promise, reject, resolve} = createPromise<void>()
+            onNeedCreateRecoveryMethod()
+            const createdSub = onNewRecoveryMethodCreated.watch(() => {
+                resolve()
+            })
+            const cancelSub = cancelCreateNewMethod.watch(() => {
+                reject("Cancel create new Method")
+            })
+            promise.finally(() => {
+                cancelSub()
+                createdSub()
+            })
+            await promise
         } else {
             await cl.bootstrapCrossSigning({})
             await cl.bootstrapSecretStorage({
@@ -132,22 +165,6 @@ export function makeInputToKey(
     }
 }
 
-type CreatePromiseResult<T> = {
-    promise: Promise<T>
-    resolve: (params: T) => void
-    reject: (params: any) => void
-}
-
-function createPromise<T>(): CreatePromiseResult<T> {
-    let resolve = (params: T) => { return }
-    let reject = (params: any) => { return }
-    const promise = new Promise<T>((res, rej) => {
-        resolve = res
-        reject = rej
-    })
-    return {promise, resolve, reject}
-}
-
 async function getSecretStorageKey(
     { keys: keyInfos }: { keys: Record<string, ISecretStorageKeyInfo> },
 ): Promise<any> {
@@ -197,7 +214,7 @@ async function getSecretStorageKey(
         resolveWatcher.unsubscribe()
         rejectWatcher.unsubscribe()
     })
-
+    
     onNeedRecoveryKeyOrPassphrase()
     onHasPassphrase(Boolean(keyInfo.passphrase))
     setCheckKeyInfo({ keyInfo })

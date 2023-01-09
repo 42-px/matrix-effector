@@ -1,3 +1,3 @@
-import { createDomain } from "effector"
+import { root } from "@/root"
 
-export const d = createDomain("resetCrossSigning")
+export const d = root.domain("resetCrossSigning")

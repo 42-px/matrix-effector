@@ -1,4 +1,5 @@
 import { InteractiveAuth } from "matrix-js-sdk"
+
 import { d } from "./domain"
 import { SubmitAuthDictFxParams } from "./types"
 

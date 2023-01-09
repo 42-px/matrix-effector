@@ -1,3 +1,3 @@
-import { createDomain } from "effector"
+import { root } from "@/root"
 
-export const verificationDomain = createDomain("verificationDomain")
+export const verificationDomain = root.domain("verificationDomain")

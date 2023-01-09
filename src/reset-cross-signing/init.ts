@@ -1,47 +1,10 @@
-import { IAuthData, InteractiveAuth } from "matrix-js-sdk"
-import { sample } from "effector"
+import { IAuthData } from "matrix-js-sdk"
 
 import { client } from "@/matrix-client"
-import { LOGIN_BY_PASSWORD } from "@/constants"
+import { createInteractiveAuthFx } from "@/interactive-auth"
 
-import { 
-    confirmResetCrossSigningFx, 
-    onInteractiveAuthBusyChange, 
-    onInteractiveAuthStateUpdate, 
-    onNeedUserPassword,
-    onUserPasswordError,
-    submitAuthDict
-} from "./public"
-import { 
-    $interactiveAuthInstance,
-    setInteractiveAuth,
-    submitAuthDictFx
-} from "./private"
+import { confirmResetCrossSigningFx } from "./public"
 import { ConfirmResetCrossSigningFxResult } from "./types"
-
-$interactiveAuthInstance
-    .on(setInteractiveAuth, (_, auth) => auth)
-    .reset(submitAuthDictFx.doneData)
-
-sample({
-    clock: submitAuthDict,
-    source: $interactiveAuthInstance,
-    filter: (
-        isInstance: InteractiveAuth | null,
-    ): isInstance is InteractiveAuth => Boolean(isInstance),
-    fn: (auth, pass) => ({
-        password: pass,
-        interactiveAuth: auth
-    }),
-    target: submitAuthDictFx
-})
-
-sample({
-    source: onInteractiveAuthStateUpdate,
-    filter: ({status}) => status.errcode === "M_FORBIDDEN",
-    fn: ({status}) => status.error as string,
-    target: onUserPasswordError,
-})
 
 confirmResetCrossSigningFx.use(async () => {
     const cl = client()
@@ -49,28 +12,13 @@ confirmResetCrossSigningFx.use(async () => {
         ConfirmResetCrossSigningFxResult
     >((res, rej) => {
         cl.bootstrapCrossSigning({
-            
             authUploadDeviceSigningKeys: async (makeRequest) => {
                 const requestCallback = (
                     auth: IAuthData, 
                 ): Promise<IAuthData> => {
                     return makeRequest(auth)
                 }
-                const interactiveAuth = new InteractiveAuth({
-                    doRequest: requestCallback,
-                    busyChanged: onInteractiveAuthBusyChange,
-                    stateUpdated: (nextStage, status) => {
-                        onInteractiveAuthStateUpdate({
-                            nextStage, status
-                        })
-                    },
-                    matrixClient: cl,
-                    // нам это не нужно 
-                    requestEmailToken: undefined as any
-                })
-                setInteractiveAuth(interactiveAuth)
-                onNeedUserPassword()
-                await interactiveAuth.attemptAuth()
+                await createInteractiveAuthFx(requestCallback)
             },
 
             setupNewCrossSigning: true,
@@ -81,19 +29,4 @@ confirmResetCrossSigningFx.use(async () => {
         })
     })
     return promise
-})
-
-submitAuthDictFx.use(async ({password, interactiveAuth}) => {
-    const cl = client()
-    await interactiveAuth.submitAuthDict(
-        {
-            "type": LOGIN_BY_PASSWORD,
-            "user": cl.getUserId(),
-            "identifier": {
-                "type": "m.id.user",
-                "user": cl.getUserId()
-            },
-            "password": password
-        }
-    )
 })
