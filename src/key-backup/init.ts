@@ -10,11 +10,13 @@ import {
     $detailedKeyBackupInfo, 
     $isKeyBackupEnabled, 
     $keyBackupInfo, 
+    $sessionsRemaining, 
     checkBackupEnabledKeyFx, 
     deleteKeyBackup, 
     getKeyBackupInfoFx, 
     newKeyBackupFx,
     onBackupKeyLoadProgress,
+    onSessionRemaining,
     resetCryptoStorageFx,
     restoreKeyBackupFx,
 } from "./public"
@@ -22,6 +24,10 @@ import {
     deleteKeyBackupFx,
     getDetailedKeyBackupInfoFx 
 } from "./private"
+
+$sessionsRemaining
+    .on(onSessionRemaining, (_, remaining) => remaining)
+    .reset(destroyClientFx)
 
 $isKeyBackupEnabled
     .on(checkBackupEnabledKeyFx.doneData, (_, isEnabled) => isEnabled)
@@ -36,7 +42,16 @@ $detailedKeyBackupInfo
     .reset(destroyClientFx)
 
 forward({
-    from: [onUpdateKeyBackupStatus, initCryptoFx.doneData],
+    from: initCryptoFx.doneData,
+    to: checkBackupEnabledKeyFx,
+})
+
+forward({
+    from: [
+        onUpdateKeyBackupStatus, 
+        resetCryptoStorageFx.finally,
+        deleteKeyBackupFx.finally,
+    ],
     to: [
         checkBackupEnabledKeyFx, 
         getKeyBackupInfoFx, 
@@ -68,6 +83,7 @@ newKeyBackupFx.use(async () => {
     try {
         const secureSecretStorage = await cl
             .doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+
         if (secureSecretStorage) {
             await accessSecretStorage(async () => {
                 info = await cl.prepareKeyBackupVersion(
@@ -76,7 +92,6 @@ newKeyBackupFx.use(async () => {
                 )
                 info = await cl.createKeyBackupVersion(info)
             })
-
         } else {
             const keyBackupInfo = await cl.getKeyBackupVersion()
             if (keyBackupInfo) [
@@ -97,7 +112,6 @@ newKeyBackupFx.use(async () => {
             cl.deleteKeyBackupVersion(info.version)
         }
     }
-
 })
 
 getDetailedKeyBackupInfoFx.use(async () => {
@@ -131,16 +145,18 @@ restoreKeyBackupFx.use(async () => {
     const has4S = await cl.hasSecretStorageKey()
     const backupKeyStored = has4S && (await cl.isKeyBackupKeyStored())
     if (!backupInfo) return
+    const progressCallback = {
+        progressCallback: (e: any) => {
+            onBackupKeyLoadProgress(e)
+        }
+    }
     try {
         const recoverInfo = await cl.restoreKeyBackupWithCache(
             undefined, /* targetRoomId */
             undefined, /* targetSessionId */
             backupInfo,
             // @TODO fix matrix-types
-            { progressCallback: (e: any) => {
-                console.log(e)
-                onBackupKeyLoadProgress(e)
-            } } as {},
+            progressCallback,
         )
         console.log("RestoreKeyBackupDialog: found cached backup key")
         return recoverInfo
@@ -153,10 +169,7 @@ restoreKeyBackupFx.use(async () => {
             await cl.restoreKeyBackupWithSecretStorage(
                 backupInfo, undefined, undefined,
                 // @TODO fix matrix-types
-                { progressCallback: (e: any) => {
-                    console.log(e)
-                    onBackupKeyLoadProgress(e)
-                } } as {},
+                progressCallback,
             )
         })
     }

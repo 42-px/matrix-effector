@@ -18,8 +18,6 @@ import {
     initCryptoFx,
     exportE2ERoomsKeysFx, 
     importE2ERoomsKeysFx,
-    $sessionsRemaining,
-    onSessionRemaining,
     $deviceEd25519Key,
 } from "./public"
 
@@ -31,17 +29,13 @@ $identityKey
     .on(getIdentityKeyFx.doneData, (_, key) => key)
     .reset(destroyClientFx)
 
-$sessionsRemaining
-    .on(onSessionRemaining, (_, remaining) => remaining)
-    .reset(destroyClientFx)
-
 $deviceEd25519Key
     .on(getDeviceEd25519KeyFx.doneData, (_, key) => key)
     .reset(destroyClientFx)
 
 forward({
     from: initCryptoFx.doneData,
-    to: getDeviceEd25519KeyFx
+    to: [getDeviceEd25519KeyFx, getIdentityKeyFx]
 })
 
 initCryptoFx.use(async () => {

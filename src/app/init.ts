@@ -40,7 +40,6 @@ import {
 } from "@/room"
 import {
     initCryptoFx,
-    onSessionRemaining,
 } from "@/crypto"
 import {
     onVerificationRequest,
@@ -50,6 +49,7 @@ import {
 } from "@/verification"
 import { onCrossSigningKeyChange } from "@/cross-signing"
 import { UserNotFound } from "@/errors"
+import { onSessionRemaining } from "@/key-backup"
 
 import {
     AuthData,
@@ -251,7 +251,9 @@ onClientEvent([
         (...args) => console.warn("crypto.warning", args)
     ],
     [
-        "crypto.keyBackupStatus", onUpdateKeyBackupStatus
+        "crypto.keyBackupStatus", () => {
+            onUpdateKeyBackupStatus()
+        }
     ],
     [
         "crypto.willUpdateDevices",
@@ -280,10 +282,7 @@ onClientEvent([
         onUpdateDeviceList([userId])
         onUsersProfileUpdate([userId])
     }],
-    ["crypto.keyBackupSessionsRemaining", (e) => {
-        console.log("crypto.keyBackupSessionsRemaining")
-        onSessionRemaining(e)
-    }]
+    ["crypto.keyBackupSessionsRemaining", onSessionRemaining]
 ])
 
 loginByPasswordFx.use(async (params) =>

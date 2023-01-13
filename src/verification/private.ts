@@ -44,9 +44,6 @@ export const cancelVerificationEventFx = verificationDomain
 
 // Recovery key
 
-export const restoreKeyBackupFx = verificationDomain
-    .effect<void, void, Error>()
-
 export const $checkKeyInfo = verificationDomain
     .store<CheckKeyInfo | null>(null)
 

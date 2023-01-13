@@ -4,7 +4,7 @@ import { client } from "@/matrix-client"
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
 import { createClientFx, destroyClientFx } from "@/app"
-import { InvalidBackupInfo } from "@/errors"
+import { InvalidBackupInfo, VerificationError } from "@/errors"
 import { initCryptoFx } from "@/crypto"
 import { crossSigningChangeFx } from "@/cross-signing"
 
@@ -19,7 +19,6 @@ import {
     startVerificationUserFx,
     requestAcceptFx,
     cancelAllRequestsFx,
-    restoreKeyBackupFx,
     cancelVerificationEventFx,
     validateRecoveryKeyFx,
     $checkKeyInfo,
@@ -56,6 +55,7 @@ import {
     onInvalidPassphrase,
     onValidPassphrase,
     $canVerify,
+    keyVerificationFx,
 } from "./public"
 import { 
     MyVerificationRequest, 
@@ -78,6 +78,7 @@ $verificationEvents
         .filter((currentReq) => currentReq.id !== req.id)
     )
     .reset(destroyClientFx)
+
 // When copying an object, proto properties was lost
 $currentVerificationEvent
     .on(setCurrentVerificationEvent, (_, req) => [req])
@@ -97,7 +98,11 @@ $hasPassphrase
 
 $checkKeyInfo
     .on(setCheckKeyInfo, (_, val) => val)
-    .reset([destroyClientFx, onRejectSecretStorageKey])
+    .reset([
+        destroyClientFx, 
+        onRejectSecretStorageKey, 
+        keyVerificationFx.finally
+    ])
 
 $canVerify
     .on(checkCanVerifyFx.doneData, (_, canVerify) => canVerify)
@@ -167,7 +172,7 @@ forward({
 
 forward({
     from: startRecoveryKeyOrPassphraseVerification,
-    to: restoreKeyBackupFx
+    to: keyVerificationFx
 })
 
 forward({
@@ -315,15 +320,19 @@ checkCanVerifyFx.use(async () => {
     return canVerify
 })
 
-restoreKeyBackupFx.use(async () => {
+keyVerificationFx.use(async () => {
     const cl = client()
-    accessSecretStorage(async () => {
+    await accessSecretStorage(async () => {
         const backupInfo = await cl.getKeyBackupVersion()
         await cl.checkOwnCrossSigningTrust()
 
         if (!backupInfo) throw new InvalidBackupInfo("backupInfo is null")
         await cl.restoreKeyBackupWithSecretStorage(backupInfo)
     })
+
+    if (!cl.getCrossSigningId()) {
+        throw new VerificationError("Secret storage access canceled")
+    }
 })
 
 guard({

@@ -17,7 +17,4 @@ export const exportE2ERoomsKeysFx = cryptoDomain
 export const importE2ERoomsKeysFx = cryptoDomain
     .effect<importE2ERoomsKeysFxParams, void, Error>()
 
-export const $sessionsRemaining = cryptoDomain.store<number | null>(null)
-export const onSessionRemaining = cryptoDomain.event<number>()
-
 export const $deviceEd25519Key = cryptoDomain.store<string|null>(null)

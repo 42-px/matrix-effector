@@ -144,7 +144,6 @@ export async function accessSecretStorage(
         // inner operation completes.
         return await func()
     } catch (e) {
-        // SecurityCustomisations.catchAccessSecretStorageError?.(e)
         console.error(e)
         // Re-throw so that higher level logic can abort as needed
         throw e

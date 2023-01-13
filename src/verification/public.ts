@@ -66,6 +66,9 @@ export const cancelAllRequests = verificationDomain
 
 // Recovery Key
 
+export const keyVerificationFx = verificationDomain
+    .effect<void, void, Error>()
+
 export const onNeedRecoveryKeyOrPassphrase = verificationDomain
     .event<void>()
 
