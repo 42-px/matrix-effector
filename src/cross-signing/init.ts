@@ -40,7 +40,7 @@ confirmResetCrossSigningFx.use(async () => {
     const cl = client()
     const promise = new Promise<
         ConfirmResetCrossSigningFxResult
-    >((res, rej) => {
+    >((resolve, rej) => {
         cl.bootstrapCrossSigning({
             authUploadDeviceSigningKeys: async (makeRequest) => {
                 const requestCallback = (
@@ -53,7 +53,7 @@ confirmResetCrossSigningFx.use(async () => {
 
             setupNewCrossSigning: true,
         }).then(() => {
-            res({
+            resolve({
                 result: true
             })
         })
