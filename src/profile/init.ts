@@ -1,7 +1,7 @@
-import { client } from "@/matrix-client"
 import { forward, guard } from "effector"
 import { IAuthData } from "matrix-js-sdk"
 
+import { client } from "@/matrix-client"
 import { createInteractiveAuthFx } from "@/interactive-auth"
 import { onUpdateDeviceList } from "@/verification"
 
