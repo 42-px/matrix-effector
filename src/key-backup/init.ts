@@ -27,19 +27,19 @@ import {
 
 $sessionsRemaining
     .on(onSessionRemaining, (_, remaining) => remaining)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $isKeyBackupEnabled
     .on(checkBackupEnabledKeyFx.doneData, (_, isEnabled) => isEnabled)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $keyBackupInfo
     .on(getKeyBackupInfoFx.doneData, (_, info) => info)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $detailedKeyBackupInfo
     .on(getDetailedKeyBackupInfoFx.doneData, (_, detailedInfo) => detailedInfo)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 forward({
     from: initCryptoFx.doneData,

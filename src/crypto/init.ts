@@ -23,15 +23,15 @@ import {
 
 $isCryptoEnabled
     .on(setEnableCrypto, (_, isEnabled) => isEnabled)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $identityKey
     .on(getIdentityKeyFx.doneData, (_, key) => key)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $deviceEd25519Key
     .on(getDeviceEd25519KeyFx.doneData, (_, key) => key)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 forward({
     from: initCryptoFx.doneData,

@@ -16,7 +16,7 @@ import { getCrossSigningIdFx } from "./private"
 
 $crossSigningId
     .on(getCrossSigningIdFx.doneData, (_, id) => id)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 forward({
     from: onCrossSigningKeyChange,

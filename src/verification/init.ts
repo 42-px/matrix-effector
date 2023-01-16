@@ -67,7 +67,7 @@ import { accessSecretStorage, makeInputToKey } from "../cryptoCallbacks"
     
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $verificationEvents
     .on(onVerificationRequestFx.doneData, ((requests, req) => ([
@@ -77,7 +77,7 @@ $verificationEvents
     .on(onCancelVerificationEvent, (requests, req) => requests
         .filter((currentReq) => currentReq.id !== req.id)
     )
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 // When copying an object, proto properties was lost
 $currentVerificationEvent
@@ -90,16 +90,16 @@ $currentVerificationEvent
     .on(updateVerificationPhase,
         ([request]) => [request]
     )
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $hasPassphrase
     .on(onHasPassphrase, (_, val) => val)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $checkKeyInfo
     .on(setCheckKeyInfo, (_, val) => val)
     .reset([
-        destroyClientFx, 
+        destroyClientFx.done, 
         onRejectSecretStorageKey, 
         keyVerificationFx.finally
     ])
