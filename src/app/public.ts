@@ -36,3 +36,7 @@ export const destroyClientFx = appDomain
     .effect<void, void, Error>()
 export const getProfileInfoFx = appDomain
     .effect<string, MappedUser, Error>()
+
+export const $currentDeviceId = appDomain.store<string | null>(null)
+
+export const onUpdateKeyBackupStatus = appDomain.event<void>()

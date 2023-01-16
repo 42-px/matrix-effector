@@ -1,8 +1,6 @@
 import { createApi } from "effector"
-import { IRecoveryKey } from "matrix-js-sdk/lib"
 import { verificationDomain } from "./domain"
 import {
-    CheckCanVerifyFxParams,
     MyVerificationRequest,
     StartVerificationDeviceParams,
     CheckKeyInfo,
@@ -68,6 +66,9 @@ export const cancelAllRequests = verificationDomain
 
 // Recovery Key
 
+export const keyVerificationFx = verificationDomain
+    .effect<void, void, Error>()
+
 export const onNeedRecoveryKeyOrPassphrase = verificationDomain
     .event<void>()
 
@@ -94,6 +95,8 @@ export const onValidPassphrase = verificationDomain.event<void>()
 export const onInvalidPassphrase = verificationDomain.event<Error>()
 
 // others
+export const $canVerify = verificationDomain.store<boolean>(false)
+
 export const $deviceIsVerified = verificationDomain
     .store<DeviceIsVerified | null>(null)
 
@@ -102,9 +105,6 @@ export const onUpdateDeviceList = verificationDomain
 
 export const checkThisDeviceVerificationFx = verificationDomain
     .effect<void, boolean, Error>()
-
-export const checkCanVerifyFx = verificationDomain
-    .effect<CheckCanVerifyFxParams, boolean, Error>()
 
 export const onUsersProfileUpdate = verificationDomain
     .event<UserId[]>()

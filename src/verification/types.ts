@@ -34,10 +34,6 @@ export type InputToKeyParams = {
   recoveryKey?: string
 }
 
-export type CheckCanVerifyFxParams = {
-  profileId: string
-}
-
 export type CheckKeyInfo = {
   keyInfo: ISecretStorageKeyInfo
 }

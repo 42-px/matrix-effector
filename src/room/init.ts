@@ -95,7 +95,7 @@ import {
     inviteUsersFx,
     getRoomMemberFx,
     getPermissionsByRoomIdFx,
-    getUserDevicesFx,
+    getUserDevicesInfoFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -639,7 +639,7 @@ getPermissionsByRoomIdFx.use(async (roomId) => {
     }
 })
 
-getUserDevicesFx.use(async (userId) => {
+getUserDevicesInfoFx.use(async (userId) => {
     const cl = client()
     const isMe = cl.getUserId() === userId
     return cl.getStoredDevicesForUser(userId).map((device) => {

@@ -3,8 +3,10 @@ import { client } from "@/matrix-client"
 
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
-import { destroyClientFx } from "@/app"
-import { InvalidBackupInfo } from "@/errors"
+import { createClientFx, destroyClientFx } from "@/app"
+import { InvalidBackupInfo, VerificationError } from "@/errors"
+import { initCryptoFx } from "@/crypto"
+import { crossSigningChangeFx } from "@/cross-signing"
 
 import {
     updateVerificationPhase,
@@ -17,11 +19,11 @@ import {
     startVerificationUserFx,
     requestAcceptFx,
     cancelAllRequestsFx,
-    restoreKeyBackupFx,
     cancelVerificationEventFx,
     validateRecoveryKeyFx,
     $checkKeyInfo,
     validatePassphraseFx,
+    checkCanVerifyFx,
 } from "./private"
 import {
     onHasPassphrase,
@@ -40,7 +42,6 @@ import {
     onRequestAccept,
     onRequestCancel,
     cancelAllRequests,
-    checkCanVerifyFx,
     startRecoveryKeyOrPassphraseVerification,
     $hasPassphrase,
     setWaitingAnotherUser,
@@ -53,6 +54,8 @@ import {
     validatePassphrase,
     onInvalidPassphrase,
     onValidPassphrase,
+    $canVerify,
+    keyVerificationFx,
 } from "./public"
 import { 
     MyVerificationRequest, 
@@ -64,7 +67,7 @@ import { accessSecretStorage, makeInputToKey } from "../cryptoCallbacks"
     
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $verificationEvents
     .on(onVerificationRequestFx.doneData, ((requests, req) => ([
@@ -74,7 +77,8 @@ $verificationEvents
     .on(onCancelVerificationEvent, (requests, req) => requests
         .filter((currentReq) => currentReq.id !== req.id)
     )
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
+
 // When copying an object, proto properties was lost
 $currentVerificationEvent
     .on(setCurrentVerificationEvent, (_, req) => [req])
@@ -86,15 +90,23 @@ $currentVerificationEvent
     .on(updateVerificationPhase,
         ([request]) => [request]
     )
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $hasPassphrase
     .on(onHasPassphrase, (_, val) => val)
-    .reset(destroyClientFx)
+    .reset(destroyClientFx.done)
 
 $checkKeyInfo
     .on(setCheckKeyInfo, (_, val) => val)
-    .reset([destroyClientFx, onRejectSecretStorageKey])
+    .reset([
+        destroyClientFx.done, 
+        onRejectSecretStorageKey, 
+        keyVerificationFx.finally
+    ])
+
+$canVerify
+    .on(checkCanVerifyFx.doneData, (_, canVerify) => canVerify)
+    .reset(destroyClientFx.done)
 
 forward({
     from: checkThisDeviceVerificationFx.doneData,
@@ -160,7 +172,7 @@ forward({
 
 forward({
     from: startRecoveryKeyOrPassphraseVerification,
-    to: restoreKeyBackupFx
+    to: keyVerificationFx
 })
 
 forward({
@@ -181,6 +193,16 @@ forward({
 forward({
     from: validatePassphraseFx.failData,
     to: onInvalidPassphrase,
+})
+
+forward({
+    from: [createClientFx.doneData, $deviceIsVerified.updates],
+    to: checkCanVerifyFx
+})
+
+forward({
+    from: [initCryptoFx.done, crossSigningChangeFx.done],
+    to: checkThisDeviceVerificationFx
 })
 
 sample({
@@ -280,7 +302,7 @@ cancelAllRequestsFx.use(async (requests) => {
     requests.forEach(request => request.cancel())
 })
 
-checkCanVerifyFx.use(async ({ profileId }) => {
+checkCanVerifyFx.use(async () => {
     const cl = client()
     const cryptoEnabled = cl.isCryptoEnabled()
     const homeserverSupportsCrossSigning = await cl
@@ -292,28 +314,25 @@ checkCanVerifyFx.use(async ({ profileId }) => {
     const isVerified = cl
         .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
 
-    const userTrust = cryptoEnabled && cl.checkUserTrust(profileId)
-    const userVerified = cryptoEnabled && userTrust && userTrust
-        .isCrossSigningVerified()
-    const isMe = profileId === cl.getUserId()
-    if (isMe && isVerified) return true
-
     const canVerify = cryptoEnabled
         && homeserverSupportsCrossSigning
-        && !userVerified
         && isVerified
     return canVerify
 })
 
-restoreKeyBackupFx.use(async () => {
+keyVerificationFx.use(async () => {
     const cl = client()
-    accessSecretStorage(async () => {
+    await accessSecretStorage(async () => {
         const backupInfo = await cl.getKeyBackupVersion()
         await cl.checkOwnCrossSigningTrust()
 
         if (!backupInfo) throw new InvalidBackupInfo("backupInfo is null")
         await cl.restoreKeyBackupWithSecretStorage(backupInfo)
     })
+
+    if (!cl.getCrossSigningId()) {
+        throw new VerificationError("Secret storage access canceled")
+    }
 })
 
 guard({

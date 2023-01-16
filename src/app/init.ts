@@ -7,6 +7,9 @@ import {
     EventType,
     UserTrustLevel,
 } from "matrix-js-sdk"
+import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
+
+import { IdbDelete } from "@/idbHelper"
 import {
     toMappedRoom,
     toMappedUser,
@@ -36,9 +39,7 @@ import {
     toggleTypingUser
 } from "@/room"
 import {
-    checkBackupKeyFx,
     initCryptoFx,
-    onCrossSigningKeyChange,
 } from "@/crypto"
 import {
     onVerificationRequest,
@@ -46,7 +47,10 @@ import {
     onUpdateDeviceList,
     onUsersProfileUpdate,
 } from "@/verification"
+import { onCrossSigningKeyChange } from "@/cross-signing"
 import { UserNotFound } from "@/errors"
+import { onSessionRemaining } from "@/key-backup"
+
 import {
     AuthData,
     StateEventsContent
@@ -65,9 +69,14 @@ import {
     createClientFx,
     destroyClientFx,
     getProfileInfoFx,
+    $currentDeviceId,
+    onUpdateKeyBackupStatus,
 } from "./public"
-import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
-import { IdbDelete } from "@/idbHelper"
+
+$currentDeviceId
+    .on(createClientFx.done, 
+        (_, {params}) => params.createClientParams.options.deviceId)
+    .reset(destroyClientFx.done)
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -242,8 +251,9 @@ onClientEvent([
         (...args) => console.warn("crypto.warning", args)
     ],
     [
-        "crypto.keyBackupStatus",
-        checkBackupKeyFx
+        "crypto.keyBackupStatus", () => {
+            onUpdateKeyBackupStatus()
+        }
     ],
     [
         "crypto.willUpdateDevices",
@@ -271,7 +281,8 @@ onClientEvent([
     ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
         onUpdateDeviceList([userId])
         onUsersProfileUpdate([userId])
-    }]
+    }],
+    ["crypto.keyBackupSessionsRemaining", onSessionRemaining]
 ])
 
 loginByPasswordFx.use(async (params) =>

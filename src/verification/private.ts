@@ -44,9 +44,6 @@ export const cancelVerificationEventFx = verificationDomain
 
 // Recovery key
 
-export const restoreKeyBackupFx = verificationDomain
-    .effect<void, void, Error>()
-
 export const $checkKeyInfo = verificationDomain
     .store<CheckKeyInfo | null>(null)
 
@@ -59,3 +56,6 @@ export const updateDeviceVerification = verificationDomain
 
 export const validatePassphraseFx = verificationDomain
     .effect<ValidatePassphraseFxParams, boolean, Error>()
+
+export const checkCanVerifyFx = verificationDomain
+    .effect<void, boolean, Error>()

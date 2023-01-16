@@ -162,5 +162,5 @@ export const getRoomMemberFx = roomDomain
 export const getPermissionsByRoomIdFx = roomDomain
     .effect<string, RoomPermissions, Error>()
 
-export const getUserDevicesFx = roomDomain
+export const getUserDevicesInfoFx = roomDomain
     .effect<string, MyDeviceInfo[], Error>()
