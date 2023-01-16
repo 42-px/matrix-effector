@@ -29,7 +29,8 @@ import {
     MessageResponse,
     SendTypingParams,
     InviteUsersParams,
-    RoomPermissions
+    RoomPermissions,
+    MyDeviceInfo,
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -160,3 +161,6 @@ export const getRoomMemberFx = roomDomain
 
 export const getPermissionsByRoomIdFx = roomDomain
     .effect<string, RoomPermissions, Error>()
+
+export const getUserDevicesFx = roomDomain
+    .effect<string, MyDeviceInfo[], Error>()

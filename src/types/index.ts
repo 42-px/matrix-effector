@@ -25,6 +25,7 @@ export type MappedUser = Pick<User,
     "lastActiveAgo" |
     "lastPresenceTs"
 > & {
+    isVerified: boolean
     presence: Presence
 }
 export interface EventPayload {
@@ -172,4 +173,14 @@ export type RoomPowerLevelsContent = {
 export enum UserRole {
     admin = "Admin",
     moderator = "Moderator"
+}
+
+export enum SecureBackupSetupMethod {
+    Key = "key",
+    Passphrase = "passphrase",
+}
+
+export enum RecoveryKeyOrPassphraseEnum {
+    RecoveryKey = "RecoveryKey",
+    Passphrase = "Passphrase"
 }

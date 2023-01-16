@@ -5,6 +5,7 @@ import {
     Room,
     RoomMember,
     EventType,
+    UserTrustLevel,
 } from "matrix-js-sdk"
 import {
     toMappedRoom,
@@ -34,6 +35,17 @@ import {
     onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
+import {
+    checkBackupKeyFx,
+    initCryptoFx,
+    onCrossSigningKeyChange,
+} from "@/crypto"
+import {
+    onVerificationRequest,
+    MyVerificationRequest,
+    onUpdateDeviceList,
+    onUsersProfileUpdate,
+} from "@/verification"
 import { UserNotFound } from "@/errors"
 import {
     AuthData,
@@ -54,6 +66,8 @@ import {
     destroyClientFx,
     getProfileInfoFx,
 } from "./public"
+import { DeviceInfo } from "matrix-js-sdk/lib/crypto/deviceinfo"
+import { IdbDelete } from "@/idbHelper"
 
 forward({
     from: loginByPasswordFx.done.map(() => ({ initialSyncLimit: 20 })),
@@ -83,6 +97,31 @@ onClientEvent([
                 }
             }
         }],
+    ["Session.logged_out", (args) => {
+        console.log("Session.logged_out", args)
+    }],
+    // @TODO Реализовать. Этот эвент приходит когда логаут происходит из другой сессии.
+    // cli.on(HttpApiEvent.SessionLoggedOut, function (errObj) {
+    //     if (Lifecycle.isLoggingOut()) return;
+
+    //     // A modal might have been open when we were logged out by the server
+    //     Modal.closeCurrentModal('Session.logged_out');
+
+    //     if (errObj.httpStatus === 401 && errObj.data && errObj.data['soft_logout']) {
+    //         logger.warn("Soft logout issued by server - avoiding data deletion");
+    //         Lifecycle.softLogout();
+    //         return;
+    //     }
+
+    //     Modal.createDialog(ErrorDialog, {
+    //         title: _t('Signed Out'),
+    //         description: _t('For security, this session has been signed out. Please sign in again.'),
+    //     });
+
+    //     dis.dispatch({
+    //         action: 'logout',
+    //     });
+    // });
     ["Room", (room: Room) => {
         const cl = client()
         const user = room.getMember(cl.getUserId())
@@ -93,7 +132,7 @@ onClientEvent([
                 EventType.RoomCreate,
                 ""
             )?.getContent<StateEventsContent>()?.isDirect)
-               
+
         if (isDirect) {
             directRoomCreated(room)
         } else {
@@ -101,10 +140,11 @@ onClientEvent([
         }
     }],
     ["Room.localEchoUpdated", () => updateMessages()],
-    ["sync", (state, prevState) => {
+    ["sync", async (state, prevState) => {
         if (state === "PREPARED") {
             const rooms = getMappedRooms()
             onCachedState(rooms)
+            await client().uploadKeys()
             return
         }
         if (state === "SYNCING" && prevState === "PREPARED") {
@@ -158,27 +198,101 @@ onClientEvent([
         "User.displayName",
         (e, user: User) => onRoomUserUpdate(user)
     ],
+    [
+        "crossSigning.keysChanged",
+        onCrossSigningKeyChange
+    ],
+    [
+        "crypto.roomKeyRequest",
+        (...args) => console.log("crypto.roomKeyRequest", args)
+    ],
+    [
+        "crypto.roomKeyRequestCancellation",
+        (...args) => console.log("crypto.roomKeyRequestCancellation", args)
+    ],
+    [
+        "crypto.secrets.requestCancelled",
+        (...args) => console.log("crypto.secrets.requestCancelled", args)
+    ],
+    [
+        "crypto.suggestKeyRestore",
+        (...args) => console.log("crypto.suggestKeyRestore", args)
+    ],
+    [
+        "crypto.verification.request.unknown",
+        (...args) => console.log("crypto.verification.request.unknown", args)
+    ],
+    [
+        "crypto.verification.request", (
+            request: MyVerificationRequest
+        ) => {
+            const cl = client()
+            const deviceId = cl.getDeviceId()
+            const userId = cl.getUserId()
+            const isVerified = cl
+                .checkDeviceTrust(userId, deviceId).isCrossSigningVerified()
+            if (isVerified || request.isSelfVerification) {
+                request.id = Date.now()
+                onVerificationRequest(request)
+            }
+        }
+    ],
+    [
+        "crypto.warning",
+        (...args) => console.warn("crypto.warning", args)
+    ],
+    [
+        "crypto.keyBackupStatus",
+        checkBackupKeyFx
+    ],
+    [
+        "crypto.willUpdateDevices",
+        (userIds: string[], initialFetch?: boolean) => {
+            // If we didn't know about *any* devices before (ie. it's fresh login),
+            // then they are all pre-existing devices, so ignore this and set the
+            // devicesAtStart list to the devices that we see after the fetch.
+            if (initialFetch) return
+            onUpdateDeviceList(userIds)
+            onUsersProfileUpdate(userIds)
+        }
+    ],
+    ["crypto.devicesUpdated", (userIds: string[]) => {
+        onUpdateDeviceList(userIds)
+        onUsersProfileUpdate(userIds)
+    }],
+    ["deviceVerificationChanged", (
+        userId: string,
+        deviceId: string,
+        deviceInfo: DeviceInfo
+    ) => {
+        onUpdateDeviceList([userId])
+        onUsersProfileUpdate([userId])
+    }],
+    ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
+        onUpdateDeviceList([userId])
+        onUsersProfileUpdate([userId])
+    }]
 ])
 
-loginByPasswordFx.use( async (params) =>
+loginByPasswordFx.use(async (params) =>
     await client().login(LOGIN_BY_PASSWORD, params))
 
 loginByTokenFx.use(async (params): Promise<AuthData> => {
     const response = await fetch(
         `${params.baseUrl}/_matrix/client/r0/login`,
-        { 
-            method: "POST", 
-            body: JSON.stringify({type: LOGIN_BY_TOKEN, token: params.token }) 
+        {
+            method: "POST",
+            body: JSON.stringify({ type: LOGIN_BY_TOKEN, token: params.token })
         }
     )
-    const { 
+    const {
         user_id,
         access_token,
         device_id,
         well_known
     } = await response.json()
-    return { 
-        userId: user_id, 
+    return {
+        userId: user_id,
         accessToken: access_token,
         deviceId: device_id,
         wellKnown: well_known
@@ -192,7 +306,7 @@ initStoreFx.use(async () => {
 
 startClientFx.use((params) => client().startClient(params))
 
-logoutFx.use( async () => {
+logoutFx.use(async () => {
     await client().logout()
 })
 
@@ -223,21 +337,25 @@ createClientFx.use(async (
     }
 ) => {
     createClient(createClientParams)
-    const { store } = client()
+    const cl = client()
+    const { store } = cl
     if (store) await store.startup()
-    await client().startClient(startClientParams)
+    await initCryptoFx()
+    await cl.downloadKeys([cl.getUserId() ?? createClientParams.options.userId])
+    await cl.startClient(startClientParams)
 })
 
 destroyClientFx.use(async () => {
     const cl = client()
     if (!cl) return
-    await cl.logout() 
-    await cl.store?.deleteAllData()
+    await IdbDelete("pickleKey", [cl.getUserId(), cl.getDeviceId()])
+    await IdbDelete("account", "mx_access_token")
     cl.stopClient()
+    await cl.logout()
     destroyClient()
 })
 
-getProfileInfoFx.use( async (userId) => {
+getProfileInfoFx.use(async (userId) => {
     const cl = client()
     const user = cl.getUser(userId)
     if (!user) throw new UserNotFound()

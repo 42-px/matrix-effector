@@ -13,6 +13,13 @@ const callbacksStore: EventListener[] = []
 export const destroyClient = () => {
     if (clientStore) {
         clientStore.removeAllListeners()
+        clientStore.stopPeeking()
+        // TODO Не чистить сторы, если userId нового юзера совпадает со старым юзером
+        clientStore.clearStores()
+        clientStore.crypto.stop()
+        clientStore.crypto.cryptoStore.deleteAllData()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         clientStore = null as any
     }
 }
@@ -20,11 +27,10 @@ export const destroyClient = () => {
 export const createClient = (
     {options, messageBatchInterval: ms}: CreateClientOptions
 ): void => {
-    destroyClient()
     if (ms !== undefined) messageBatchInterval = ms
     clientStore = matrix.createClient(options)
     callbacksStore.forEach(([eventName, cb]) => {
-        clientStore.on(eventName, cb)
+        clientStore.on(eventName as any, cb)
     })
 }
 export const client = (): MatrixClient => clientStore

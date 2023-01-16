@@ -10,6 +10,11 @@ export * from "./room-messages"
 export * from "./profile"
 export * from "./types"
 export * from "./matrix-client"
+export * from "./verification"
+export * from "./cryptoCallbacks"
+export * from "./reset-cross-signing"
+export * from "./create-verification-method"
+export * from "./interactive-auth"
 export {
     getRoomMemberAvatarUrl,
     getSenderAvatarUrl,
@@ -17,3 +22,4 @@ export {
     mxcUrlToHttp,
 } from "./utils"
 import "./init"
+export * from "./crypto"

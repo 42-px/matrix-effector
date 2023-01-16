@@ -115,8 +115,9 @@ export function toRoomInfo(room: Room): RoomInfo {
     }
 }
 
-export const toMappedUser = (user: User): MappedUser => (
-    {
+export const toMappedUser = (user: User): MappedUser => {
+    const cl = client()
+    return {
         avatarUrl: user.avatarUrl,
         userId: user.userId,
         currentlyActive: user.currentlyActive,
@@ -124,8 +125,9 @@ export const toMappedUser = (user: User): MappedUser => (
         lastActiveAgo: user.lastActiveAgo,
         lastPresenceTs: user.lastPresenceTs,
         presence: user.presence as any,
+        isVerified: cl.checkUserTrust(user.userId).isCrossSigningVerified(),
     }
-)
+}
 
 export function toMappedRoomMember(
     roomMember: RoomMember,
