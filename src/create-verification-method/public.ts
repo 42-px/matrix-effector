@@ -20,3 +20,5 @@ export const onNewRecoveryMethodCreated = d.event<void>()
 export const bootstrapSecretStorageFx = d.effect<IRecoveryKey, void, Error>()
 
 export const resetAllRecoveryKeyMethodsFx = d.effect<void,void, Error>()
+
+export const setupRecoveryMethodFx = d.effect<void, void, Error>()
