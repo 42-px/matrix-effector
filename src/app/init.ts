@@ -41,7 +41,6 @@ import {
     onUpdateCrossSigningStatus
 } from "@/cross-signing"
 import { UserNotFound } from "@/errors"
-import { onSessionRemaining } from "@/key-backup"
 
 import {
     AuthData,
@@ -70,6 +69,7 @@ import {
     roomCreated,
     messagesUpdated,
     toggleTypingUser,
+    onSessionRemaining,
 } from "./public"
 
 $currentDeviceId

@@ -27,4 +27,3 @@ export const restoreKeyBackupFx = d
 export const resetCryptoStorageFx = d.effect<void, void, Error>()
 
 export const $sessionsRemaining = d.store<number | null>(null)
-export const onSessionRemaining = d.event<number>()
