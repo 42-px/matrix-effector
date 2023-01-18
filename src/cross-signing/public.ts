@@ -9,4 +9,3 @@ export const $crossSigningId = d.store<string|null>(null)
 export const crossSigningChangeFx = d.effect<void, void, Error>()
 
 export const $crossSigningStatus = d.store<CrossSigningStatus|null>(null)
-export const onUpdateCrossSigningStatus = d.event<void>()

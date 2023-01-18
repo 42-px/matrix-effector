@@ -5,7 +5,8 @@ import { client } from "@/matrix-client"
 import { createInteractiveAuthFx } from "@/interactive-auth"
 import { 
     destroyClientFx,
-    onCrossSigningKeyChange,
+    crossSigningKeyChanged,
+    crossSigningStatusUpdated,
 } from "@/app"
 import { initCryptoFx } from "@/crypto"
 
@@ -14,7 +15,6 @@ import {
     $crossSigningStatus, 
     confirmResetCrossSigningFx, 
     crossSigningChangeFx, 
-    onUpdateCrossSigningStatus
 } from "./public"
 import { ConfirmResetCrossSigningFxResult } from "./types"
 import { getCrossSigningIdFx, getCrossSigningStatusFx } from "./private"
@@ -28,12 +28,12 @@ $crossSigningStatus
     .reset(destroyClientFx.done)
 
 forward({
-    from: onCrossSigningKeyChange,
+    from: crossSigningKeyChanged,
     to: crossSigningChangeFx
 })
 forward({
     from: [
-        onUpdateCrossSigningStatus, 
+        crossSigningStatusUpdated, 
         initCryptoFx.done, 
     ],
     to: getCrossSigningStatusFx,

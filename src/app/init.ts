@@ -36,9 +36,6 @@ import {
     onUpdateDeviceList,
     onUsersProfileUpdate,
 } from "@/verification"
-import { 
-    onUpdateCrossSigningStatus
-} from "@/cross-signing"
 import { UserNotFound } from "@/errors"
 
 import {
@@ -46,7 +43,8 @@ import {
     StateEventsContent
 } from "./types"
 import {
-    onCrossSigningKeyChange, 
+    crossSigningStatusUpdated,
+    crossSigningKeyChanged, 
     roomUserUpdated,
     roomMemberUpdated,
     getLoggedUserFx,
@@ -208,8 +206,8 @@ onClientEvent([
     ],
     [
         "crossSigning.keysChanged", () => {
-            onCrossSigningKeyChange()
-            onUpdateCrossSigningStatus()
+            crossSigningKeyChanged()
+            crossSigningStatusUpdated()
         }
     ],
     [
@@ -282,11 +280,11 @@ onClientEvent([
     ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
         onUpdateDeviceList([userId])
         onUsersProfileUpdate([userId])
-        onUpdateCrossSigningStatus()
+        crossSigningStatusUpdated()
     }],
     ["crypto.keyBackupSessionsRemaining", onSessionRemaining],
     ["accountData", () => {
-        onUpdateCrossSigningStatus()
+        crossSigningStatusUpdated()
     }]
 ])
 
