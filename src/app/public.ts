@@ -9,7 +9,8 @@ import {
     MappedRoom,
     MappedUser,
     MatrixLoginPayload,
-    Message
+    Message,
+    UserId
 } from "@/types"
 
 import {
@@ -17,7 +18,8 @@ import {
     LoginByTokenParams,
     StartClientParams,
     CreateClientParams, 
-    AuthData 
+    AuthData,
+    MyVerificationRequest
 } from "./types"
 import { appDomain } from "./domain"
 
@@ -59,3 +61,6 @@ export const toggleTypingUser = appDomain.event<RoomMember>()
 export const onSessionRemaining = appDomain.event<number>()
 export const crossSigningKeyChanged = appDomain.event<void>()
 export const crossSigningStatusUpdated = appDomain.event<void>()
+export const onVerificationRequest = appDomain.event<MyVerificationRequest>()
+export const onUpdateDeviceList = appDomain.event<string[]>()
+export const onUsersProfileUpdate = appDomain.event<UserId[]>()

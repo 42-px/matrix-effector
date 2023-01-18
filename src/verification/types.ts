@@ -1,6 +1,4 @@
 import { 
-    VerificationRequest, 
-    IVerificationChannel, 
     ISecretStorageKeyInfo 
 } from "matrix-js-sdk"
 
@@ -12,21 +10,6 @@ export enum Phase {
   Started,
   Cancelled,
   Done,
-}
-
-export type OnVerificationRequestFxParams = {
-  request: MyVerificationRequest
-  currentRequest: MyVerificationRequest | null
-}
-
-// eslint-disable-next-line max-len
-export type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
-  id: number
-}
-
-export type StartVerificationDeviceParams = {
-  userId: string
-  deviceId: string
 }
 
 export type InputToKeyParams = {

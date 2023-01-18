@@ -184,3 +184,5 @@ export enum RecoveryKeyOrPassphraseEnum {
     RecoveryKey = "RecoveryKey",
     Passphrase = "Passphrase"
 }
+
+export type UserId = string

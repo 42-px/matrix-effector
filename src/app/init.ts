@@ -27,22 +27,18 @@ import {
     ROOM_MESSAGE_EVENT,
     ROOM_REDACTION_EVENT
 } from "@/constants"
-import {
-    initCryptoFx,
-} from "@/crypto"
-import {
-    onVerificationRequest,
-    MyVerificationRequest,
-    onUpdateDeviceList,
-    onUsersProfileUpdate,
-} from "@/verification"
+import { initCryptoFx } from "@/crypto"
 import { UserNotFound } from "@/errors"
 
 import {
     AuthData,
-    StateEventsContent
+    StateEventsContent,
+    MyVerificationRequest,
 } from "./types"
 import {
+    onUsersProfileUpdate,
+    onUpdateDeviceList,
+    onVerificationRequest,
     crossSigningStatusUpdated,
     crossSigningKeyChanged, 
     roomUserUpdated,
