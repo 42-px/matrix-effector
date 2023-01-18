@@ -28,7 +28,6 @@ import {
     ROOM_REDACTION_EVENT
 } from "@/constants"
 import {
-    roomMessage,
     updateMessages
 } from "@/room-messages"
 import {
@@ -74,6 +73,7 @@ import {
     getProfileInfoFx,
     $currentDeviceId,
     onUpdateKeyBackupStatus,
+    onRoomMessage,
 } from "./public"
 
 $currentDeviceId
@@ -105,7 +105,7 @@ onClientEvent([
                 || eventType === ROOM_REDACTION_EVENT
             ) {
                 if (!toStartOfTimeline && data.liveEvent) {
-                    roomMessage(toMessage(event))
+                    onRoomMessage(toMessage(event))
                 }
             }
         }],

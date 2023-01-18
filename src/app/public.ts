@@ -2,7 +2,8 @@ import { throttle } from "patronum/throttle"
 import {
     MappedRoom,
     MappedUser,
-    MatrixLoginPayload
+    MatrixLoginPayload,
+    Message
 } from "@/types"
 import {
     LoginByPasswordParams,
@@ -40,3 +41,5 @@ export const getProfileInfoFx = appDomain
 export const $currentDeviceId = appDomain.store<string | null>(null)
 
 export const onUpdateKeyBackupStatus = appDomain.event<void>()
+
+export const onRoomMessage = appDomain.event<Message>()
