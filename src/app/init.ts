@@ -37,7 +37,6 @@ import {
     onUsersProfileUpdate,
 } from "@/verification"
 import { 
-    onCrossSigningKeyChange, 
     onUpdateCrossSigningStatus
 } from "@/cross-signing"
 import { UserNotFound } from "@/errors"
@@ -47,6 +46,7 @@ import {
     StateEventsContent
 } from "./types"
 import {
+    onCrossSigningKeyChange, 
     roomUserUpdated,
     roomMemberUpdated,
     getLoggedUserFx,

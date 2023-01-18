@@ -3,7 +3,10 @@ import { forward } from "effector"
 
 import { client } from "@/matrix-client"
 import { createInteractiveAuthFx } from "@/interactive-auth"
-import { destroyClientFx } from "@/app"
+import { 
+    destroyClientFx,
+    onCrossSigningKeyChange,
+} from "@/app"
 import { initCryptoFx } from "@/crypto"
 
 import { 
@@ -11,7 +14,6 @@ import {
     $crossSigningStatus, 
     confirmResetCrossSigningFx, 
     crossSigningChangeFx, 
-    onCrossSigningKeyChange,
     onUpdateCrossSigningStatus
 } from "./public"
 import { ConfirmResetCrossSigningFxResult } from "./types"
