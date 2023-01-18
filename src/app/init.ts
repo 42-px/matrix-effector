@@ -28,9 +28,6 @@ import {
     ROOM_REDACTION_EVENT
 } from "@/constants"
 import {
-    toggleTypingUser
-} from "@/room"
-import {
     initCryptoFx,
 } from "@/crypto"
 import {
@@ -72,6 +69,7 @@ import {
     directRoomCreated,
     roomCreated,
     messagesUpdated,
+    toggleTypingUser,
 } from "./public"
 
 $currentDeviceId

@@ -110,7 +110,6 @@ export const $loadFilter = combine(
 )
 
 export const clearTypingMember = roomDomain.event<void>()
-export const toggleTypingUser = roomDomain.event<RoomMember>()
 export const getRoomMembers = roomDomain.event<void>()
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()

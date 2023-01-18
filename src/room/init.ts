@@ -35,7 +35,11 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
-import { roomMemberUpdated, roomUserUpdated } from "@/app"
+import { 
+    roomMemberUpdated, 
+    roomUserUpdated, 
+    toggleTypingUser
+} from "@/app"
 
 import {
     initRoomFx,
@@ -86,7 +90,6 @@ import {
     findDirectRoomByUserIdFx,
     $typingMembers,
     clearTypingMember,
-    toggleTypingUser,
     getRoomByIdFx,
     getRoomMembers,
     sendTypingFx,
