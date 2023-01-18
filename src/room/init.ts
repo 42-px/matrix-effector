@@ -35,6 +35,7 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
+import { roomMemberUpdated } from "@/app"
 
 import {
     initRoomFx,
@@ -42,7 +43,6 @@ import {
     updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
-    onRoomMemberUpdate,
     onRoomUserUpdate,
     $currentRoom,
     $currentRoomId,
@@ -242,7 +242,7 @@ guard({
     target: getRoomMembers,
 })
 guard({
-    clock: onRoomMemberUpdate,
+    clock: roomMemberUpdated,
     source: $currentRoomId,
     filter: (roomId, member) => roomId === member.roomId,
     target: getRoomMembers,

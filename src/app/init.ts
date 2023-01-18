@@ -28,7 +28,6 @@ import {
     ROOM_REDACTION_EVENT
 } from "@/constants"
 import {
-    onRoomMemberUpdate,
     onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
@@ -53,6 +52,7 @@ import {
     StateEventsContent
 } from "./types"
 import {
+    roomMemberUpdated,
     getLoggedUserFx,
     initStoreFx,
     loginByPasswordFx,
@@ -171,28 +171,28 @@ onClientEvent([
     }],
     [
         "RoomState.members",
-        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, state, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomState.newMember",
-        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, state, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.membership",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.name",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.powerLevel",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.typing",
         (e, member: RoomMember) => {
-            onRoomMemberUpdate(member)
+            roomMemberUpdated(member)
             toggleTypingUser(member)
         }
     ],

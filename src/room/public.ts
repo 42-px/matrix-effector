@@ -1,6 +1,5 @@
 import {
     TimelineWindow,
-    Room,
     RoomMember,
     User
 } from "matrix-js-sdk"
@@ -113,7 +112,6 @@ export const $loadFilter = combine(
 export const clearTypingMember = roomDomain.event<void>()
 export const toggleTypingUser = roomDomain.event<RoomMember>()
 export const onRoomUserUpdate = roomDomain.event<User>()
-export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
 export const getRoomMembers = roomDomain.event<void>()
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()
