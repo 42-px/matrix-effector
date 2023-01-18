@@ -7,8 +7,6 @@ import {
     InputToKeyParams,
 } from "./types"
 
-type DeviceIsVerified = boolean
-
 // Emodji SAS Verification
 
 export const $isWaitingAnotherUser = verificationDomain
@@ -96,6 +94,8 @@ export const onInvalidPassphrase = verificationDomain.event<Error>()
 
 // others
 export const $canVerify = verificationDomain.store<boolean>(false)
+
+type DeviceIsVerified = boolean
 
 export const $deviceIsVerified = verificationDomain
     .store<DeviceIsVerified | null>(null)

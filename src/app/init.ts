@@ -47,7 +47,10 @@ import {
     onUpdateDeviceList,
     onUsersProfileUpdate,
 } from "@/verification"
-import { onCrossSigningKeyChange } from "@/cross-signing"
+import { 
+    onCrossSigningKeyChange, 
+    onUpdateCrossSigningStatus
+} from "@/cross-signing"
 import { UserNotFound } from "@/errors"
 import { onSessionRemaining } from "@/key-backup"
 
@@ -208,8 +211,10 @@ onClientEvent([
         (e, user: User) => onRoomUserUpdate(user)
     ],
     [
-        "crossSigning.keysChanged",
-        onCrossSigningKeyChange
+        "crossSigning.keysChanged", () => {
+            onCrossSigningKeyChange()
+            onUpdateCrossSigningStatus()
+        }
     ],
     [
         "crypto.roomKeyRequest",
@@ -281,8 +286,12 @@ onClientEvent([
     ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
         onUpdateDeviceList([userId])
         onUsersProfileUpdate([userId])
+        onUpdateCrossSigningStatus()
     }],
-    ["crypto.keyBackupSessionsRemaining", onSessionRemaining]
+    ["crypto.keyBackupSessionsRemaining", onSessionRemaining],
+    ["accountData", () => {
+        onUpdateCrossSigningStatus()
+    }]
 ])
 
 loginByPasswordFx.use(async (params) =>

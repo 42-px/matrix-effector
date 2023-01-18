@@ -9,3 +9,13 @@ export interface IE2EEWellKnown {
     secure_backup_required?: boolean
     secure_backup_setup_methods?: SecureBackupSetupMethod[]
 }
+
+export type CrossSigningStatus = {
+    crossSigningPublicKeysOnDevice: boolean
+    crossSigningPrivateKeysInStorage: boolean
+    masterPrivateKeyCached: boolean
+    selfSigningPrivateKeyCached: boolean
+    userSigningPrivateKeyCached: boolean
+    homeserverSupportsCrossSigning: boolean
+    crossSigningReady: boolean
+}

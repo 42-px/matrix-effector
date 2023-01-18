@@ -16,7 +16,8 @@ import {
     getSecureBackupSetupMethodsFx,
     lossAllRecoveryKeyMethod, 
     onNewRecoveryMethodCreated, 
-    resetAllRecoveryKeyMethodsFx
+    resetAllRecoveryKeyMethodsFx,
+    setupRecoveryMethodFx
 } from "./public"
 
 forward({
@@ -28,6 +29,8 @@ forward({
     from: bootstrapSecretStorageFx.doneData,
     to: onNewRecoveryMethodCreated,
 })
+
+setupRecoveryMethodFx.use(async () => accessSecretStorage())
 
 resetAllRecoveryKeyMethodsFx.use(async () => {
     // Force reset secret storage (which resets the key backup)

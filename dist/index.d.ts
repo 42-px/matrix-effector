@@ -825,10 +825,21 @@ export interface IE2EEWellKnown {
 	secure_backup_required?: boolean;
 	secure_backup_setup_methods?: SecureBackupSetupMethod[];
 }
+export declare type CrossSigningStatus = {
+	crossSigningPublicKeysOnDevice: boolean;
+	crossSigningPrivateKeysInStorage: boolean;
+	masterPrivateKeyCached: boolean;
+	selfSigningPrivateKeyCached: boolean;
+	userSigningPrivateKeyCached: boolean;
+	homeserverSupportsCrossSigning: boolean;
+	crossSigningReady: boolean;
+};
 export declare const confirmResetCrossSigningFx: import("effector").Effect<void, ConfirmResetCrossSigningFxResult, Error>;
 export declare const $crossSigningId: import("effector").Store<string | null>;
 export declare const onCrossSigningKeyChange: import("effector").Event<void>;
 export declare const crossSigningChangeFx: import("effector").Effect<void, void, Error>;
+export declare const $crossSigningStatus: import("effector").Store<CrossSigningStatus | null>;
+export declare const onUpdateCrossSigningStatus: import("effector").Event<void>;
 export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect<string | undefined, IRecoveryKey, Error>;
 export declare const getSecureBackupSetupMethodsFx: import("effector").Effect<void, SecureBackupSetupMethod[], Error>;
 export declare const onNeedCreateRecoveryMethod: import("effector").Event<void>;
@@ -837,6 +848,7 @@ export declare const cancelCreateNewMethod: import("effector").Event<void>;
 export declare const onNewRecoveryMethodCreated: import("effector").Event<void>;
 export declare const bootstrapSecretStorageFx: import("effector").Effect<IRecoveryKey, void, Error>;
 export declare const resetAllRecoveryKeyMethodsFx: import("effector").Effect<void, void, Error>;
+export declare const setupRecoveryMethodFx: import("effector").Effect<void, void, Error>;
 export declare type OnInteractiveAuthStateUpdateResult = {
 	nextStage: AuthType;
 	status: IStageStatus;
