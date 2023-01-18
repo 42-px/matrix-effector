@@ -3,7 +3,7 @@ import { IAuthData } from "matrix-js-sdk"
 
 import { client } from "@/matrix-client"
 import { createInteractiveAuthFx } from "@/interactive-auth"
-import { onUpdateDeviceList } from "@/verification"
+import { onUpdateDeviceList } from "@/app"
 
 import { logoutSessionsByIdFx } from "./private"
 import { 

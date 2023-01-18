@@ -359,6 +359,7 @@ export declare enum RecoveryKeyOrPassphraseEnum {
 	RecoveryKey = "RecoveryKey",
 	Passphrase = "Passphrase"
 }
+export declare type UserId = string;
 export interface LoginByPasswordParams {
 	user: string;
 	password: string;
@@ -380,6 +381,17 @@ export declare type CreateClientParams = {
 };
 export declare type StateEventsContent = IContent & {
 	isDirect?: boolean;
+};
+export declare type OnVerificationRequestFxParams = {
+	request: MyVerificationRequest;
+	currentRequest: MyVerificationRequest | null;
+};
+export declare type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
+	id: number;
+};
+export declare type StartVerificationDeviceParams = {
+	userId: string;
+	deviceId: string;
 };
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
@@ -405,8 +417,11 @@ export declare const roomMemberUpdated: import("effector").Event<RoomMember>;
 export declare const roomUserUpdated: import("effector").Event<User>;
 export declare const toggleTypingUser: import("effector").Event<RoomMember>;
 export declare const onSessionRemaining: import("effector").Event<number>;
-export declare const onCrossSigningKeyChange: import("effector").Event<void>;
-export declare const onUpdateCrossSigningStatus: import("effector").Event<void>;
+export declare const crossSigningKeyChanged: import("effector").Event<void>;
+export declare const crossSigningStatusUpdated: import("effector").Event<void>;
+export declare const onVerificationRequest: import("effector").Event<MyVerificationRequest>;
+export declare const onUpdateDeviceList: import("effector").Event<string[]>;
+export declare const onUsersProfileUpdate: import("effector").Event<string[]>;
 export declare type NotificationOverrideRuleId = ".m.rule.master" | ".m.rule.suppress_notices" | ".m.rule.invite_for_me" | ".m.rule.member_event" | ".m.rule.contains_display_name" | ".m.rule.tombstone" | ".m.rule.roomnotif";
 export declare type NotificationUnderrideRuleId = ".m.rule.call" | ".m.rule.encrypted_room_one_to_one" | ".m.rule.room_one_to_one" | ".m.rule.message" | ".m.rule.encrypted";
 export declare type NotificationContentRuleId = ".m.rule.contains_user_name";
@@ -754,17 +769,6 @@ export declare enum Phase {
 	Cancelled = 5,
 	Done = 6
 }
-export declare type OnVerificationRequestFxParams = {
-	request: MyVerificationRequest;
-	currentRequest: MyVerificationRequest | null;
-};
-export declare type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
-	id: number;
-};
-export declare type StartVerificationDeviceParams = {
-	userId: string;
-	deviceId: string;
-};
 export declare type InputToKeyParams = {
 	passphrase?: string;
 	recoveryKey?: string;
@@ -783,7 +787,6 @@ declare const setWaitingAnotherUser: import("effector").Event<void>, resetWaitin
 export declare const $currentVerificationEvent: import("effector").Store<MyVerificationRequest[]>;
 export declare const setCurrentVerificationEvent: import("effector").Event<MyVerificationRequest>;
 export declare const $verificationEvents: import("effector").Store<MyVerificationRequest[]>;
-export declare const onVerificationRequest: import("effector").Event<MyVerificationRequest>;
 export declare const startSASVerification: import("effector").Event<void>;
 export declare const confirmSASVerification: import("effector").Event<void>;
 export declare const startVerificationDevice: import("effector").Event<StartVerificationDeviceParams>;
@@ -807,9 +810,7 @@ export declare const onValidPassphrase: import("effector").Event<void>;
 export declare const onInvalidPassphrase: import("effector").Event<Error>;
 export declare const $canVerify: import("effector").Store<boolean>;
 export declare const $deviceIsVerified: import("effector").Store<boolean | null>;
-export declare const onUpdateDeviceList: import("effector").Event<string[]>;
 export declare const checkThisDeviceVerificationFx: import("effector").Effect<void, boolean, Error>;
-export declare const onUsersProfileUpdate: import("effector").Event<string[]>;
 export declare const onResolveSecretStorageKey: import("effector").Event<InputToKeyParams>;
 export declare const onRejectSecretStorageKey: import("effector").Event<void>;
 export declare function promptForBackupPassphrase(): Promise<Uint8Array>;
