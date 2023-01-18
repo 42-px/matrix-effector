@@ -28,7 +28,6 @@ import {
     ROOM_REDACTION_EVENT
 } from "@/constants"
 import {
-    onRoomUserUpdate,
     toggleTypingUser
 } from "@/room"
 import {
@@ -52,6 +51,7 @@ import {
     StateEventsContent
 } from "./types"
 import {
+    roomUserUpdated,
     roomMemberUpdated,
     getLoggedUserFx,
     initStoreFx,
@@ -198,15 +198,15 @@ onClientEvent([
     ],
     [
         "User.avatarUrl",
-        (e, user: User) => onRoomUserUpdate(user)
+        (e, user: User) => roomUserUpdated(user)
     ],
     [
         "User.presence",
-        (e, user: User) => onRoomUserUpdate(user)
+        (e, user: User) => roomUserUpdated(user)
     ],
     [
         "User.displayName",
-        (e, user: User) => onRoomUserUpdate(user)
+        (e, user: User) => roomUserUpdated(user)
     ],
     [
         "crossSigning.keysChanged", () => {

@@ -1,5 +1,9 @@
 import { throttle } from "patronum/throttle"
-import { Room, RoomMember } from "matrix-js-sdk"
+import { 
+    Room, 
+    RoomMember, 
+    User
+} from "matrix-js-sdk"
 
 import {
     MappedRoom,
@@ -50,3 +54,4 @@ export const directRoomCreated = appDomain.event<Room>()
 export const roomCreated = appDomain.event<Room>()
 export const messagesUpdated = appDomain.event<void>()
 export const roomMemberUpdated = appDomain.event<RoomMember>()
+export const roomUserUpdated = appDomain.event<User>()
