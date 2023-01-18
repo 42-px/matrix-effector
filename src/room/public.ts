@@ -123,8 +123,6 @@ export const onRoomLoaded = roomDomain.event<void>()
 export const loadRoom = roomDomain.event<LoadRoomParams>()
 export const toLiveTimeline = roomDomain.event<void>()
 export const loadRoomMessage = roomDomain.event<GoToMessageParams>()
-export const directRoomCreated = roomDomain.event<Room>()
-export const roomCreated = roomDomain.event<Room>()
 
 export const findDirectRoomByUserIdFx = roomDomain
     .effect<string, MappedRoom, Error>()

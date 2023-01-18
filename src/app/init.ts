@@ -28,11 +28,6 @@ import {
     ROOM_REDACTION_EVENT
 } from "@/constants"
 import {
-    updateMessages
-} from "@/room-messages"
-import {
-    directRoomCreated,
-    roomCreated,
     onRoomMemberUpdate,
     onRoomUserUpdate,
     toggleTypingUser
@@ -74,6 +69,9 @@ import {
     $currentDeviceId,
     onUpdateKeyBackupStatus,
     onRoomMessage,
+    directRoomCreated,
+    roomCreated,
+    messagesUpdated,
 } from "./public"
 
 $currentDeviceId
@@ -151,7 +149,7 @@ onClientEvent([
             roomCreated(room)
         }
     }],
-    ["Room.localEchoUpdated", () => updateMessages()],
+    ["Room.localEchoUpdated", () => messagesUpdated()],
     ["sync", async (state, prevState) => {
         if (state === "PREPARED") {
             const rooms = getMappedRooms()
@@ -166,7 +164,7 @@ onClientEvent([
         }
         if (state === "SYNCING" && prevState === "SYNCING") {
             const rooms = getMappedRooms()
-            updateMessages()
+            messagesUpdated()
             onSync(rooms)
             return
         }

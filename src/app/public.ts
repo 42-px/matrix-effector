@@ -1,10 +1,13 @@
 import { throttle } from "patronum/throttle"
+import { Room } from "matrix-js-sdk"
+
 import {
     MappedRoom,
     MappedUser,
     MatrixLoginPayload,
     Message
 } from "@/types"
+
 import {
     LoginByPasswordParams,
     LoginByTokenParams,
@@ -43,3 +46,6 @@ export const $currentDeviceId = appDomain.store<string | null>(null)
 export const onUpdateKeyBackupStatus = appDomain.event<void>()
 
 export const onRoomMessage = appDomain.event<Message>()
+export const directRoomCreated = appDomain.event<Room>()
+export const roomCreated = appDomain.event<Room>()
+export const messagesUpdated = appDomain.event<void>()
