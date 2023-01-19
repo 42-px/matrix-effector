@@ -4,9 +4,6 @@ import {
     importE2ERoomsKeysFxParams
 } from "./types"
 
-export const initCryptoFx = cryptoDomain
-    .effect<void, void, Error>()
-
 export const $isCryptoEnabled = cryptoDomain.store<boolean | null>(null)
 
 export const $identityKey = cryptoDomain.store<string|null>(null)

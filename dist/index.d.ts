@@ -422,6 +422,7 @@ export declare const crossSigningStatusUpdated: import("effector").Event<void>;
 export declare const onVerificationRequest: import("effector").Event<MyVerificationRequest>;
 export declare const onUpdateDeviceList: import("effector").Event<string[]>;
 export declare const onUsersProfileUpdate: import("effector").Event<string[]>;
+export declare const initCryptoFx: import("effector").Effect<void, void, Error>;
 export declare type NotificationOverrideRuleId = ".m.rule.master" | ".m.rule.suppress_notices" | ".m.rule.invite_for_me" | ".m.rule.member_event" | ".m.rule.contains_display_name" | ".m.rule.tombstone" | ".m.rule.roomnotif";
 export declare type NotificationUnderrideRuleId = ".m.rule.call" | ".m.rule.encrypted_room_one_to_one" | ".m.rule.room_one_to_one" | ".m.rule.message" | ".m.rule.encrypted";
 export declare type NotificationContentRuleId = ".m.rule.contains_user_name";
@@ -908,7 +909,6 @@ export declare type importE2ERoomsKeysFxParams = {
 	arrayBuffer: ArrayBuffer;
 	passphrase: string;
 };
-export declare const initCryptoFx: import("effector").Effect<void, void, Error>;
 export declare const $isCryptoEnabled: import("effector").Store<boolean | null>;
 export declare const $identityKey: import("effector").Store<string | null>;
 export declare const exportE2ERoomsKeysFx: import("effector").Effect<ExportE2ERoomsKeysFxParams, ArrayBuffer, Error>;

@@ -7,8 +7,8 @@ import {
     destroyClientFx,
     crossSigningKeyChanged,
     crossSigningStatusUpdated,
+    initCryptoFx,
 } from "@/app"
-import { initCryptoFx } from "@/crypto"
 
 import { 
     $crossSigningId, 

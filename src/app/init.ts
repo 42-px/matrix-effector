@@ -27,7 +27,6 @@ import {
     ROOM_MESSAGE_EVENT,
     ROOM_REDACTION_EVENT
 } from "@/constants"
-import { initCryptoFx } from "@/crypto"
 import { UserNotFound } from "@/errors"
 
 import {
@@ -64,6 +63,7 @@ import {
     messagesUpdated,
     toggleTypingUser,
     onSessionRemaining,
+    initCryptoFx
 } from "./public"
 
 $currentDeviceId
@@ -370,4 +370,19 @@ getProfileInfoFx.use(async (userId) => {
     const user = cl.getUser(userId)
     if (!user) throw new UserNotFound()
     return toMappedUser(user)
+})
+
+initCryptoFx.use(async () => {
+    const cl = client()
+
+    if (!cl.initCrypto) {
+        throw new Error("Client doesn't support Crypto")
+    }
+
+    await cl.initCrypto()
+    // @TODO Убрать хардкод.
+    // Не нашел явной доки, но эта штука отвечает за то, 
+    // можешь ли ты писать в конмату в которой находятся не верифицированные тобою девайсы
+    cl.setGlobalErrorOnUnknownDevices(false)
+    cl.setCryptoTrustCrossSignedDevices(true)
 })

@@ -6,12 +6,12 @@ import { MappedUser } from "@/types"
 import { 
     createClientFx, 
     destroyClientFx, 
+    initCryptoFx, 
     MyVerificationRequest, 
     onUpdateDeviceList, 
     onVerificationRequest
 } from "@/app"
 import { InvalidBackupInfo, VerificationError } from "@/errors"
-import { initCryptoFx } from "@/crypto"
 import { crossSigningChangeFx } from "@/cross-signing"
 
 import {
