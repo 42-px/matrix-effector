@@ -2,6 +2,7 @@ import matrix, {
     Direction,
     EventType,
     MatrixEvent,
+    MEGOLM_ALGORITHM,
     Room,
     RoomMember,
     SearchOrderBy,
@@ -98,6 +99,7 @@ import {
     getRoomMemberFx,
     getPermissionsByRoomIdFx,
     getUserDevicesInfoFx,
+    turnOnEcnryptionFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -569,7 +571,7 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     if (cl.isRoomEncrypted(roomId)) {
         await cl.setRoomEncryption(
             cl.getUserId(),
-            { algorithm: "m.megolm.v1.aes-sha2" }
+            { algorithm: MEGOLM_ALGORITHM }
         )
         const members = (
             await room.getEncryptionTargetMembers()
@@ -656,4 +658,12 @@ getUserDevicesInfoFx.use(async (userId) => {
         }
     })
 
+})
+
+turnOnEcnryptionFx.use(async (roomId) => {
+    const cl = client()
+    await cl.sendStateEvent(
+        roomId, EventType.RoomEncryption,
+        { algorithm: MEGOLM_ALGORITHM },
+    )
 })

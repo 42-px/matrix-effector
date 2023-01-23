@@ -99,6 +99,7 @@ export interface RoomWithActivity extends MappedRoom {
         canChangeRoomServerAcl: boolean
     }
     canRedact: boolean
+    isCryptoEnabled: boolean
 }
 
 export type EventListener = [string, (...args: any[]) => void]

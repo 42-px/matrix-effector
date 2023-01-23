@@ -283,6 +283,7 @@ export interface RoomWithActivity extends MappedRoom {
 		canChangeRoomServerAcl: boolean;
 	};
 	canRedact: boolean;
+	isCryptoEnabled: boolean;
 }
 export declare type EventListener = [
 	string,
@@ -644,6 +645,7 @@ export declare const getRoomMemberFx: import("effector").Effect<{
 }, RoomMember, Error>;
 export declare const getPermissionsByRoomIdFx: import("effector").Effect<string, RoomPermissions, Error>;
 export declare const getUserDevicesInfoFx: import("effector").Effect<string, MyDeviceInfo[], Error>;
+export declare const turnOnEcnryptionFx: import("effector").Effect<string, void, Error>;
 export interface PaginateRoomFxParams {
 	roomId: string;
 	timelineWindow: TimelineWindow;
