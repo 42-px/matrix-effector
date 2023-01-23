@@ -27,38 +27,21 @@ import {
     ROOM_MESSAGE_EVENT,
     ROOM_REDACTION_EVENT
 } from "@/constants"
-import {
-    roomMessage,
-    updateMessages
-} from "@/room-messages"
-import {
-    directRoomCreated,
-    roomCreated,
-    onRoomMemberUpdate,
-    onRoomUserUpdate,
-    toggleTypingUser
-} from "@/room"
-import {
-    initCryptoFx,
-} from "@/crypto"
-import {
-    onVerificationRequest,
-    MyVerificationRequest,
-    onUpdateDeviceList,
-    onUsersProfileUpdate,
-} from "@/verification"
-import { 
-    onCrossSigningKeyChange, 
-    onUpdateCrossSigningStatus
-} from "@/cross-signing"
 import { UserNotFound } from "@/errors"
-import { onSessionRemaining } from "@/key-backup"
 
 import {
     AuthData,
-    StateEventsContent
+    StateEventsContent,
+    MyVerificationRequest,
 } from "./types"
 import {
+    onUsersProfileUpdate,
+    onUpdateDeviceList,
+    onVerificationRequest,
+    crossSigningStatusUpdated,
+    crossSigningKeyChanged, 
+    roomUserUpdated,
+    roomMemberUpdated,
     getLoggedUserFx,
     initStoreFx,
     loginByPasswordFx,
@@ -74,6 +57,13 @@ import {
     getProfileInfoFx,
     $currentDeviceId,
     onUpdateKeyBackupStatus,
+    onRoomMessage,
+    directRoomCreated,
+    roomCreated,
+    messagesUpdated,
+    toggleTypingUser,
+    onSessionRemaining,
+    initCryptoFx
 } from "./public"
 
 $currentDeviceId
@@ -105,7 +95,7 @@ onClientEvent([
                 || eventType === ROOM_REDACTION_EVENT
             ) {
                 if (!toStartOfTimeline && data.liveEvent) {
-                    roomMessage(toMessage(event))
+                    onRoomMessage(toMessage(event))
                 }
             }
         }],
@@ -151,7 +141,7 @@ onClientEvent([
             roomCreated(room)
         }
     }],
-    ["Room.localEchoUpdated", () => updateMessages()],
+    ["Room.localEchoUpdated", () => messagesUpdated()],
     ["sync", async (state, prevState) => {
         if (state === "PREPARED") {
             const rooms = getMappedRooms()
@@ -166,54 +156,54 @@ onClientEvent([
         }
         if (state === "SYNCING" && prevState === "SYNCING") {
             const rooms = getMappedRooms()
-            updateMessages()
+            messagesUpdated()
             onSync(rooms)
             return
         }
     }],
     [
         "RoomState.members",
-        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, state, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomState.newMember",
-        (e, state, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, state, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.membership",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.name",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.powerLevel",
-        (e, member: RoomMember) => onRoomMemberUpdate(member)
+        (e, member: RoomMember) => roomMemberUpdated(member)
     ],
     [
         "RoomMember.typing",
         (e, member: RoomMember) => {
-            onRoomMemberUpdate(member)
+            roomMemberUpdated(member)
             toggleTypingUser(member)
         }
     ],
     [
         "User.avatarUrl",
-        (e, user: User) => onRoomUserUpdate(user)
+        (e, user: User) => roomUserUpdated(user)
     ],
     [
         "User.presence",
-        (e, user: User) => onRoomUserUpdate(user)
+        (e, user: User) => roomUserUpdated(user)
     ],
     [
         "User.displayName",
-        (e, user: User) => onRoomUserUpdate(user)
+        (e, user: User) => roomUserUpdated(user)
     ],
     [
         "crossSigning.keysChanged", () => {
-            onCrossSigningKeyChange()
-            onUpdateCrossSigningStatus()
+            crossSigningKeyChanged()
+            crossSigningStatusUpdated()
         }
     ],
     [
@@ -286,11 +276,11 @@ onClientEvent([
     ["userTrustStatusChanged", (userId: string, newStatus: UserTrustLevel) => {
         onUpdateDeviceList([userId])
         onUsersProfileUpdate([userId])
-        onUpdateCrossSigningStatus()
+        crossSigningStatusUpdated()
     }],
     ["crypto.keyBackupSessionsRemaining", onSessionRemaining],
     ["accountData", () => {
-        onUpdateCrossSigningStatus()
+        crossSigningStatusUpdated()
     }]
 ])
 
@@ -380,4 +370,19 @@ getProfileInfoFx.use(async (userId) => {
     const user = cl.getUser(userId)
     if (!user) throw new UserNotFound()
     return toMappedUser(user)
+})
+
+initCryptoFx.use(async () => {
+    const cl = client()
+
+    if (!cl.initCrypto) {
+        throw new Error("Client doesn't support Crypto")
+    }
+
+    await cl.initCrypto()
+    // @TODO Убрать хардкод.
+    // Не нашел явной доки, но эта штука отвечает за то, 
+    // можешь ли ты писать в конмату в которой находятся не верифицированные тобою девайсы
+    cl.setGlobalErrorOnUnknownDevices(false)
+    cl.setCryptoTrustCrossSignedDevices(true)
 })

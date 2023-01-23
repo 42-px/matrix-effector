@@ -35,6 +35,11 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
+import { 
+    roomMemberUpdated, 
+    roomUserUpdated, 
+    toggleTypingUser
+} from "@/app"
 
 import {
     initRoomFx,
@@ -42,8 +47,6 @@ import {
     updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
-    onRoomMemberUpdate,
-    onRoomUserUpdate,
     $currentRoom,
     $currentRoomId,
     $currentRoomMembers,
@@ -87,7 +90,6 @@ import {
     findDirectRoomByUserIdFx,
     $typingMembers,
     clearTypingMember,
-    toggleTypingUser,
     getRoomByIdFx,
     getRoomMembers,
     sendTypingFx,
@@ -233,7 +235,7 @@ guard({
     target: getRoomMembers,
 })
 guard({
-    clock: onRoomUserUpdate,
+    clock: roomUserUpdated,
     source: $currentRoomMembers,
     filter: (currentRoomMembers, user) => Boolean(
         currentRoomMembers?.find(((member) => 
@@ -242,7 +244,7 @@ guard({
     target: getRoomMembers,
 })
 guard({
-    clock: onRoomMemberUpdate,
+    clock: roomMemberUpdated,
     source: $currentRoomId,
     filter: (roomId, member) => roomId === member.roomId,
     target: getRoomMembers,

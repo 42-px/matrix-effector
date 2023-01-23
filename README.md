@@ -225,10 +225,10 @@ const $currentRoomMembers = store<MappedRoomMember[] | null>(null)
 
 ## Events 
 
-### **onRoomMemberUpdate**
+### **roomMemberUpdated**
 
 ```ts
-const onRoomMemberUpdate = event<RoomMember>()
+const roomMemberUpdated = event<RoomMember>()
 ```
 
 > The event occurs when a new member is invited, the member enters the room, starts typing, changes his name, the member's power level changes.

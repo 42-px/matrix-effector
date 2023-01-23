@@ -359,6 +359,7 @@ export declare enum RecoveryKeyOrPassphraseEnum {
 	RecoveryKey = "RecoveryKey",
 	Passphrase = "Passphrase"
 }
+export declare type UserId = string;
 export interface LoginByPasswordParams {
 	user: string;
 	password: string;
@@ -381,6 +382,17 @@ export declare type CreateClientParams = {
 export declare type StateEventsContent = IContent & {
 	isDirect?: boolean;
 };
+export declare type OnVerificationRequestFxParams = {
+	request: MyVerificationRequest;
+	currentRequest: MyVerificationRequest | null;
+};
+export declare type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
+	id: number;
+};
+export declare type StartVerificationDeviceParams = {
+	userId: string;
+	deviceId: string;
+};
 export declare const onInitialSync: import("effector").Event<MappedRoom[]>;
 export declare const onCachedState: import("effector").Event<MappedRoom[]>;
 export declare const onSync: import("effector").Event<MappedRoom[]>;
@@ -397,6 +409,20 @@ export declare const destroyClientFx: import("effector").Effect<void, void, Erro
 export declare const getProfileInfoFx: import("effector").Effect<string, MappedUser, Error>;
 export declare const $currentDeviceId: import("effector").Store<string | null>;
 export declare const onUpdateKeyBackupStatus: import("effector").Event<void>;
+export declare const onRoomMessage: import("effector").Event<Message>;
+export declare const directRoomCreated: import("effector").Event<Room>;
+export declare const roomCreated: import("effector").Event<Room>;
+export declare const messagesUpdated: import("effector").Event<void>;
+export declare const roomMemberUpdated: import("effector").Event<RoomMember>;
+export declare const roomUserUpdated: import("effector").Event<User>;
+export declare const toggleTypingUser: import("effector").Event<RoomMember>;
+export declare const onSessionRemaining: import("effector").Event<number>;
+export declare const crossSigningKeyChanged: import("effector").Event<void>;
+export declare const crossSigningStatusUpdated: import("effector").Event<void>;
+export declare const onVerificationRequest: import("effector").Event<MyVerificationRequest>;
+export declare const onUpdateDeviceList: import("effector").Event<string[]>;
+export declare const onUsersProfileUpdate: import("effector").Event<string[]>;
+export declare const initCryptoFx: import("effector").Effect<void, void, Error>;
 export declare type NotificationOverrideRuleId = ".m.rule.master" | ".m.rule.suppress_notices" | ".m.rule.invite_for_me" | ".m.rule.member_event" | ".m.rule.contains_display_name" | ".m.rule.tombstone" | ".m.rule.roomnotif";
 export declare type NotificationUnderrideRuleId = ".m.rule.call" | ".m.rule.encrypted_room_one_to_one" | ".m.rule.room_one_to_one" | ".m.rule.message" | ".m.rule.encrypted";
 export declare type NotificationContentRuleId = ".m.rule.contains_user_name";
@@ -579,9 +605,6 @@ export declare const $canRedact: import("effector").Store<boolean>;
 export declare const $canSetDefaultState: import("effector").Store<boolean>;
 export declare const $loadFilter: import("effector").Store<boolean>;
 export declare const clearTypingMember: import("effector").Event<void>;
-export declare const toggleTypingUser: import("effector").Event<RoomMember>;
-export declare const onRoomUserUpdate: import("effector").Event<User>;
-export declare const onRoomMemberUpdate: import("effector").Event<RoomMember>;
 export declare const getRoomMembers: import("effector").Event<void>;
 export declare const initRoom: import("effector").Event<InitRoomParams>;
 export declare const liveTimelineLoaded: import("effector").Event<void>;
@@ -591,8 +614,6 @@ export declare const onRoomLoaded: import("effector").Event<void>;
 export declare const loadRoom: import("effector").Event<LoadRoomParams>;
 export declare const toLiveTimeline: import("effector").Event<void>;
 export declare const loadRoomMessage: import("effector").Event<GoToMessageParams>;
-export declare const directRoomCreated: import("effector").Event<Room>;
-export declare const roomCreated: import("effector").Event<Room>;
 export declare const findDirectRoomByUserIdFx: import("effector").Effect<string, MappedRoom, Error>;
 export declare const searchRoomMessagesFx: import("effector").Effect<SearchRoomMessagesPayload, Message[], Error>;
 export declare const getRoomsWithActivitiesFx: import("effector").Effect<MappedRoom[], RoomWithActivity[], Error>;
@@ -700,8 +721,6 @@ export declare type UrlPreview = {
 };
 export declare const $messages: import("effector").Store<Message[]>;
 export declare const $currentRoomUnreadMessageCount: import("effector").Store<number | null>;
-export declare const updateMessages: import("effector").Event<void>;
-export declare const roomMessage: import("effector").Event<Message>;
 export declare const newMessagesLoaded: import("effector").Event<Message[]>;
 export declare const onUploadProgress: import("effector").Event<UploadProgress>;
 export declare const onPaginateBackwardDone: import("effector").Event<void>;
@@ -751,17 +770,6 @@ export declare enum Phase {
 	Cancelled = 5,
 	Done = 6
 }
-export declare type OnVerificationRequestFxParams = {
-	request: MyVerificationRequest;
-	currentRequest: MyVerificationRequest | null;
-};
-export declare type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
-	id: number;
-};
-export declare type StartVerificationDeviceParams = {
-	userId: string;
-	deviceId: string;
-};
 export declare type InputToKeyParams = {
 	passphrase?: string;
 	recoveryKey?: string;
@@ -780,7 +788,6 @@ declare const setWaitingAnotherUser: import("effector").Event<void>, resetWaitin
 export declare const $currentVerificationEvent: import("effector").Store<MyVerificationRequest[]>;
 export declare const setCurrentVerificationEvent: import("effector").Event<MyVerificationRequest>;
 export declare const $verificationEvents: import("effector").Store<MyVerificationRequest[]>;
-export declare const onVerificationRequest: import("effector").Event<MyVerificationRequest>;
 export declare const startSASVerification: import("effector").Event<void>;
 export declare const confirmSASVerification: import("effector").Event<void>;
 export declare const startVerificationDevice: import("effector").Event<StartVerificationDeviceParams>;
@@ -804,9 +811,7 @@ export declare const onValidPassphrase: import("effector").Event<void>;
 export declare const onInvalidPassphrase: import("effector").Event<Error>;
 export declare const $canVerify: import("effector").Store<boolean>;
 export declare const $deviceIsVerified: import("effector").Store<boolean | null>;
-export declare const onUpdateDeviceList: import("effector").Event<string[]>;
 export declare const checkThisDeviceVerificationFx: import("effector").Effect<void, boolean, Error>;
-export declare const onUsersProfileUpdate: import("effector").Event<string[]>;
 export declare const onResolveSecretStorageKey: import("effector").Event<InputToKeyParams>;
 export declare const onRejectSecretStorageKey: import("effector").Event<void>;
 export declare function promptForBackupPassphrase(): Promise<Uint8Array>;
@@ -836,10 +841,8 @@ export declare type CrossSigningStatus = {
 };
 export declare const confirmResetCrossSigningFx: import("effector").Effect<void, ConfirmResetCrossSigningFxResult, Error>;
 export declare const $crossSigningId: import("effector").Store<string | null>;
-export declare const onCrossSigningKeyChange: import("effector").Event<void>;
 export declare const crossSigningChangeFx: import("effector").Effect<void, void, Error>;
 export declare const $crossSigningStatus: import("effector").Store<CrossSigningStatus | null>;
-export declare const onUpdateCrossSigningStatus: import("effector").Event<void>;
 export declare const createRecoveryKeyAndPassPhraseFx: import("effector").Effect<string | undefined, IRecoveryKey, Error>;
 export declare const getSecureBackupSetupMethodsFx: import("effector").Effect<void, SecureBackupSetupMethod[], Error>;
 export declare const onNeedCreateRecoveryMethod: import("effector").Event<void>;
@@ -890,7 +893,6 @@ export declare const deleteKeyBackup: import("effector").Event<void>;
 export declare const restoreKeyBackupFx: import("effector").Effect<void, void | IKeyBackupRestoreResult, MatrixError>;
 export declare const resetCryptoStorageFx: import("effector").Effect<void, void, Error>;
 export declare const $sessionsRemaining: import("effector").Store<number | null>;
-export declare const onSessionRemaining: import("effector").Event<number>;
 export declare const getSenderAvatarUrl: ({ sender, width, height, resizeMethod, allowDefault, allowDirectLinks }: GetSenderAvatarParams) => string | null;
 export declare const getRoomMemberAvatarUrl: ({ roomId, userId, width, height, resizeMethod, allowDefault }: GetRoomMemberAvatarParams) => string | null;
 export declare const mxcUrlToHttp: ({ mxcUrl, width, height, resizeMethod, allowDirectLinks, }: MxcUrlToHttpParams) => string | null;
@@ -907,7 +909,6 @@ export declare type importE2ERoomsKeysFxParams = {
 	arrayBuffer: ArrayBuffer;
 	passphrase: string;
 };
-export declare const initCryptoFx: import("effector").Effect<void, void, Error>;
 export declare const $isCryptoEnabled: import("effector").Store<boolean | null>;
 export declare const $identityKey: import("effector").Store<string | null>;
 export declare const exportE2ERoomsKeysFx: import("effector").Effect<ExportE2ERoomsKeysFxParams, ArrayBuffer, Error>;

@@ -1,6 +1,6 @@
 import { batchEvents } from "@42px/effector-extra"
 import matrix, { MatrixClient } from "matrix-js-sdk"
-import { roomMessage } from "./room-messages"
+import { onRoomMessage } from "./app"
 import {
     CreateClientOptions,
     EventListener
@@ -40,5 +40,5 @@ export const onClientEvent = (callbacks: EventListener[]): void => {
 }
 
 export const createRoomMessageBatch = () => {
-    return batchEvents(roomMessage, messageBatchInterval)
+    return batchEvents(onRoomMessage, messageBatchInterval)
 }

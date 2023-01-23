@@ -1,4 +1,10 @@
 import { VerificationRequestEvent } from "matrix-js-sdk"
+import { 
+    MyVerificationRequest, 
+    OnVerificationRequestFxParams,
+    onUsersProfileUpdate, 
+} from "@/app"
+
 import {
     onCancelVerificationEvent, 
     startSASFx, 
@@ -6,12 +12,9 @@ import {
     cancelVerificationEventFx, 
 } from "./private"
 import {
-    onUsersProfileUpdate, 
     setCurrentVerificationEvent 
 } from "./public"
 import { 
-    MyVerificationRequest,
-    OnVerificationRequestFxParams, 
     Phase
 } from "./types"
 

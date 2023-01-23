@@ -3,16 +3,18 @@ import { forward } from "effector"
 
 import { client } from "@/matrix-client"
 import { createInteractiveAuthFx } from "@/interactive-auth"
-import { destroyClientFx } from "@/app"
-import { initCryptoFx } from "@/crypto"
+import { 
+    destroyClientFx,
+    crossSigningKeyChanged,
+    crossSigningStatusUpdated,
+    initCryptoFx,
+} from "@/app"
 
 import { 
     $crossSigningId, 
     $crossSigningStatus, 
     confirmResetCrossSigningFx, 
     crossSigningChangeFx, 
-    onCrossSigningKeyChange,
-    onUpdateCrossSigningStatus
 } from "./public"
 import { ConfirmResetCrossSigningFxResult } from "./types"
 import { getCrossSigningIdFx, getCrossSigningStatusFx } from "./private"
@@ -26,12 +28,12 @@ $crossSigningStatus
     .reset(destroyClientFx.done)
 
 forward({
-    from: onCrossSigningKeyChange,
+    from: crossSigningKeyChanged,
     to: crossSigningChangeFx
 })
 forward({
     from: [
-        onUpdateCrossSigningStatus, 
+        crossSigningStatusUpdated, 
         initCryptoFx.done, 
     ],
     to: getCrossSigningStatusFx,

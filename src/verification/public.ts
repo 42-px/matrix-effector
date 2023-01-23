@@ -1,8 +1,13 @@
 import { createApi } from "effector"
+
+import { 
+    MyVerificationRequest,
+    StartVerificationDeviceParams
+} from "@/app"
+import { UserId } from "@/types"
+
 import { verificationDomain } from "./domain"
 import {
-    MyVerificationRequest,
-    StartVerificationDeviceParams,
     CheckKeyInfo,
     InputToKeyParams,
 } from "./types"
@@ -32,9 +37,6 @@ export const setCurrentVerificationEvent = verificationDomain
 export const $verificationEvents = verificationDomain
     .store<MyVerificationRequest[]>([])
 
-export const onVerificationRequest = verificationDomain
-    .event<MyVerificationRequest>()
-
 export const startSASVerification = verificationDomain
     .event<void>()
 
@@ -46,8 +48,6 @@ export const startVerificationDevice = verificationDomain
 
 export const startThisDeviceVerificationFx = verificationDomain
     .effect<void, void, Error>()
-
-type UserId = string
 
 export const startVerificationUser = verificationDomain
     .event<UserId>()
@@ -100,14 +100,8 @@ type DeviceIsVerified = boolean
 export const $deviceIsVerified = verificationDomain
     .store<DeviceIsVerified | null>(null)
 
-export const onUpdateDeviceList = verificationDomain
-    .event<string[]>()
-
 export const checkThisDeviceVerificationFx = verificationDomain
     .effect<void, boolean, Error>()
-
-export const onUsersProfileUpdate = verificationDomain
-    .event<UserId[]>()
 
 export const onResolveSecretStorageKey = verificationDomain
     .event<InputToKeyParams>()

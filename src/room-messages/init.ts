@@ -16,10 +16,12 @@ import {
     debounce,
     throttle
 } from "patronum"
+
 import {
     client,
     createRoomMessageBatch
 } from "@/matrix-client"
+import { messagesUpdated } from "@/app"
 import {
     $currentRoomId,
     $isLive,
@@ -30,6 +32,14 @@ import {
 } from "@/room"
 import { Message } from "@/types"
 import { getMessages } from "@/utils"
+import {
+    ClientNotInitialized,
+    EventNotFound,
+    RoomNotFound,
+    TimelineWindowUndefined,
+    UserNotLoggedIn
+} from "@/errors"
+
 import {
     setMessages,
     updateMessagesFx,
@@ -57,20 +67,12 @@ import {
     onPaginateForwardDone,
     paginateBackward,
     paginateForward,
-    updateMessages,
     $currentRoomUnreadMessageCount,
 } from "./public"
 import {
     DeleteMessageResult,
     UploadContentResult
 } from "./types"
-import {
-    ClientNotInitialized,
-    EventNotFound,
-    RoomNotFound,
-    TimelineWindowUndefined,
-    UserNotLoggedIn
-} from "@/errors"
 
 const THROTTLE_MESSAGE_TIME = 800
 const DEBOUNCE_READ_MESSAGE_TIME = 500
@@ -165,7 +167,7 @@ guard({
     source: sample(
         [$currentRoomId, $timelineWindow],
         throttle({
-            source: updateMessages,
+            source: messagesUpdated,
             timeout: THROTTLE_MESSAGE_TIME
         }),
         ([roomId, timelineWindow]) => ({

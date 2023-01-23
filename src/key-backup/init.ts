@@ -2,9 +2,13 @@ import { forward, sample } from "effector"
 import { IKeyBackupCheck } from "matrix-js-sdk/lib/crypto/backup"
 
 import { client } from "@/matrix-client"
-import { destroyClientFx, onUpdateKeyBackupStatus } from "@/app"
+import { 
+    destroyClientFx, 
+    initCryptoFx, 
+    onSessionRemaining, 
+    onUpdateKeyBackupStatus
+} from "@/app"
 import { accessSecretStorage } from "@/cryptoCallbacks"
-import { initCryptoFx } from "@/crypto"
 
 import { 
     $detailedKeyBackupInfo, 
@@ -16,7 +20,6 @@ import {
     getKeyBackupInfoFx, 
     newKeyBackupFx,
     onBackupKeyLoadProgress,
-    onSessionRemaining,
     resetCryptoStorageFx,
     restoreKeyBackupFx,
 } from "./public"

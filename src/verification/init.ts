@@ -3,9 +3,15 @@ import { client } from "@/matrix-client"
 
 import { createDirectRoomFx } from "@/room"
 import { MappedUser } from "@/types"
-import { createClientFx, destroyClientFx } from "@/app"
+import { 
+    createClientFx, 
+    destroyClientFx, 
+    initCryptoFx, 
+    MyVerificationRequest, 
+    onUpdateDeviceList, 
+    onVerificationRequest
+} from "@/app"
 import { InvalidBackupInfo, VerificationError } from "@/errors"
-import { initCryptoFx } from "@/crypto"
 import { crossSigningChangeFx } from "@/cross-signing"
 
 import {
@@ -33,10 +39,8 @@ import {
     checkThisDeviceVerificationFx,
     confirmSASVerification,
     startThisDeviceVerificationFx,
-    onVerificationRequest,
     setCurrentVerificationEvent,
     startSASVerification,
-    onUpdateDeviceList,
     startVerificationDevice,
     startVerificationUser,
     onRequestAccept,
@@ -58,13 +62,12 @@ import {
     keyVerificationFx,
 } from "./public"
 import { 
-    MyVerificationRequest, 
     ValidatePassphraseFxParams, 
     ValidateRecoveryKeyFxParams 
 } from "./types"
 import { onVerificationRequestFxReducer } from "./reducers"
 import { accessSecretStorage, makeInputToKey } from "../cryptoCallbacks"
-    
+
 $deviceIsVerified
     .on(updateDeviceVerification, (_, isVerified) => isVerified)
     .reset(destroyClientFx.done)
