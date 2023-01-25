@@ -1,6 +1,7 @@
 import {
     TimelineWindow,
-    RoomMember
+    RoomMember,
+    IRoomEncryption
 } from "matrix-js-sdk"
 import {
     MappedUser,
@@ -125,4 +126,9 @@ export type MyDeviceInfo =  {
     verified: boolean
     deviceId: string
     displayName: string | null
+}
+
+export type TurnOnEcnryptionParams = {
+    roomId: string
+    encryptionEvent: IRoomEncryption
 }

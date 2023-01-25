@@ -660,10 +660,13 @@ getUserDevicesInfoFx.use(async (userId) => {
 
 })
 
-turnOnEcnryptionFx.use(async (roomId) => {
+turnOnEcnryptionFx.use(async ({
+    encryptionEvent,
+    roomId
+}) => {
     const cl = client()
     await cl.sendStateEvent(
         roomId, EventType.RoomEncryption,
-        { algorithm: MEGOLM_ALGORITHM },
+        encryptionEvent,
     )
 })
