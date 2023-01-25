@@ -160,6 +160,9 @@ export function toRoomWithActivity(
     const cl = client()
     const matrixRoom = cl.getRoom(room.roomId)
     if (!matrixRoom) throw new RoomNotFound()
+
+    const isCryptoEnabled = cl.isRoomEncrypted(room.roomId)
+
     const events = matrixRoom.getLiveTimeline().getEvents()
     const powerLevelsContent = matrixRoom.currentState
         .getStateEvents(EventType.RoomPowerLevels, "")
@@ -226,6 +229,7 @@ export function toRoomWithActivity(
         canKick: myPowerLevel >= powerLevelsContent.kick,
         canInvite: myPowerLevel >= powerLevelsContent.invite,
         canRedact: myPowerLevel >= powerLevelsContent.redact,
+        isCryptoEnabled,
         canSendEvents: {
             canChangeHistoryVisivility: (
                 myPowerLevel >= powerLevelsContent

@@ -5,25 +5,23 @@ import {
     decryptMegolmKeyFile, 
     encryptMegolmKeyFile
 } from "@/MegolmExportEncryption"
-import { destroyClientFx } from "@/app"
+import { destroyClientFx, initCryptoFx } from "@/app"
 
 import { 
-    setEnableCrypto,
     getIdentityKeyFx,
     getDeviceEd25519KeyFx,
 } from "./private"
 import { 
     $identityKey,
     $isCryptoEnabled,
-    initCryptoFx,
     exportE2ERoomsKeysFx, 
     importE2ERoomsKeysFx,
     $deviceEd25519Key,
 } from "./public"
 
 $isCryptoEnabled
-    .on(setEnableCrypto, (_, isEnabled) => isEnabled)
-    .reset(destroyClientFx.done)
+    .on(initCryptoFx.doneData, () => true)
+    .reset([destroyClientFx.done, initCryptoFx.failData])
 
 $identityKey
     .on(getIdentityKeyFx.doneData, (_, key) => key)
@@ -36,23 +34,6 @@ $deviceEd25519Key
 forward({
     from: initCryptoFx.doneData,
     to: [getDeviceEd25519KeyFx, getIdentityKeyFx]
-})
-
-initCryptoFx.use(async () => {
-    const cl = client()
-
-    if (!cl.initCrypto) {
-        setEnableCrypto(false)
-        return
-    }
-
-    await cl.initCrypto()
-    setEnableCrypto(true)
-    // @TODO Убрать хардкод.
-    // Не нашел явной доки, но эта штука отвечает за то, 
-    // можешь ли ты писать в конмату в которой находятся не верифицированные тобою девайсы
-    cl.setGlobalErrorOnUnknownDevices(false)
-    cl.setCryptoTrustCrossSignedDevices(true)
 })
 
 getIdentityKeyFx.use(() => {

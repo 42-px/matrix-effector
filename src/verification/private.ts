@@ -1,8 +1,11 @@
-import { verificationDomain } from "./domain"
 import { 
     MyVerificationRequest, 
     OnVerificationRequestFxParams, 
-    StartVerificationDeviceParams, 
+    StartVerificationDeviceParams
+} from "@/app"
+
+import { verificationDomain } from "./domain"
+import { 
     CheckKeyInfo,
     ValidatePassphraseFxParams,
     ValidateRecoveryKeyFxParams,

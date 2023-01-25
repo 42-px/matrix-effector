@@ -2,6 +2,7 @@ import matrix, {
     Direction,
     EventType,
     MatrixEvent,
+    MEGOLM_ALGORITHM,
     Room,
     RoomMember,
     SearchOrderBy,
@@ -35,6 +36,11 @@ import {
     UserNotFound 
 } from "@/errors"
 import { getMessages, setDirectRoom } from "@/utils"
+import { 
+    roomMemberUpdated, 
+    roomUserUpdated, 
+    toggleTypingUser
+} from "@/app"
 
 import {
     initRoomFx,
@@ -42,8 +48,6 @@ import {
     updateRequiredPowerLevelForRoomFx,
 } from "./private"
 import {
-    onRoomMemberUpdate,
-    onRoomUserUpdate,
     $currentRoom,
     $currentRoomId,
     $currentRoomMembers,
@@ -87,7 +91,6 @@ import {
     findDirectRoomByUserIdFx,
     $typingMembers,
     clearTypingMember,
-    toggleTypingUser,
     getRoomByIdFx,
     getRoomMembers,
     sendTypingFx,
@@ -96,6 +99,7 @@ import {
     getRoomMemberFx,
     getPermissionsByRoomIdFx,
     getUserDevicesInfoFx,
+    turnOnEcnryptionFx,
 } from "./public"
 import {
     LoadRoomFxParams,
@@ -233,7 +237,7 @@ guard({
     target: getRoomMembers,
 })
 guard({
-    clock: onRoomUserUpdate,
+    clock: roomUserUpdated,
     source: $currentRoomMembers,
     filter: (currentRoomMembers, user) => Boolean(
         currentRoomMembers?.find(((member) => 
@@ -242,7 +246,7 @@ guard({
     target: getRoomMembers,
 })
 guard({
-    clock: onRoomMemberUpdate,
+    clock: roomMemberUpdated,
     source: $currentRoomId,
     filter: (roomId, member) => roomId === member.roomId,
     target: getRoomMembers,
@@ -567,7 +571,7 @@ joinRoomFx.use( async ({roomId, isDirect = false}) => {
     if (cl.isRoomEncrypted(roomId)) {
         await cl.setRoomEncryption(
             cl.getUserId(),
-            { algorithm: "m.megolm.v1.aes-sha2" }
+            { algorithm: MEGOLM_ALGORITHM }
         )
         const members = (
             await room.getEncryptionTargetMembers()
@@ -654,4 +658,15 @@ getUserDevicesInfoFx.use(async (userId) => {
         }
     })
 
+})
+
+turnOnEcnryptionFx.use(async ({
+    encryptionEvent,
+    roomId
+}) => {
+    const cl = client()
+    await cl.sendStateEvent(
+        roomId, EventType.RoomEncryption,
+        encryptionEvent,
+    )
 })

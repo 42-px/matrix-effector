@@ -1,4 +1,9 @@
-import { IContent, MatrixClient } from "matrix-js-sdk"
+import { 
+    IContent, 
+    IVerificationChannel, 
+    MatrixClient, 
+    VerificationRequest
+} from "matrix-js-sdk"
 import { CreateClientOptions } from "@/types"
 
 export interface LoginByPasswordParams {
@@ -25,4 +30,19 @@ export type CreateClientParams = {
 
 export type StateEventsContent = IContent & {
     isDirect?: boolean
+}
+
+export type OnVerificationRequestFxParams = {
+    request: MyVerificationRequest
+    currentRequest: MyVerificationRequest | null
+  }
+  
+// eslint-disable-next-line max-len
+export type MyVerificationRequest = VerificationRequest<IVerificationChannel> & {
+    id: number
+  }
+  
+export type StartVerificationDeviceParams = {
+    userId: string
+    deviceId: string
 }

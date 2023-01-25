@@ -1,6 +1,5 @@
 import {
     TimelineWindow,
-    Room,
     RoomMember,
     User
 } from "matrix-js-sdk"
@@ -31,6 +30,7 @@ import {
     InviteUsersParams,
     RoomPermissions,
     MyDeviceInfo,
+    TurnOnEcnryptionParams,
 } from "./types"
 
 export const DEFAULT_INVITE_POWERLEVEL = 50
@@ -111,9 +111,6 @@ export const $loadFilter = combine(
 )
 
 export const clearTypingMember = roomDomain.event<void>()
-export const toggleTypingUser = roomDomain.event<RoomMember>()
-export const onRoomUserUpdate = roomDomain.event<User>()
-export const onRoomMemberUpdate = roomDomain.event<RoomMember>()
 export const getRoomMembers = roomDomain.event<void>()
 export const initRoom = roomDomain.event<InitRoomParams>()
 export const liveTimelineLoaded = roomDomain.event<void>()
@@ -123,8 +120,6 @@ export const onRoomLoaded = roomDomain.event<void>()
 export const loadRoom = roomDomain.event<LoadRoomParams>()
 export const toLiveTimeline = roomDomain.event<void>()
 export const loadRoomMessage = roomDomain.event<GoToMessageParams>()
-export const directRoomCreated = roomDomain.event<Room>()
-export const roomCreated = roomDomain.event<Room>()
 
 export const findDirectRoomByUserIdFx = roomDomain
     .effect<string, MappedRoom, Error>()
@@ -164,3 +159,6 @@ export const getPermissionsByRoomIdFx = roomDomain
 
 export const getUserDevicesInfoFx = roomDomain
     .effect<string, MyDeviceInfo[], Error>()
+
+export const turnOnEcnryptionFx = roomDomain
+    .effect<TurnOnEcnryptionParams, void, Error>()

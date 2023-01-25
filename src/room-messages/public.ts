@@ -20,8 +20,6 @@ export const $messages = messagesDomain.store<Message[]>([])
 export const $currentRoomUnreadMessageCount = messagesDomain
     .store<number | null>(null)
 
-export const updateMessages = messagesDomain.event<void>()
-export const roomMessage = messagesDomain.event<Message>()
 export const newMessagesLoaded = messagesDomain.event<Message[]>()
 export const onUploadProgress = messagesDomain.event<UploadProgress>()
 export const onPaginateBackwardDone = messagesDomain.event<void>()
