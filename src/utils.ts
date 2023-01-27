@@ -21,6 +21,7 @@ export function getMessages(timelineWindow: TimelineWindow): Message[] {
     const messages = timelineWindow.getEvents()
         .filter((event) => (
             [
+                "m.room.member",
                 ROOM_MESSAGE_EVENT,
                 ROOM_REDACTION_EVENT
             ].includes(event.getType())))
